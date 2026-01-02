@@ -1,0 +1,424 @@
+.draw-tip {
+    width: 3.84rem;
+    height: 0.3rem;
+    position: fixed;
+    right: 0.3rem;
+    top: 0.8rem;
+    border-top: 1px solid #131415;
+    padding-top: 0.1rem;
+    z-index: 9;
+    .img {
+        width: 100%;
+    }
+}
+
+.draw-wrap {
+    background-image: url('@/assets/images/bg.png');
+    background-repeat: repeat-y;
+    width: 100%;
+    min-height: 100%;
+    background-size: 100% auto;
+    position: relative;
+    transition: 0.3s all;
+    text-align: center;
+    display: inline-block;
+    &.draw-flex {
+        display: flex;
+    }
+    .draw-box {
+        width: 6.08rem;
+        min-height: 10.08rem;
+        background: #ffffff;
+        border-radius: 0.2rem;
+        border: 0.03rem solid rgba(19, 20, 21, 0.5);
+        margin: 1.5rem auto;
+        .draw-cont {
+            width: 5.86rem;
+            min-height: 9.88rem;
+            margin: 0.1rem auto;
+            background: #ffffff;
+            border-radius: 0.2rem;
+            border: 1px dashed #ffc309;
+            text-align: center;
+            .draw-top-img {
+                width: 4.8rem;
+                margin-top: 0.3rem;
+            }
+            .draw-main {
+                margin-top: 0.2rem;
+                .draw-icon {
+                    width: 1.48rem;
+                    height: 1.48rem;
+                    margin: 0 0.2rem;
+                    border: 1px dashed #FF6A54;
+                    &.no-border {
+                        border: 1px dashed #fff;
+                    }
+                }
+                .draw-cloud-box {
+                    position: relative;
+                    .color-bg {
+                        position: absolute;
+                        left: 0.001rem;
+                        top: 0.01rem;
+                        width: calc(100% - 0.02rem);
+                        height: calc(100% - 0.03rem);
+                    }
+                }
+                .draw-cloud {
+                    width: 1.57rem;
+                    height: 0.8rem;
+                    position: relative;
+                    z-index: 9;
+                    display: block;
+                    // background: #ffc309;
+                    // &.draw-cloud-left {
+                    // background-image: url('@/assets/images/step2/cloud-left.png');
+                    // background-size: 100% auto;
+                    // background-blend-mode: lighten; 
+                    // filter: drop-shadow(0 0 0 blue);
+                    // }
+                    // &.draw-cloud-right {
+                    // background-image: url('@/assets/images/cloud-right.png');
+                    // background-size: 100% auto;
+                    // }
+                }
+            }
+            .draw-line {
+                width: 5.16rem;
+                height: 0.1rem;
+                display: inline-block;
+                background-image: url('@/assets/images/step2/poster-line.png');
+                background-size: 100% auto;
+            }
+            .draw-line2 {
+                width: 5.16rem;
+                height: 0.1rem;
+                display: inline-block;
+                background-image: url('@/assets/images/step2/poster-line2.png');
+                background-size: 100% auto;
+            }
+            .draw-list {
+                margin-top: 0.26rem;
+                min-height: 2.2rem;
+                .draw-item {
+                    width: 5.42rem;
+                    // line-height: 0.66rem;
+                    position: relative;
+                    margin-bottom: 0.2rem;
+                    text-align: left;
+                    display: inline-block;
+                    .draw-item-cont {
+                        width: calc(100% - 0.2rem);
+                        border: 0.02rem solid #131415;
+                        background: #ffffff;
+                        font-weight: 400;
+                        padding: 0.13rem 0 0.13rem 0.2rem;
+                        border-radius: 0.2rem;
+                        position: relative;
+                        z-index: 2;
+                        word-break: break-all;
+                        .num {
+                            position: relative;
+                            text-align: center;
+                            float: left;
+                            width: 0.6rem;
+                            z-index: 9;
+                            font-weight: bold;
+                            margin-right: 0.1rem;
+                            div {
+                                width: 100%;
+                                height: 0.08rem;
+                                display: inline-block;
+                                position: absolute;
+                                left: 0;
+                                bottom: 0.05rem;
+                                z-index: -1;
+                                border-radius: 0.08rem;
+                            }
+                        }
+                    }
+                    .draw-item-bg {
+                        width: 5.44rem;
+                        height: 100%;
+                        // background: #ffc309;
+                        border-radius: 0.2rem;
+                        position: absolute;
+                        left: 0.08rem;
+                        bottom: -0.1rem;
+                        z-index: 1;
+                    }
+                }
+            }
+            .draw-footer {
+                width: 5.16rem;
+                margin: 0.2rem auto;
+                text-align: left;
+                height: 1.9rem;
+                .draw-left {
+                    .sign-name {
+                        // font-family: BEBAS;
+                    }
+                    .sign-time {
+                        font-size: 0.26rem;
+                        font-family: Poppins-Regular, Poppins;
+                        font-weight: 400;
+                        color: #131415;
+                        margin: 0.18rem 0;
+                    }
+                    .sign-logo {
+                        height: 0.4rem;
+                    }
+                }
+                .draw-right {
+                    text-align: center;
+                    position: relative;
+                    .sign-color {
+                        position: absolute;
+                        top: 0;
+                        left: -0.2rem;
+                        width: 0.1rem;
+                        height: 100%;
+                        i {
+                            width: 0.1rem;
+                            height: 0.1rem;
+                            display: block;
+                            border-radius: 50%;
+                            margin-top: 0.1rem;
+                            &.foot-color {
+                                position: absolute;
+                                bottom: 0.2rem;
+                                left: 0;
+                            }
+                        }
+                    }
+                    .sign-code {
+                        width: 1.2rem;
+                        height: 1.2rem;
+                        display: inline-block;
+                        background: #999999;
+                        // border: 1px solid #000;
+                    }
+                    .sign-text {
+                        height: 0.26rem;
+                        font-size: 0.2rem;
+                        font-weight: 400;
+                        color: #131415;
+                        line-height: 0.26rem;
+                        border-top: 1px solid #131415;
+                        border-bottom: 1px solid #131415;
+                        padding: 0.1rem 0;
+                        margin-top: 0.1rem;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.draw-set-wrap {
+    width: 100%;
+    height: 3.52rem;
+    background: #ececec;
+    border-radius: 0.1rem 0.1rem 0 0;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99;
+    padding-bottom: env(safe-area-inset-bottom);
+    .draw-set-header {
+        height: 0.7rem;
+        line-height: 0.7rem;
+        .draw-tab {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            border-bottom: 1px solid #ececec;
+            .icon {
+                width: 0.36rem;
+                height: 0.36rem;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .icon1 {
+                background: url('@/assets/images/step2/draw-tab1.png') no-repeat;
+                background-size: 0.3rem auto;
+            }
+            .icon2 {
+                background: url('@/assets/images/step2/draw-tab2.png') no-repeat;
+                background-size: 0.3rem auto;
+            }
+            &.active {
+                border-bottom: 1px solid #fe4c30;
+                color: #FE4C30;
+                .icon1 {
+                    background: url('@/assets/images/step2/draw-tab1-active.png') no-repeat;
+                    background-size: 0.3rem auto;
+                }
+                .icon2 {
+                    background: url('@/assets/images/step2/draw-tab2-active.png') no-repeat;
+                    background-size: 0.3rem auto;
+                }
+            }
+        }
+    }
+    .draw-set-cont {
+        height: 2rem;
+        overflow: hidden;
+        position: relative;
+        .draw-set {
+            // overflow-x: scroll;
+            height: 100%;
+            .draw-set-img {
+                width: 1.48rem;
+                height: 1.48rem;
+                margin: 0 0.2rem;
+                display: inline-block;
+            }
+            .draw-color-wrap {
+                overflow-x: scroll;
+                margin-top: 0.2rem;
+                height: 0.8rem;
+                white-space: nowrap;
+                .color {
+                    width: 0.7rem;
+                    height: 0.7rem;
+                    display: inline-block;
+                    background: #fec40b;
+                    box-shadow: 0rem -0.08rem 0.08rem 0.02rem rgba(255, 255, 255, 0.25);
+                    border-radius: 0.1rem;
+                    margin: 0 0.2rem;
+                    &.active {
+                        position: relative;
+                        &::after {
+                            content: '';
+                            width: 0.4rem;
+                            height: 0.4rem;
+                            display: inline-block;
+                            background: url('@/assets/images/step2/active.png') no-repeat;
+                            background-size: 100% auto;
+                            position: absolute;
+                            left: calc(50% - 0.2rem);
+                            top: calc(50% - 0.2rem);
+                        }
+                    }
+                }
+            }
+            .draw-color-picker {
+                position: absolute;
+                left: 0.5rem;
+                bottom: 0.2rem;
+                width: 6.5rem;
+                height: 0.6rem;
+                background: #ececec;
+                border: 0.01rem solid #999999;
+                .color-range {
+                    width: 6.5rem;
+                    height: 0.4rem;
+                    position: absolute;
+                    left: 0;
+                    top: 0.1rem;
+                    background: transparent;
+                    &::-webkit-slider-thumb {
+                        -webkit-appearance: none;
+                        width: 0.5rem;
+                        height: 0.75rem;
+                        background: url('@/assets/images/step2/range-sider.png') no-repeat center center;
+                        background-size: 100% auto;
+                        border: 0;
+                    }
+                }
+                .color-picker {
+                    width: 1.56rem;
+                    height: 0.4rem;
+                }
+            }
+        }
+    }
+    .draw-set-footer {
+        position: absolute;
+        left: 0.3rem;
+        right: 0.3rem;
+        bottom: 0.3rem;
+        padding-bottom: env(safe-area-inset-bottom);
+        span {
+            width: 1.6rem;
+            height: 0.4rem;
+        }
+        .prev {
+            background: url('@/assets/images/step2/draw-prev.png') no-repeat center center;
+            background-size: 1.4rem auto;
+        }
+        .next-continue {
+            background: url('@/assets/images/step2/draw-next.png') no-repeat center center;
+            background-size: 1.4rem auto;
+        }
+        .next-step {
+            background: url('@/assets/images/step2/next-step.png') no-repeat center center;
+            background-size: 1.4rem auto;
+        }
+    }
+}
+
+.canvas-poster {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    z-index: 130;
+}
+
+//针对ipad适配
+@media screen and (min-height: 1024px) {
+    .draw-tip {
+        top: 0.2rem;
+    }
+    .draw-box {
+        margin: 0.7rem auto !important;
+        .draw-cont {
+            .draw-top-img {
+                width: 4.0rem !important;
+            }
+        }
+    }
+    .draw-set-wrap {
+        height: 2.82rem;
+        .draw-set-header {
+            height: 0.5rem;
+            line-height: 0.5rem;
+            font-size: 0.22rem;
+        }
+        .draw-set {
+            .draw-color-picker {
+                bottom: 0.5rem !important;
+                height: 0.5rem !important;
+                .color-range {
+                    height: 0.3rem !important;
+                }
+                .color-picker {
+                    height: 0.3rem !important;
+                }
+            }
+            .draw-color-wrap {
+                height: 0.5rem !important;
+                .color {
+                    width: 0.5rem !important;
+                    height: 0.5rem !important;
+                }
+            }
+            .draw-set-img {
+                width: 1.08rem !important;
+                height: 1.08rem !important;
+            }
+        }
+    }
+    .draw-set-footer {
+        .next-continue,
+        .prev {
+            background-size: 1.1rem auto !important;
+        }
+    }
+}

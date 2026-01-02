@@ -1,0 +1,39 @@
+<!--
+ * @description: 
+ * @LastEditTime: 2024-11-29 11:38:17
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/src/assets/images/basicprofile.png" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.compat.css"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,viewport-fit=cover"
+    />
+    <title>你·的·Flag</title>
+    <script>
+      function _a() {
+        var el = document.documentElement
+        var rem = document.documentElement.clientWidth / 7.5
+        el.style.fontSize = rem + 'px'
+        var realSize = parseFloat(window.getComputedStyle(el)['font-size'])
+        if (realSize !== rem) {
+          el.style.fontSize = (rem / realSize) * rem + 'px'
+        }
+      }
+      _a()
+      window.addEventListener('resize', _a, false)
+      window.addEventListener('load', _a, false)
+    </script>
+  </head>
+
+  <body>
+    <div id="app" class="user-select-none"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,209 @@
+/* 淡入淡出 */
+// .fade-enter-active,
+// .fade-leave-active {
+//   transition: opacity 1s;
+// }
+
+// .fade-enter,
+// .fade-leave-to {
+//   opacity: 0;
+// }
+
+.fade-enter-active {
+  animation: fadeIn 360ms ease-in-out;
+}
+.fade-leave-active {
+  animation: fadeOut 360ms ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+
+.bounce-enter-active {
+  animation: bounce-in 280ms;
+  transform-origin: 0 0
+}
+
+.bounce-leave-active {
+  animation: bounce-out 240ms;
+  transform-origin: 0 0
+}
+
+/**弹窗放大**/
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/**弹窗缩小**/
+@keyframes bounce-out {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+//抖动
+@keyframes do-next-ani {
+  0% {
+    -webkit-transform: translateY(0);
+  }
+
+  10% {
+    -webkit-transform: translateY(-8px);
+  }
+
+  40% {
+    -webkit-transform: translateY(10px);
+  }
+
+  50% {
+    -webkit-transform: translateY(-8px);
+  }
+
+  65% {
+    -webkit-transform: translateY(4px);
+  }
+
+  85% {
+    -webkit-transform: translateY(-2px);
+  }
+
+  100% {
+    -webkit-transform: translateY(0);
+  }
+}
+
+@keyframes scaleOut {
+  0% {
+    width: 100%;
+    visibility: inherit;
+  }
+
+  100% {
+    width: 0;
+    visibility: hidden;
+  }
+}
+
+
+@keyframes heart-in {
+  0% {
+    opacity: 0;
+  }
+ 
+  50%{
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+
+@keyframes rotate{
+  0% {
+    transform: rotate(-90deg);
+  }
+
+  100% {
+    transform: rotate(-450deg);
+  }
+}
+
+
+.bounce2-enter-active {
+  animation: bounce-in2 360ms;
+}
+
+.bounce2-leave-active {
+  animation: bounce-out2 240ms;
+}
+
+/**弹窗放大**/
+@keyframes bounce-in2 {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/**弹窗缩小**/
+@keyframes bounce-out2 {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+
+
+.slide-enter-active {
+  animation: slide-bottom 280ms ease-in-out;
+}
+
+.slide-leave-active {
+  animation: slide-top 240ms  ease-in-out;
+}
+
+@keyframes slide-bottom {
+  0% {
+    transform: translateY(200px); 
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0px);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-top {
+  0% {
+    transform: translateY(0); 
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(200px);
+    opacity: 1;
+  }
+}
