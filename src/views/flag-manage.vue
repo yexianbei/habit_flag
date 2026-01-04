@@ -72,7 +72,7 @@
       @modalOk="handleChangeTxt"
     />
 
-    <loading v-model:isLoading="isLoading && flagList.length === 0" />
+    <loading :isLoading="isLoading && flagList.length === 0" />
   </div>
 </template>
 
