@@ -11,6 +11,15 @@ body {
   font-size: 0.28rem;
   color: #131415;
   background: #F7F7F7;
+  position: relative;
+}
+
+// 在大屏设备上限制body最大宽度，让内容居中显示
+@media screen and (min-width: 751px) {
+  body {
+    max-width: 750px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+  }
 }
 
 label {
