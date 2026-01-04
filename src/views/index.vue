@@ -182,6 +182,7 @@ export default defineComponent({
   font-size: 0.3rem;
   font-weight: bold;
   line-height: 0.64rem;
+  padding-bottom: 0.1rem;
   .logo {
     width: 0.64rem;
     height: 0.64rem;
@@ -267,7 +268,7 @@ export default defineComponent({
     height: 5.6rem;
     background: url("@/assets/images/circle.png") no-repeat center center;
     background-size: 100% auto;
-    margin: 2.6rem auto 0;
+    margin: 2.8rem auto 0;
     overflow: hidden;
     position: relative;
     z-index: 2;
@@ -321,10 +322,11 @@ export default defineComponent({
 @media screen and (min-height: 1024px) {
   .habit-logo {
     top: 0.5rem !important;
+    padding-bottom: 0.15rem !important;
   }
   .habit-wrap {
     .habit-time-box {
-      margin-top: 22% !important;
+      margin-top: 24% !important;
     }
   }
 }
