@@ -267,7 +267,7 @@ export default defineComponent({
     height: 5.6rem;
     background: url("@/assets/images/circle.png") no-repeat center center;
     background-size: 100% auto;
-    margin: 2.28rem auto 0;
+    margin: 2.6rem auto 0;
     overflow: hidden;
     position: relative;
     z-index: 2;
@@ -324,7 +324,7 @@ export default defineComponent({
   }
   .habit-wrap {
     .habit-time-box {
-      margin-top: 20% !important;
+      margin-top: 22% !important;
     }
   }
 }
