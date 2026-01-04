@@ -1,0 +1,13 @@
+[build]
+  # 构建命令
+  command = "npm run build"
+  # 发布目录
+  publish = "dist"
+
+[[redirects]]
+  # SPA路由重定向 - 由于使用了Hash路由，这个重定向规则实际上不是必需的
+  # 但为了完整性，仍然保留（Hash路由在客户端处理，不经过服务器）
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
