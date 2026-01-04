@@ -3,11 +3,11 @@
  * @LastEditTime: 2026-01-02 11:14:41
 -->
 <template>
-  <div>
+  <div class="draw-page">
     <div class="draw-tip">
       <img class="img" src="@/assets/images/step2/flag-step2.png" />
     </div>
-    <div :style="`height: ${drawHeight}px; overflow: hidden`">
+    <div class="draw-container" :style="`height: ${drawHeight}px`">
       <div
         class="draw-wrap"
         :style="{ backgroundColor: mainColor }"

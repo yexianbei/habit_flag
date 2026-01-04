@@ -1,3 +1,10 @@
+.draw-page {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
 .draw-tip {
     width: 3.84rem;
     height: 0.3rem;
@@ -419,6 +426,163 @@
         .next-continue,
         .prev {
             background-size: 1.1rem auto !important;
+        }
+    }
+}
+
+//横屏适配
+@media screen and (orientation: landscape) {
+    .draw-page {
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+    }
+    .draw-container {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        position: relative;
+        // 确保可以滚动到底部
+        padding-bottom: 0 !important;
+        // 使用 -webkit-overflow-scrolling 提升滚动体验
+        -webkit-overflow-scrolling: touch;
+    }
+    .draw-wrap {
+        min-height: calc(100vh - 2.5rem); // 减去操作栏高度
+        // 为底部操作栏留出足够空间（2.5rem 操作栏 + 0.5rem 安全边距）
+        padding-bottom: 3.5rem !important;
+        box-sizing: border-box;
+    }
+    .draw-tip {
+        top: 0.3rem;
+    }
+    .draw-box {
+        margin: 0.3rem auto !important; // 进一步减少上下边距
+        width: 5.8rem !important; // 稍微缩小宽度
+        .draw-cont {
+            width: 5.6rem !important; // 缩小内容区域宽度
+            margin: 0.08rem auto !important; // 减少内边距
+            .draw-top-img {
+                width: 3.2rem !important; // 进一步缩小
+                margin-top: 0.15rem !important;
+            }
+            .draw-main {
+                margin-top: 0.08rem !important;
+                .draw-icon {
+                    width: 1.1rem !important; // 进一步缩小
+                    height: 1.1rem !important;
+                    margin: 0 0.12rem !important;
+                }
+                .draw-cloud {
+                    width: 1.2rem !important; // 进一步缩小
+                    height: 0.6rem !important;
+                }
+            }
+            .draw-line {
+                width: 4.8rem !important; // 缩小线条宽度
+                margin: 0.1rem auto !important;
+            }
+            .draw-list {
+                margin-top: 0.15rem !important; // 减少顶部间距
+                .draw-item {
+                    width: 4.8rem !important; // 稍微缩小
+                    margin-bottom: 0.12rem !important; // 减少间距
+                    .draw-item-cont {
+                        // 保持原始 padding，确保底部颜色条长度不变
+                        padding: 0.13rem 0 0.13rem 0.2rem !important;
+                        font-size: 0.24rem !important; // 稍微缩小字体
+                    }
+                    .draw-item-bg {
+                        // 确保底部颜色条保持原始比例（相对于 5.44rem/5.42rem 的比例）
+                        width: 4.9rem !important; // 按比例缩小（4.8rem * 1.02）
+                        height: 100% !important;
+                        left: 0.08rem !important;
+                        bottom: -0.1rem !important;
+                    }
+                }
+            }
+            .draw-line2 {
+                width: 4.8rem !important; // 缩小线条宽度
+                margin: 0.1rem auto !important;
+            }
+            .draw-footer {
+                margin: 0.12rem auto !important; // 减少间距
+                height: 1.3rem !important; // 缩小高度
+                width: 4.8rem !important; // 缩小宽度
+                .draw-left {
+                    .sign-time {
+                        font-size: 0.2rem !important; // 进一步缩小
+                        margin: 0.08rem 0 !important;
+                    }
+                    .sign-logo {
+                        height: 0.3rem !important; // 进一步缩小
+                    }
+                }
+                .draw-right {
+                    .sign-code {
+                        width: 0.9rem !important; // 进一步缩小
+                        height: 0.9rem !important;
+                    }
+                    .sign-text {
+                        font-size: 0.16rem !important; // 进一步缩小
+                        padding: 0.06rem 0 !important;
+                    }
+                }
+            }
+        }
+    }
+    .draw-set-wrap {
+        height: 2.5rem;
+        .draw-set-header {
+            height: 0.6rem;
+            line-height: 0.6rem;
+            font-size: 0.24rem;
+        }
+        .draw-set-cont {
+            height: 1.5rem;
+            .draw-set {
+                .draw-color-wrap {
+                    height: 0.6rem !important;
+                    margin-top: 0.15rem !important;
+                    .color {
+                        width: 0.6rem !important;
+                        height: 0.6rem !important;
+                        margin: 0 0.15rem !important;
+                    }
+                }
+                .draw-color-picker {
+                    bottom: 0.15rem !important;
+                    height: 0.5rem !important;
+                    width: 6rem !important;
+                    left: 0.3rem !important;
+                    .color-range {
+                        width: 6rem !important;
+                        height: 0.35rem !important;
+                    }
+                    .color-picker {
+                        width: 1.4rem !important;
+                        height: 0.35rem !important;
+                    }
+                }
+                .draw-set-img {
+                    width: 1.2rem !important;
+                    height: 1.2rem !important;
+                    margin: 0 0.15rem !important;
+                }
+            }
+        }
+        .draw-set-footer {
+            bottom: 0.2rem;
+            span {
+                width: 1.4rem;
+                height: 0.35rem;
+            }
+            .prev,
+            .next-continue,
+            .next-step {
+                background-size: 1.2rem auto !important;
+            }
         }
     }
 }

@@ -383,4 +383,44 @@ export default defineComponent({
     }
   }
 }
+
+//横屏适配
+@media screen and (orientation: landscape) {
+  .sign-wrap {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .draw-tip {
+    top: 0.3rem !important;
+  }
+  .sign-cont {
+    width: 5.5rem !important;
+    height: 7.5rem !important;
+    margin: 0.5rem auto 0 !important;
+    .sign-readme {
+      top: 5.2rem !important;
+      width: 4.8rem !important;
+      font-size: 0.22rem !important;
+    }
+    .sign-text {
+      width: 3rem !important;
+      height: 0.6rem !important;
+      left: 0.3rem !important;
+      // 减少底部距离，让输入框更贴近背景图片中的输入框位置，避免看起来像两个输入框
+      bottom: 0.55rem !important;
+      font-size: 0.24rem !important;
+      // 确保输入框与背景对齐，避免视觉上的双重输入框效果
+      border: 0.02rem solid #131415 !important;
+      background: #fff !important;
+      padding-left: 0.15rem !important;
+    }
+    .next {
+      width: 1.4rem !important;
+      height: 0.4rem !important;
+      right: 0.5rem !important;
+      bottom: 0.5rem !important;
+      background-size: 1.2rem auto !important;
+    }
+  }
+}
 </style>

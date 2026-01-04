@@ -356,6 +356,7 @@ export default defineComponent({
   // overflow: hidden;
   position: relative;
   overflow-y: auto;
+  min-height: 100%;
 }
 
 .flag-step {
@@ -573,6 +574,29 @@ export default defineComponent({
   }
   .flag-list {
     margin: 0rem auto;
+  }
+}
+
+//横屏适配
+@media screen and (orientation: landscape) {
+  .flag-wrap-box {
+    min-height: 100vh;
+    padding-bottom: 1.5rem; // 为底部按钮留出空间
+  }
+  .flag-next {
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom) + 0.3rem);
+    right: 0.3rem;
+    z-index: 10;
+  }
+  .flag-input-box {
+    margin-bottom: 1rem; // 增加底部间距
+  }
+  .flag-change-btn {
+    margin: 0.3rem auto; // 减少间距
+  }
+  .flag-list {
+    margin: 0.5rem auto; // 减少间距
   }
 }
 </style>
