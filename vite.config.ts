@@ -8,7 +8,7 @@ import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [vue()],
-  base: '/',
+  base: '/flag/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
