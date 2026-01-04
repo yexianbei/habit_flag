@@ -25,6 +25,11 @@ export const constantRoutes: Array<RouteRecordRaw> = [
     name: 'draw',
     component: () => import('../views/draw.vue'),
   },
+  {
+    path: '/flag-manage',
+    name: 'flag-manage',
+    component: () => import('../views/flag-manage.vue'),
+  },
 ]
 
 const router = createRouter({
