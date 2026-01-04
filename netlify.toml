@@ -11,3 +11,18 @@
   to = "/index.html"
   status = 200
 
+# 配置响应头，支持跨域请求
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # 允许的请求来源（前端域名）
+    Access-Control-Allow-Origin = "https://flag.xianbeikeji.com"
+    # 允许的请求方法
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    # 允许的请求头（包括自定义的 token 请求头）
+    Access-Control-Allow-Headers = "Content-Type, Authorization, token, X-Requested-With, Accept, Origin"
+    # 允许携带凭证（cookie等），因为代码中使用了 withCredentials = true
+    Access-Control-Allow-Credentials = "true"
+    # 预检请求的缓存时间（秒）
+    Access-Control-Max-Age = "3600"
+
