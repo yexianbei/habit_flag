@@ -90,15 +90,14 @@ export default defineComponent({
 
     //将路由参数缓存起来
     const setRouterCache = () => {
-      console.log('📋 路由参数:', router.currentRoute.value.query);
+      const query = router.currentRoute.value.query;
+      console.log('📋 路由参数:', JSON.stringify(query, null, 2));
       let routercache = (
-        router.currentRoute.value.query.token || ""
+        query.token || ""
       ).toString();
-      console.log('🔑 Token获取:', {
-        fromQuery: router.currentRoute.value.query.token,
-        stored: routercache,
-        isEmpty: !routercache || routercache === ''
-      });
+      console.log('🔑 Token获取 - fromQuery:', query.token);
+      console.log('🔑 Token获取 - stored:', routercache);
+      console.log('🔑 Token获取 - isEmpty:', !routercache || routercache === '');
       store.dispatch("ACTIONSETTOKEN", routercache);
       localStorage.setItem("Authorization", routercache);
       console.log('💾 Token已存储到localStorage:', localStorage.getItem("Authorization"));
