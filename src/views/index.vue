@@ -177,12 +177,12 @@ export default defineComponent({
   text-align: center;
   position: absolute;
   left: 0;
-  top: 1rem;
+  top: 0.8rem;
   z-index: 10;
   font-size: 0.3rem;
   font-weight: bold;
   line-height: 0.64rem;
-  padding-bottom: 0.1rem;
+  height: 1.2rem;
   .logo {
     width: 0.64rem;
     height: 0.64rem;
@@ -268,14 +268,19 @@ export default defineComponent({
     height: 5.6rem;
     background: url("@/assets/images/circle.png") no-repeat center center;
     background-size: 100% auto;
-    margin: 2.8rem auto 0;
+    margin: 2.5rem auto 0;
     overflow: hidden;
     position: relative;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     .habit-day {
       font-size: 0.5rem;
       font-weight: bold;
-      margin-top: 0.92rem;
+      margin-top: 0;
+      margin-bottom: 0.2rem;
       .day {
         font-size: 1.12rem;
         color: #ff5f47;
@@ -286,7 +291,8 @@ export default defineComponent({
     .habit-time {
       font-size: 0.4rem;
       font-weight: bold;
-      margin-top: 0.3rem;
+      margin-top: 0;
+      margin-bottom: 0.2rem;
       .time {
         font-size: 0.56rem;
         font-weight: 300;
@@ -298,7 +304,8 @@ export default defineComponent({
       font-weight: 400;
       color: #131415;
       line-height: 0.5rem;
-      margin-top: 0.4rem;
+      margin-top: 0;
+      text-align: center;
     }
   }
   .habit-btn {
@@ -322,11 +329,10 @@ export default defineComponent({
 @media screen and (min-height: 1024px) {
   .habit-logo {
     top: 0.5rem !important;
-    padding-bottom: 0.15rem !important;
   }
   .habit-wrap {
     .habit-time-box {
-      margin-top: 24% !important;
+      margin-top: 20% !important;
     }
   }
 }

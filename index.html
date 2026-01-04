@@ -20,9 +20,12 @@
       function _a() {
         var el = document.documentElement
         var clientWidth = document.documentElement.clientWidth
-        // 限制最大宽度为750px（对应rem基准100px），防止在大屏设备上过度放大
-        var maxWidth = 750
-        var rem = Math.min(clientWidth, maxWidth) / 7.5
+        // 恢复原来的rem计算方式，保持手机端正常显示
+        var rem = clientWidth / 7.5
+        // 只在大屏设备（宽度>750px）时限制rem最大值，防止过度放大
+        if (clientWidth > 750) {
+          rem = 750 / 7.5 // 最大rem基准为100px
+        }
         el.style.fontSize = rem + 'px'
         var realSize = parseFloat(window.getComputedStyle(el)['font-size'])
         if (realSize !== rem) {
