@@ -303,6 +303,16 @@ export default defineComponent({
     };
     // 调用api保存
     const handleSave = async (src: any) => {
+      // 检查token是否存在
+      const token = localStorage.getItem('Authorization') || 
+                    (route.query.token as string) || 
+                    store.state.tokencache;
+      
+      if (!token || token === '') {
+        console.log('⚠️ 未找到token，跳过保存API调用');
+        return;
+      }
+      
       // 调用api接口，并且提供了参数
       let deleteflags = deleteflagList.value.map((x: any) => x.id).join(",");
       let flags = flagList.value

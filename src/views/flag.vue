@@ -194,8 +194,18 @@ export default defineComponent({
     });
     // 调用api查询
     const getflagList = async () => {
+      // 检查token是否存在（从localStorage、路由参数或store中获取）
+      const token = localStorage.getItem('Authorization') || 
+                    (route.query.token as string) || 
+                    store.state.tokencache;
+      
+      if (!token || token === '') {
+        console.log('⚠️ 未找到token，跳过API调用');
+        return;
+      }
+      
       console.log('📡 开始调用getflagList API');
-      console.log('🔑 当前token:', localStorage.getItem('Authorization'));
+      console.log('🔑 当前token:', token);
       // 调用api接口，并且提供了参数
       selectFlagH5({})
         .then((res: any) => {
