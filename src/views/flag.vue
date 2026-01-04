@@ -194,10 +194,13 @@ export default defineComponent({
     });
     // 调用api查询
     const getflagList = async () => {
+      console.log('📡 开始调用getflagList API');
+      console.log('🔑 当前token:', localStorage.getItem('Authorization'));
       // 调用api接口，并且提供了参数
       selectFlagH5({})
         .then((res: any) => {
-          console.log(res.data.flags);
+          console.log('✅ API返回数据:', res);
+          console.log('📊 flags数据:', res.data?.flags);
           if (res.data && res.data.flags) {
             dataMap.chooseList = [];
             res.data.flags.forEach((item: any, index: any) => {
@@ -209,10 +212,13 @@ export default defineComponent({
             dataMap.firstFlag =
               res.data.flags.length > 0 ? res.data.flags.length - 1 : 0;
             store.dispatch("ACTIONCHOOSELIST", dataMap.chooseList);
+            console.log('✅ 数据已处理，共', dataMap.chooseList.length, '条');
+          } else {
+            console.warn('⚠️ API返回数据格式异常:', res);
           }
         })
         .catch((error: any) => {
-          console.log(error);
+          console.error('❌ API调用失败:', error);
         });
     };
     // 换一组目标模板

@@ -21,7 +21,15 @@ axios.interceptors.request.use(
         // if (localStorage.getItem('Authorization')) {
         //       config.headers.Authorization = localStorage.getItem('Authorization');
         //     }
-        config.headers.token = localStorage.getItem('Authorization');
+        const token = localStorage.getItem('Authorization');
+        config.headers.token = token;
+        // 调试日志
+        console.log('🔵 API请求拦截器:', {
+            url: config.url,
+            method: config.method,
+            token: token || '(未找到token)',
+            headers: config.headers
+        });
         return config;
     },
     (error:any) => {
@@ -32,6 +40,12 @@ axios.interceptors.request.use(
 // 响应拦截器
 axios.interceptors.response.use(
     response => {
+        // 调试日志
+        console.log('🟢 API响应成功:', {
+            url: response.config.url,
+            status: response.status,
+            data: response.data
+        });
         if (response.status === 200) {
             return Promise.resolve(response)
         } else {
@@ -40,7 +54,16 @@ axios.interceptors.response.use(
     },
     // 服务器状态码不是200的情况
     error => {
-        if (error.response.status) {
+        // 调试日志
+        console.error('🔴 API响应错误:', {
+            url: error.config?.url,
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            message: error.message,
+            error: error
+        });
+        if (error.response && error.response.status) {
             switch (error.response.status) {
                 // 401: 未登录
                 // 未登录则跳转登录页面，并携带当前页面的路径
@@ -94,6 +117,10 @@ axios.interceptors.response.use(
                     // })
             }
             return Promise.reject(error.response)
+        } else {
+            // 没有response对象的情况（网络错误等）
+            console.error('🔴 网络错误，无响应:', error);
+            return Promise.reject(error)
         }
     }
 )

@@ -90,12 +90,18 @@ export default defineComponent({
 
     //将路由参数缓存起来
     const setRouterCache = () => {
-      console.log(router.currentRoute.value.query);
+      console.log('📋 路由参数:', router.currentRoute.value.query);
       let routercache = (
         router.currentRoute.value.query.token || ""
       ).toString();
+      console.log('🔑 Token获取:', {
+        fromQuery: router.currentRoute.value.query.token,
+        stored: routercache,
+        isEmpty: !routercache || routercache === ''
+      });
       store.dispatch("ACTIONSETTOKEN", routercache);
       localStorage.setItem("Authorization", routercache);
+      console.log('💾 Token已存储到localStorage:', localStorage.getItem("Authorization"));
     };
 
     const coutTimer = () => {
