@@ -235,19 +235,39 @@ export default defineComponent({
     // 选择目标
     const handleChoose = (item: string) => {
       if (!item) return;
-      dataMap.firstFlag = dataMap.firstFlag + 1;
-      console.log("dataMap.firstFlag", dataMap.firstFlag);
-      numIndex++;
-      dataMap.chooseList.push({
-        id: numIndex,
-        text: item,
-      });
-      dataMap.addValue && (dataMap.addValue = "");
-      store.dispatch("ACTIONCHOOSELIST", dataMap.chooseList);
-      if (dataMap.firstFlag === 1) {
-        setTimeout(() => {
-          handleShowModal();
-        }, 100);
+      
+      // 检查该flag是否已经选中（通过text匹配）
+      const existingIndex = dataMap.chooseList.findIndex(
+        (list: any) => list.text === item
+      );
+      
+      if (existingIndex !== -1) {
+        // 如果已选中，则取消选中（移除）
+        let selectItem: any = dataMap.chooseList[existingIndex];
+        // 将删除的判断做个判断，假设是新增的flag，其id为自定义自增。所以需要存储的是原先已存在的flag
+        let mid = selectItem.id.toString();
+        if (mid && mid.length >= 10) {
+          dataMap.deleteList.push(selectItem);
+          store.dispatch("ACTIONDELETELIST", dataMap.deleteList);
+        }
+        dataMap.chooseList.splice(existingIndex, 1);
+        store.dispatch("ACTIONCHOOSELIST", dataMap.chooseList);
+      } else {
+        // 如果未选中，则添加
+        dataMap.firstFlag = dataMap.firstFlag + 1;
+        console.log("dataMap.firstFlag", dataMap.firstFlag);
+        numIndex++;
+        dataMap.chooseList.push({
+          id: numIndex,
+          text: item,
+        });
+        dataMap.addValue && (dataMap.addValue = "");
+        store.dispatch("ACTIONCHOOSELIST", dataMap.chooseList);
+        if (dataMap.firstFlag === 1) {
+          setTimeout(() => {
+            handleShowModal();
+          }, 100);
+        }
       }
     };
     // 删除已选中的目标
