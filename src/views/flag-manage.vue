@@ -15,32 +15,51 @@
 
     <!-- 内容区域 -->
     <div class="flag-manage-content">
-      <div class="flag-tip-text">(长按拖动，调整位置)</div>
-      <div class="flag-list-container">
-        <draggable 
-          :list="flagList" 
-          filter=".close" 
-          :delay="500"
-          item-key="id"
-          @end="handleDragEnd"
-        >
-          <template #item="{ element, index }">
-            <div class="flex jb ac flag-item">
-              <span class="item-index">{{ Number(index) + 1 }}.</span>
-              <div class="flag-item-cont ellipsis-line1">
-                <div class="flag-span" @click.stop="handleEdit(element)">
-                  {{ element.text }}
-                </div>
-                <div class="close" @click.stop="handleDel(element)"></div>
-              </div>
-            </div>
-          </template>
-        </draggable>
+      <!-- 加载中状态 -->
+      <div v-if="isLoading && flagList.length === 0" class="loading-state">
+        <div class="loading-text">加载中...</div>
+      </div>
+
+      <!-- 错误状态 -->
+      <div v-else-if="hasError && flagList.length === 0" class="error-state">
+        <div class="error-icon">⚠️</div>
+        <div class="error-text">{{ errorMessage }}</div>
+        <div class="error-retry" @click="handleRetry">重试</div>
       </div>
 
       <!-- 空状态 -->
-      <div v-if="flagList.length === 0" class="empty-state">
-        <div class="empty-text">暂无目标，快去添加吧~</div>
+      <div v-else-if="!isLoading && flagList.length === 0" class="empty-state">
+        <div class="empty-icon">📝</div>
+        <div class="empty-text">暂无目标</div>
+        <div class="empty-tip">快去添加你的第一个目标吧~</div>
+      </div>
+
+      <!-- 有数据状态 -->
+      <div v-else class="has-data-state">
+        <div class="flag-tip-text" v-if="flagList.length > 1">
+          (长按拖动，调整位置)
+        </div>
+        <div class="flag-list-container">
+          <draggable 
+            :list="flagList" 
+            filter=".close" 
+            :delay="500"
+            item-key="id"
+            @end="handleDragEnd"
+          >
+            <template #item="{ element, index }">
+              <div class="flex jb ac flag-item">
+                <span class="item-index">{{ Number(index) + 1 }}.</span>
+                <div class="flag-item-cont ellipsis-line1">
+                  <div class="flag-span" @click.stop="handleEdit(element)">
+                    {{ element.text }}
+                  </div>
+                  <div class="close" @click.stop="handleDel(element)"></div>
+                </div>
+              </div>
+            </template>
+          </draggable>
+        </div>
       </div>
     </div>
 
@@ -53,7 +72,7 @@
       @modalOk="handleChangeTxt"
     />
 
-    <loading v-model:isLoading="isLoading" />
+    <loading v-model:isLoading="isLoading && flagList.length === 0" />
   </div>
 </template>
 
@@ -91,6 +110,8 @@ export default defineComponent({
       chooseItem: {} as any,
       deleteList: [] as any[],
       updateList: [] as any[],
+      hasError: false,
+      errorMessage: "加载失败，请稍后重试",
     });
 
     const flagRef: any = ref<null | HTMLElement | Object>(null);
@@ -102,6 +123,7 @@ export default defineComponent({
     // 获取目标列表
     const getflagList = async () => {
       dataMap.isLoading = true;
+      dataMap.hasError = false;
       try {
         const res: any = await selectFlagH5({});
         if (res.data && res.data.flags) {
@@ -121,12 +143,27 @@ export default defineComponent({
             );
             numIndex = maxId > 0 ? maxId : 0;
           }
+        } else {
+          // 数据格式异常
+          dataMap.hasError = true;
+          dataMap.errorMessage = "数据格式异常，请稍后重试";
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("获取目标列表失败:", error);
+        dataMap.hasError = true;
+        if (error.message) {
+          dataMap.errorMessage = error.message;
+        } else {
+          dataMap.errorMessage = "网络错误，请检查网络连接后重试";
+        }
       } finally {
         dataMap.isLoading = false;
       }
+    };
+
+    // 重试
+    const handleRetry = () => {
+      getflagList();
     };
 
     // 删除目标
@@ -191,6 +228,7 @@ export default defineComponent({
       handleChangeTxt,
       handleBack,
       handleDragEnd,
+      handleRetry,
       flagRef,
     };
   },
@@ -239,6 +277,7 @@ export default defineComponent({
   flex: 1;
   overflow-y: auto;
   padding: 0.3rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 .flag-tip-text {
@@ -248,7 +287,14 @@ export default defineComponent({
   margin-bottom: 0.3rem;
 }
 
+.has-data-state {
+  min-height: 100%;
+}
+
 .flag-list-container {
+  min-height: 100%;
+  padding-bottom: 0.3rem;
+  
   .flag-item {
     margin-bottom: 0.22rem;
     font-size: 0.3rem;
@@ -293,15 +339,77 @@ export default defineComponent({
   }
 }
 
-.empty-state {
+// 加载中状态
+.loading-state {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 60vh;
 
-  .empty-text {
+  .loading-text {
     font-size: 0.3rem;
     color: #999;
+  }
+}
+
+// 错误状态
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  padding: 0 0.5rem;
+
+  .error-icon {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .error-text {
+    font-size: 0.3rem;
+    color: #999;
+    text-align: center;
+    margin-bottom: 0.4rem;
+    line-height: 0.45rem;
+  }
+
+  .error-retry {
+    font-size: 0.28rem;
+    color: #ff5f47;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid #ff5f47;
+    border-radius: 0.1rem;
+    cursor: pointer;
+  }
+}
+
+// 空状态
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  padding: 0 0.5rem;
+
+  .empty-icon {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .empty-text {
+    font-size: 0.36rem;
+    color: #131415;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+  }
+
+  .empty-tip {
+    font-size: 0.28rem;
+    color: #999;
+    text-align: center;
+    line-height: 0.4rem;
   }
 }
 
