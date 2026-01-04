@@ -28,7 +28,7 @@ export const constantRoutes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory('/flag/'),
+  history: createWebHashHistory('/'),
   routes: constantRoutes,
 })
 
