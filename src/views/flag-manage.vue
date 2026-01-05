@@ -41,6 +41,10 @@
 
       <!-- 有数据状态 -->
       <div v-else class="has-data-state">
+        <!-- 临时测试：直接显示数据 -->
+        <div style="padding: 0.2rem; font-size: 0.24rem; color: red; background: yellow; margin-bottom: 0.2rem;">
+          测试：flagList.length = {{ flagList.length }}, 第一条: {{ flagList[0]?.text }}
+        </div>
         <div class="flag-tip-text" v-if="flagList.length > 1">
           (长按拖动，调整位置)
         </div>
@@ -49,20 +53,21 @@
             :list="flagList" 
             filter=".close" 
             :delay="500"
-            item-key="id"
             @end="handleDragEnd"
           >
-            <template #item="{ element, index }">
-              <div class="flex jb ac flag-item">
-                <span class="item-index">{{ Number(index) + 1 }}.</span>
-                <div class="flag-item-cont ellipsis-line1">
-                  <div class="flag-span" @click.stop="handleEdit(element)">
-                    {{ element.text }}
-                  </div>
-                  <div class="close" @click.stop="handleDel(element)"></div>
+            <div
+              class="flex jb ac flag-item"
+              v-for="(item, index) in flagList"
+              :key="item.id"
+            >
+              <span class="item-index">{{ Number(index) + 1 }}.</span>
+              <div class="flag-item-cont ellipsis-line1">
+                <div class="flag-span" @click.stop="handleEdit(item)">
+                  {{ item.text }}
                 </div>
+                <div class="close" @click.stop="handleDel(item)"></div>
               </div>
-            </template>
+            </div>
           </draggable>
         </div>
       </div>
