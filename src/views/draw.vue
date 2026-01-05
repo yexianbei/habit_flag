@@ -356,57 +356,37 @@ export default defineComponent({
         return;
       }
       
-      // 获取 draw-box 的位置和尺寸
-      const boxRect = drawBox.getBoundingClientRect();
-      const wrapRect = wrap.getBoundingClientRect();
+      // 保存原始的 padding-bottom 值
+      const originalPaddingBottom = wrap.style.paddingBottom;
+      // 临时减小底部间距，只保留必要的边距（0.3rem）
+      wrap.style.paddingBottom = '0.3rem';
       
-      // 计算相对于 wrap 的偏移量
-      const offsetX = boxRect.left - wrapRect.left;
-      const offsetY = boxRect.top - wrapRect.top;
+      // 获取 draw-box 的实际高度（包括内容）
+      const drawBoxHeight = drawBox.scrollHeight;
+      const drawBoxTop = drawBox.offsetTop;
       
-      // 先截取整个 wrap
+      // 计算需要截取的高度：从顶部到 draw-box 底部 + 0.3rem 边距
+      const targetHeight = drawBoxTop + drawBoxHeight + 0.3 * 75; // 0.3rem 转换为像素（假设1rem=75px）
+      
       await html2canvas(wrap, {
         width: wrap.offsetWidth,
-        height: wrap.offsetHeight,
+        height: targetHeight,
       }).then((canvas: any) => {
-        // 创建新的canvas，只包含 draw-box 的内容区域
-        // 添加一些边距（顶部和底部各留0.3rem）
-      const scale = canvas.width / wrap.offsetWidth;
-      const margin = 0.3 * 75 * scale; // 0.3rem 转换为像素（假设1rem=75px）
-      
-      const croppedCanvas = document.createElement('canvas');
-      croppedCanvas.width = boxRect.width * scale;
-      croppedCanvas.height = (boxRect.height + margin * 2) * scale;
-      
-      const croppedCtx = croppedCanvas.getContext('2d');
-      if (!croppedCtx) {
-        console.error("无法获取 canvas context");
-        return;
-      }
-      // 绘制白色背景
-      croppedCtx.fillStyle = '#ffffff';
-      croppedCtx.fillRect(0, 0, croppedCanvas.width, croppedCanvas.height);
-      // 从原canvas中裁剪出 draw-box 区域，并添加边距
-      croppedCtx.drawImage(
-        canvas,
-        offsetX * scale,
-        Math.max(0, offsetY * scale - margin),
-        boxRect.width * scale,
-        boxRect.height * scale,
-        0,
-        margin,
-        boxRect.width * scale,
-        boxRect.height * scale
-      );
-      
+        // 恢复原始的 padding-bottom
+        wrap.style.paddingBottom = originalPaddingBottom;
+        
         const canvaswrap: any = document.querySelector(".canvas-poster");
         canvaswrap.innerHTML = "";
-        canvaswrap.appendChild(convertCanvasToImage(croppedCanvas));
+        canvaswrap.appendChild(convertCanvasToImage(canvas));
         const poster: any = document.querySelector(".poster-img");
         console.log("poster.src", poster.src);
         store.dispatch("ACTIONSETIMG", poster.src);
         dataMap.readyJump = true;
         handleSave(poster.src); //将数据保存
+      }).catch((error: any) => {
+        // 如果出错，也要恢复原始的 padding-bottom
+        wrap.style.paddingBottom = originalPaddingBottom;
+        console.error("生成图片失败:", error);
       });
     };
     //canvas转化为img
