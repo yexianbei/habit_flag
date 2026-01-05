@@ -379,6 +379,10 @@ export default defineComponent({
       croppedCanvas.height = (boxRect.height + margin * 2) * scale;
       
       const croppedCtx = croppedCanvas.getContext('2d');
+      if (!croppedCtx) {
+        console.error("无法获取 canvas context");
+        return;
+      }
       // 绘制白色背景
       croppedCtx.fillStyle = '#ffffff';
       croppedCtx.fillRect(0, 0, croppedCanvas.width, croppedCanvas.height);
