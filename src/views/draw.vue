@@ -358,15 +358,17 @@ export default defineComponent({
       
       // 保存原始的 padding-bottom 值
       const originalPaddingBottom = wrap.style.paddingBottom;
-      // 临时减小底部间距，只保留必要的边距（0.3rem）
-      wrap.style.paddingBottom = '0.3rem';
+      // 获取 draw-box 的 margin-top（顶部间距），通常是 1.5rem
+      const drawBoxMarginTop = parseFloat(window.getComputedStyle(drawBox).marginTop) || 1.5 * 75;
+      // 临时设置底部间距与顶部间距一致
+      wrap.style.paddingBottom = `${drawBoxMarginTop / 75}rem`;
       
       // 获取 draw-box 的实际高度（包括内容）
       const drawBoxHeight = drawBox.scrollHeight;
       const drawBoxTop = drawBox.offsetTop;
       
-      // 计算需要截取的高度：从顶部到 draw-box 底部 + 0.3rem 边距
-      const targetHeight = drawBoxTop + drawBoxHeight + 0.3 * 75; // 0.3rem 转换为像素（假设1rem=75px）
+      // 计算需要截取的高度：从顶部到 draw-box 底部 + 与顶部一致的边距
+      const targetHeight = drawBoxTop + drawBoxHeight + drawBoxMarginTop;
       
       await html2canvas(wrap, {
         width: wrap.offsetWidth,
