@@ -297,8 +297,11 @@ export default defineComponent({
         // 准备删除的flag id列表
         const deleteflags = dataMap.deleteList.map((x: any) => x.id).join(",");
         
-        // 调用保存接口
-        await addFlag({
+        console.log("📤 准备保存，删除的flag ids:", deleteflags);
+        console.log("📤 删除列表详情:", dataMap.deleteList);
+        
+        // 构建请求参数 - 参考 draw.vue 的调用方式，可能需要传递所有参数
+        const requestParams: any = {
           add: "", // 不新增
           update: "", // 不修改
           del: deleteflags, // 删除的flag id列表
@@ -306,13 +309,25 @@ export default defineComponent({
           signature: "", // 不更新签名
           bgColor: "", // 不更新背景色
           decoress: "", // 不更新装饰
-        });
-
-        console.log("✅ 保存成功");
+        };
+        
+        console.log("📤 请求参数:", JSON.stringify(requestParams, null, 2));
+        
+        // 调用保存接口
+        const res = await addFlag(requestParams);
+        
+        console.log("✅ 保存成功，接口返回:", res);
+        console.log("📊 接口返回数据:", JSON.stringify(res, null, 2));
+        
+        // 检查接口返回，看是否有错误信息
+        if (res && res.code !== undefined && res.code !== 200 && res.code !== 0) {
+          throw new Error(res.message || res.msg || "保存失败");
+        }
+        
         // 清空删除列表
         dataMap.deleteList = [];
         store.dispatch("ACTIONDELETELIST", []);
-        // 重新获取列表
+        // 重新获取列表，确保数据同步
         await getflagList();
       } catch (error: any) {
         console.error("保存失败:", error);
