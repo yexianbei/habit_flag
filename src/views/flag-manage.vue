@@ -73,6 +73,13 @@
       @modalOk="handleChangeTxt"
     />
 
+    <!-- 保存按钮 -->
+    <div 
+      class="flag-save-btn" 
+      v-if="!isLoading && flagList.length > 0 && deleteList.length > 0"
+      @click="handleSave"
+    ></div>
+
     <loading :isLoading="isLoading && flagList.length === 0" />
   </div>
 </template>
@@ -90,7 +97,7 @@ import {
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "../store";
 import { VueDraggableNext } from "vue-draggable-next";
-import { selectFlagH5 } from "../api/flag";
+import { selectFlagH5, addFlag } from "../api/flag";
 import editmodal from "../components/editmodal.vue";
 import loading from "@/components/loading.vue";
 
@@ -269,6 +276,62 @@ export default defineComponent({
     // 返回
     const handleBack = () => {
       router.back();
+    };
+
+    // 保存更改
+    const handleSave = async () => {
+      // 检查token是否存在
+      const token = localStorage.getItem("Authorization") || 
+                    (route.query.token as string) || 
+                    store.state.tokencache;
+      
+      if (!token || token === "") {
+        console.log("⚠️ 未找到token，无法保存");
+        dataMap.hasError = true;
+        dataMap.errorMessage = "未找到认证信息，请重新登录";
+        return;
+      }
+
+      if (dataMap.deleteList.length === 0) {
+        console.log("⚠️ 没有需要保存的更改");
+        return;
+      }
+
+      dataMap.isLoading = true;
+      dataMap.hasError = false;
+
+      try {
+        // 准备删除的flag id列表
+        const deleteflags = dataMap.deleteList.map((x: any) => x.id).join(",");
+        
+        // 调用保存接口
+        await addFlag({
+          add: "", // 不新增
+          update: "", // 不修改
+          del: deleteflags, // 删除的flag id列表
+          picture: "", // 不更新图片
+          signature: "", // 不更新签名
+          bgColor: "", // 不更新背景色
+          decoress: "", // 不更新装饰
+        });
+
+        console.log("✅ 保存成功");
+        // 清空删除列表
+        dataMap.deleteList = [];
+        store.dispatch("ACTIONDELETELIST", []);
+        // 重新获取列表
+        await getflagList();
+      } catch (error: any) {
+        console.error("保存失败:", error);
+        dataMap.hasError = true;
+        if (error.message) {
+          dataMap.errorMessage = error.message;
+        } else {
+          dataMap.errorMessage = "保存失败，请稍后重试";
+        }
+      } finally {
+        dataMap.isLoading = false;
+      }
     };
 
     return {
