@@ -15,6 +15,11 @@
 
     <!-- 内容区域 -->
     <div class="flag-manage-content">
+      <!-- 调试信息 -->
+      <div style="padding: 0.2rem; font-size: 0.24rem; color: #999; background: #f5f5f5; margin-bottom: 0.2rem;">
+        调试: isLoading={{ isLoading }}, flagList.length={{ flagList.length }}, hasError={{ hasError }}
+      </div>
+      
       <!-- 加载中状态 -->
       <div v-if="isLoading && flagList.length === 0" class="loading-state">
         <div class="loading-text">加载中...</div>
@@ -84,6 +89,7 @@ import {
   onMounted,
   ref,
   nextTick,
+  watch,
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useStore } from "../store";
@@ -135,6 +141,21 @@ export default defineComponent({
       }
     };
 
+    // 监听 flagList 变化，用于调试
+    watch(
+      () => dataMap.flagList.length,
+      (newLength) => {
+        console.log("🔔 flagList.length 变化:", newLength);
+      }
+    );
+
+    watch(
+      () => dataMap.isLoading,
+      (newVal) => {
+        console.log("🔔 isLoading 变化:", newVal);
+      }
+    );
+
     onMounted(() => {
       // 先保存token，再查询数据
       setRouterCache();
@@ -164,13 +185,16 @@ export default defineComponent({
         console.log("📊 flags数据:", res.data?.flags);
         // 使用与 flag.vue 完全相同的数据处理逻辑
         if (res.data && res.data.flags) {
-          dataMap.flagList = [];
+          // 先清空数组，然后重新填充，确保响应式更新
+          const newFlagList: any[] = [];
           res.data.flags.forEach((item: any, index: any) => {
-            dataMap.flagList.push({
+            newFlagList.push({
               id: item.id,
               text: item.flag,
             });
           });
+          // 一次性赋值整个数组，确保响应式更新
+          dataMap.flagList = newFlagList;
           // 更新store
           store.dispatch("ACTIONCHOOSELIST", dataMap.flagList);
           // 更新numIndex，避免新增时id冲突
@@ -184,22 +208,28 @@ export default defineComponent({
             numIndex = maxId > 0 ? maxId : 0;
           }
           console.log("✅ 数据已处理，共", dataMap.flagList.length, "条");
+          console.log("📊 flagList 内容:", JSON.stringify(dataMap.flagList, null, 2));
+          console.log("📊 isLoading:", dataMap.isLoading, "hasError:", dataMap.hasError);
+          // 确保在数据更新后，isLoading 被设置为 false
+          dataMap.isLoading = false;
+          dataMap.hasError = false;
+          console.log("📝 数据更新后: isLoading =", dataMap.isLoading, ", flagList.length =", dataMap.flagList.length);
         } else {
           // 数据格式异常
           console.warn("⚠️ API返回数据格式异常:", res);
           dataMap.hasError = true;
           dataMap.errorMessage = "数据格式异常，请稍后重试";
+          dataMap.isLoading = false;
         }
       } catch (error: any) {
         console.error("获取目标列表失败:", error);
         dataMap.hasError = true;
+        dataMap.isLoading = false;
         if (error.message) {
           dataMap.errorMessage = error.message;
         } else {
           dataMap.errorMessage = "网络错误，请检查网络连接后重试";
         }
-      } finally {
-        dataMap.isLoading = false;
       }
     };
 
