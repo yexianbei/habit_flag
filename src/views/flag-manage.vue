@@ -15,11 +15,6 @@
 
     <!-- 内容区域 -->
     <div class="flag-manage-content">
-      <!-- 调试信息 -->
-      <div style="padding: 0.2rem; font-size: 0.24rem; color: #999; background: #f5f5f5; margin-bottom: 0.2rem;">
-        调试: isLoading={{ isLoading }}, flagList.length={{ flagList.length }}, hasError={{ hasError }}
-      </div>
-      
       <!-- 加载中状态 -->
       <div v-if="isLoading && flagList.length === 0" class="loading-state">
         <div class="loading-text">加载中...</div>
@@ -41,10 +36,6 @@
 
       <!-- 有数据状态 -->
       <div v-else class="has-data-state">
-        <!-- 临时测试：直接显示数据 -->
-        <div style="padding: 0.2rem; font-size: 0.24rem; color: red; background: yellow; margin-bottom: 0.2rem;">
-          测试：flagList.length = {{ flagList.length }}, 第一条: {{ flagList[0]?.text }}
-        </div>
         <div class="flag-tip-text" v-if="flagList.length > 1">
           (长按拖动，调整位置)
         </div>
@@ -146,21 +137,6 @@ export default defineComponent({
       }
     };
 
-    // 监听 flagList 变化，用于调试
-    watch(
-      () => dataMap.flagList.length,
-      (newLength) => {
-        console.log("🔔 flagList.length 变化:", newLength);
-      }
-    );
-
-    watch(
-      () => dataMap.isLoading,
-      (newVal) => {
-        console.log("🔔 isLoading 变化:", newVal);
-      }
-    );
-
     onMounted(() => {
       // 先保存token，再查询数据
       setRouterCache();
@@ -213,12 +189,9 @@ export default defineComponent({
             numIndex = maxId > 0 ? maxId : 0;
           }
           console.log("✅ 数据已处理，共", dataMap.flagList.length, "条");
-          console.log("📊 flagList 内容:", JSON.stringify(dataMap.flagList, null, 2));
-          console.log("📊 isLoading:", dataMap.isLoading, "hasError:", dataMap.hasError);
           // 确保在数据更新后，isLoading 被设置为 false
           dataMap.isLoading = false;
           dataMap.hasError = false;
-          console.log("📝 数据更新后: isLoading =", dataMap.isLoading, ", flagList.length =", dataMap.flagList.length);
         } else {
           // 数据格式异常
           console.warn("⚠️ API返回数据格式异常:", res);
@@ -373,7 +346,7 @@ export default defineComponent({
   padding-bottom: 0.3rem;
   
   .flag-item {
-    margin-bottom: 0.22rem;
+    margin-bottom: 0.4rem;
     font-size: 0.3rem;
 
     .item-index {
