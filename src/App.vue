@@ -29,15 +29,30 @@ export default defineComponent({
           // let routervalue = router.currentRoute.value.query || {}
           store.dispatch("ACTIONSETSTAT", "1");
         } else {
-          // let routercache = store.state.tokencache
-          let stat = store.state.stat;
-          if (stat === "0") {
-            router.replace({
-              name: "index",
-              query: {
-                name: route.query.name,
-              },
-            });
+          // 检查是否有 token（从 URL query 或 localStorage）
+          const tokenFromQuery = route.query.token as string;
+          const tokenFromStorage = localStorage.getItem("Authorization");
+          const hasToken = (tokenFromQuery && tokenFromQuery !== "") || (tokenFromStorage && tokenFromStorage !== "");
+          
+          // 如果有 token，保存它并设置 stat 为 "1"，允许访问
+          if (hasToken) {
+            const token = tokenFromQuery || tokenFromStorage || "";
+            if (token) {
+              store.dispatch("ACTIONSETTOKEN", token);
+              localStorage.setItem("Authorization", token);
+            }
+            store.dispatch("ACTIONSETSTAT", "1");
+          } else {
+            // 如果没有 token，检查 stat 状态
+            let stat = store.state.stat;
+            if (stat === "0") {
+              router.replace({
+                name: "index",
+                query: {
+                  name: route.query.name,
+                },
+              });
+            }
           }
         }
       }
