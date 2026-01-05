@@ -69,7 +69,14 @@
       class="flag-save-btn" 
       v-if="!isLoading && flagList.length > 0 && deleteList.length > 0"
       @click="handleSave"
-    ></div>
+    >
+      <span style="color: #fff; font-size: 0.28rem;">保存</span>
+    </div>
+    
+    <!-- 调试信息 -->
+    <div style="position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.7); color: #fff; padding: 0.2rem; font-size: 0.24rem; z-index: 9999;">
+      调试: isLoading={{ isLoading }}, flagList.length={{ flagList.length }}, deleteList.length={{ deleteList.length }}
+    </div>
 
     <loading :isLoading="isLoading && flagList.length === 0" />
   </div>
@@ -225,11 +232,17 @@ export default defineComponent({
       // 判断是否为已存在的flag（id长度>=10表示是服务器返回的id）
       const mid = selectItem.id.toString();
       if (mid && mid.length >= 10) {
-        dataMap.deleteList.push(selectItem);
-        store.dispatch("ACTIONDELETELIST", dataMap.deleteList);
+        // 检查是否已经在删除列表中，避免重复添加
+        const existsInDeleteList = dataMap.deleteList.some((delItem: any) => delItem.id === selectItem.id);
+        if (!existsInDeleteList) {
+          dataMap.deleteList.push(selectItem);
+          store.dispatch("ACTIONDELETELIST", dataMap.deleteList);
+          console.log("🗑️ 添加到删除列表，当前删除列表长度:", dataMap.deleteList.length);
+        }
       }
       dataMap.flagList.splice(index, 1);
       store.dispatch("ACTIONCHOOSELIST", dataMap.flagList);
+      console.log("📊 删除后，flagList.length:", dataMap.flagList.length, "deleteList.length:", dataMap.deleteList.length);
     };
 
     // 编辑目标
