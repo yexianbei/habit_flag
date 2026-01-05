@@ -5,6 +5,13 @@
     overflow: hidden;
 }
 
+.draw-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+}
+
 .draw-tip {
     width: 3.84rem;
     height: 0.3rem;
@@ -29,6 +36,8 @@
     transition: 0.3s all;
     text-align: center;
     display: inline-block;
+    // 竖屏状态下，为底部操作栏（高度3.52rem）留出足够空间，确保内容不被遮挡
+    padding-bottom: 4rem;
     &.draw-flex {
         display: flex;
     }
