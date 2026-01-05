@@ -349,13 +349,55 @@ export default defineComponent({
       await (dataMap.footerShow = true);
       await nextTick();
       const wrap: any = document.getElementById("draw-wrap");
+      const drawBox: any = wrap.querySelector(".draw-box");
+      
+      if (!drawBox) {
+        console.error("未找到 draw-box 元素");
+        return;
+      }
+      
+      // 获取 draw-box 的位置和尺寸
+      const boxRect = drawBox.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      
+      // 计算相对于 wrap 的偏移量
+      const offsetX = boxRect.left - wrapRect.left;
+      const offsetY = boxRect.top - wrapRect.top;
+      
+      // 先截取整个 wrap
       await html2canvas(wrap, {
         width: wrap.offsetWidth,
         height: wrap.offsetHeight,
       }).then((canvas: any) => {
+        // 创建新的canvas，只包含 draw-box 的内容区域
+        // 添加一些边距（顶部和底部各留0.3rem）
+      const scale = canvas.width / wrap.offsetWidth;
+      const margin = 0.3 * 75 * scale; // 0.3rem 转换为像素（假设1rem=75px）
+      
+      const croppedCanvas = document.createElement('canvas');
+      croppedCanvas.width = boxRect.width * scale;
+      croppedCanvas.height = (boxRect.height + margin * 2) * scale;
+      
+      const croppedCtx = croppedCanvas.getContext('2d');
+      // 绘制白色背景
+      croppedCtx.fillStyle = '#ffffff';
+      croppedCtx.fillRect(0, 0, croppedCanvas.width, croppedCanvas.height);
+      // 从原canvas中裁剪出 draw-box 区域，并添加边距
+      croppedCtx.drawImage(
+        canvas,
+        offsetX * scale,
+        Math.max(0, offsetY * scale - margin),
+        boxRect.width * scale,
+        boxRect.height * scale,
+        0,
+        margin,
+        boxRect.width * scale,
+        boxRect.height * scale
+      );
+      
         const canvaswrap: any = document.querySelector(".canvas-poster");
         canvaswrap.innerHTML = "";
-        canvaswrap.appendChild(convertCanvasToImage(canvas));
+        canvaswrap.appendChild(convertCanvasToImage(croppedCanvas));
         const poster: any = document.querySelector(".poster-img");
         console.log("poster.src", poster.src);
         store.dispatch("ACTIONSETIMG", poster.src);
