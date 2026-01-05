@@ -85,7 +85,7 @@ import {
   ref,
   nextTick,
 } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useStore } from "../store";
 import { VueDraggableNext } from "vue-draggable-next";
 import { selectFlagH5 } from "../api/flag";
@@ -102,6 +102,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const store = useStore();
     const dataMap = reactive({
       flagList: [] as any[],
@@ -116,16 +117,48 @@ export default defineComponent({
 
     const flagRef: any = ref<null | HTMLElement | Object>(null);
 
+    // 保存token到store和localStorage
+    const setRouterCache = () => {
+      const query = router.currentRoute.value.query;
+      const tokenFromQuery = (query.token || "").toString();
+      const tokenFromStorage = localStorage.getItem("Authorization");
+      
+      // 优先使用URL中的token，如果没有则使用localStorage中的
+      const token = tokenFromQuery || tokenFromStorage || "";
+      
+      if (token) {
+        store.dispatch("ACTIONSETTOKEN", token);
+        localStorage.setItem("Authorization", token);
+        console.log("🔑 flag-manage: Token已保存", token);
+      } else {
+        console.warn("⚠️ flag-manage: 未找到token");
+      }
+    };
+
     onMounted(() => {
+      // 先保存token，再查询数据
+      setRouterCache();
       getflagList();
     });
 
     // 获取目标列表
     const getflagList = async () => {
+      // 检查token是否存在
+      const token = localStorage.getItem("Authorization") || store.state.tokencache;
+      if (!token || token === "") {
+        console.warn("⚠️ 未找到token，无法查询目标列表");
+        dataMap.hasError = true;
+        dataMap.errorMessage = "未找到认证信息，请重新登录";
+        dataMap.isLoading = false;
+        return;
+      }
+
       dataMap.isLoading = true;
       dataMap.hasError = false;
+      console.log("📡 开始查询目标列表，token:", token);
       try {
         const res: any = await selectFlagH5({});
+        console.log("✅ 查询目标列表成功:", res);
         if (res.data && res.data.flags) {
           dataMap.flagList = res.data.flags.map((item: any) => ({
             id: item.id,
