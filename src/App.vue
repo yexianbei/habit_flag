@@ -44,14 +44,14 @@ export default defineComponent({
             store.dispatch("ACTIONSETSTAT", "1");
           } else {
             // 如果没有 token，检查 stat 状态
-            let stat = store.state.stat;
-            if (stat === "0") {
-              router.replace({
-                name: "index",
-                query: {
-                  name: route.query.name,
-                },
-              });
+          let stat = store.state.stat;
+          if (stat === "0") {
+            router.replace({
+              name: "index",
+              query: {
+                name: route.query.name,
+              },
+            });
             }
           }
         }

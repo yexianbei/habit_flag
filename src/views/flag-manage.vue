@@ -4,15 +4,6 @@
 -->
 <template>
   <div class="flag-manage-wrap">
-    <!-- 头部 -->
-    <div class="flag-manage-header">
-      <div class="header-back" @click="handleBack">
-        <span>返回</span>
-      </div>
-      <div class="header-title">目标管理</div>
-      <div class="header-placeholder"></div>
-    </div>
-
     <!-- 内容区域 -->
     <div class="flag-manage-content">
       <!-- 加载中状态 -->
@@ -339,9 +330,9 @@ export default defineComponent({
       handleDel,
       handleEdit,
       handleChangeTxt,
-      handleBack,
       handleDragEnd,
       handleRetry,
+      handleSave,
       flagRef,
     };
   },
@@ -355,35 +346,6 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.flag-manage-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.3rem;
-  border-bottom: 1px solid #eee;
-  position: relative;
-  z-index: 10;
-
-  .header-back {
-    font-size: 0.3rem;
-    color: #131415;
-    cursor: pointer;
-    min-width: 1rem;
-  }
-
-  .header-title {
-    font-size: 0.36rem;
-    font-weight: bold;
-    color: #131415;
-    text-align: center;
-    flex: 1;
-  }
-
-  .header-placeholder {
-    min-width: 1rem;
-  }
 }
 
 .flag-manage-content {
