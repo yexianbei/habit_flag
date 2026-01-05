@@ -143,10 +143,12 @@ export default defineComponent({
 
     // 获取目标列表
     const getflagList = async () => {
-      // 检查token是否存在
-      const token = localStorage.getItem("Authorization") || store.state.tokencache;
+      // 检查token是否存在（从localStorage、路由参数或store中获取，与 flag.vue 保持一致）
+      const token = localStorage.getItem("Authorization") || 
+                    (route.query.token as string) || 
+                    store.state.tokencache;
       if (!token || token === "") {
-        console.warn("⚠️ 未找到token，无法查询目标列表");
+        console.log("⚠️ 未找到token，跳过API调用");
         dataMap.hasError = true;
         dataMap.errorMessage = "未找到认证信息，请重新登录";
         dataMap.isLoading = false;
@@ -159,11 +161,16 @@ export default defineComponent({
       try {
         const res: any = await selectFlagH5({});
         console.log("✅ 查询目标列表成功:", res);
+        console.log("📊 flags数据:", res.data?.flags);
+        // 使用与 flag.vue 完全相同的数据处理逻辑
         if (res.data && res.data.flags) {
-          dataMap.flagList = res.data.flags.map((item: any) => ({
-            id: item.id,
-            text: item.flag,
-          }));
+          dataMap.flagList = [];
+          res.data.flags.forEach((item: any, index: any) => {
+            dataMap.flagList.push({
+              id: item.id,
+              text: item.flag,
+            });
+          });
           // 更新store
           store.dispatch("ACTIONCHOOSELIST", dataMap.flagList);
           // 更新numIndex，避免新增时id冲突
@@ -176,8 +183,10 @@ export default defineComponent({
             );
             numIndex = maxId > 0 ? maxId : 0;
           }
+          console.log("✅ 数据已处理，共", dataMap.flagList.length, "条");
         } else {
           // 数据格式异常
+          console.warn("⚠️ API返回数据格式异常:", res);
           dataMap.hasError = true;
           dataMap.errorMessage = "数据格式异常，请稍后重试";
         }
