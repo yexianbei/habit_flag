@@ -368,7 +368,8 @@ export default defineComponent({
 
 .flag-list-container {
   min-height: 100%;
-  padding-bottom: 0.3rem;
+  /* 给底部预留空间，避免被保存按钮遮挡 */
+  padding-bottom: 1.2rem;
   
   .flag-item {
     margin-bottom: 0.4rem;
@@ -492,6 +493,18 @@ export default defineComponent({
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 保存按钮，参考 flag 页的下一步按钮样式 */
+.flag-save-btn {
+  width: 1.6rem;
+  height: 0.5rem;
+  background: url("@/assets/images/step1/next-step.png") no-repeat center center;
+  background-size: 100% auto;
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 0.3rem);
+  right: 0.3rem;
+  z-index: 20;
 }
 </style>
 
