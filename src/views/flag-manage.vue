@@ -320,8 +320,9 @@ export default defineComponent({
         console.log("📊 接口返回数据:", JSON.stringify(res, null, 2));
         
         // 检查接口返回，看是否有错误信息
-        if (res && res.code !== undefined && res.code !== 200 && res.code !== 0) {
-          throw new Error(res.message || res.msg || "保存失败");
+        const response = res as any;
+        if (response && response.code !== undefined && response.code !== 200 && response.code !== 0) {
+          throw new Error(response.message || response.msg || "保存失败");
         }
         
         // 清空删除列表
