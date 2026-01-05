@@ -70,12 +70,7 @@
       v-if="!isLoading && flagList.length > 0 && deleteList.length > 0"
       @click="handleSave"
     >
-      <span style="color: #fff; font-size: 0.28rem;">保存</span>
-    </div>
-    
-    <!-- 调试信息 -->
-    <div style="position: fixed; top: 0; left: 0; background: rgba(0,0,0,0.7); color: #fff; padding: 0.2rem; font-size: 0.24rem; z-index: 9999;">
-      调试: isLoading={{ isLoading }}, flagList.length={{ flagList.length }}, deleteList.length={{ deleteList.length }}
+      <span class="save-text">保存</span>
     </div>
 
     <loading :isLoading="isLoading && flagList.length === 0" />
@@ -232,17 +227,11 @@ export default defineComponent({
       // 判断是否为已存在的flag（id长度>=10表示是服务器返回的id）
       const mid = selectItem.id.toString();
       if (mid && mid.length >= 10) {
-        // 检查是否已经在删除列表中，避免重复添加
-        const existsInDeleteList = dataMap.deleteList.some((delItem: any) => delItem.id === selectItem.id);
-        if (!existsInDeleteList) {
-          dataMap.deleteList.push(selectItem);
-          store.dispatch("ACTIONDELETELIST", dataMap.deleteList);
-          console.log("🗑️ 添加到删除列表，当前删除列表长度:", dataMap.deleteList.length);
-        }
+        dataMap.deleteList.push(selectItem);
+        store.dispatch("ACTIONDELETELIST", dataMap.deleteList);
       }
       dataMap.flagList.splice(index, 1);
       store.dispatch("ACTIONCHOOSELIST", dataMap.flagList);
-      console.log("📊 删除后，flagList.length:", dataMap.flagList.length, "deleteList.length:", dataMap.deleteList.length);
     };
 
     // 编辑目标
@@ -508,16 +497,32 @@ export default defineComponent({
   white-space: nowrap;
 }
 
-/* 保存按钮，参考 flag 页的下一步按钮样式 */
+/* 保存按钮 */
 .flag-save-btn {
-  width: 1.6rem;
-  height: 0.5rem;
-  background: url("@/assets/images/step1/next-step.png") no-repeat center center;
-  background-size: 100% auto;
+  width: 2rem;
+  height: 0.76rem;
+  background: #ff5f47;
+  border-radius: 0.38rem;
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom) + 0.3rem);
-  right: 0.3rem;
-  z-index: 20;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.1);
+  
+  .save-text {
+    color: #fff;
+    font-size: 0.32rem;
+    font-weight: bold;
+  }
+  
+  &:active {
+    opacity: 0.8;
+  }
 }
 </style>
 
