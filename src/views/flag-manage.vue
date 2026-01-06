@@ -4,15 +4,6 @@
 -->
 <template>
   <div class="flag-manage-wrap">
-    <!-- 头部 -->
-    <div class="flag-manage-header">
-      <div class="header-back" @click="handleBack">
-        <span>返回</span>
-      </div>
-      <div class="header-title">目标管理</div>
-      <div class="header-placeholder"></div>
-    </div>
-
     <!-- 内容区域 -->
     <div class="flag-manage-content">
       <!-- 加载中状态 -->
@@ -44,20 +35,21 @@
             :list="flagList" 
             filter=".close" 
             :delay="500"
-            item-key="id"
             @end="handleDragEnd"
           >
-            <template #item="{ element, index }">
-              <div class="flex jb ac flag-item">
-                <span class="item-index">{{ Number(index) + 1 }}.</span>
-                <div class="flag-item-cont ellipsis-line1">
-                  <div class="flag-span" @click.stop="handleEdit(element)">
-                    {{ element.text }}
-                  </div>
-                  <div class="close" @click.stop="handleDel(element)"></div>
+            <div
+              class="flex jb ac flag-item"
+              v-for="(item, index) in flagList"
+              :key="item.id"
+            >
+              <span class="item-index">{{ Number(index) + 1 }}.</span>
+              <div class="flag-item-cont ellipsis-line1">
+                <div class="flag-span" @click.stop="handleEdit(item)">
+                  {{ item.text }}
                 </div>
+                <div class="close" @click.stop="handleDel(item)"></div>
               </div>
-            </template>
+            </div>
           </draggable>
         </div>
       </div>
@@ -72,6 +64,15 @@
       @modalOk="handleChangeTxt"
     />
 
+    <!-- 保存按钮 -->
+    <div 
+      class="flag-save-btn" 
+      v-if="!isLoading && flagList.length > 0 && deleteList.length > 0"
+      @click="handleSave"
+    >
+      <span class="save-text">保存</span>
+    </div>
+
     <loading :isLoading="isLoading && flagList.length === 0" />
   </div>
 </template>
@@ -84,11 +85,12 @@ import {
   onMounted,
   ref,
   nextTick,
+  watch,
 } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useStore } from "../store";
 import { VueDraggableNext } from "vue-draggable-next";
-import { selectFlagH5 } from "../api/flag";
+import { selectFlagH5, addFlag } from "../api/flag";
 import editmodal from "../components/editmodal.vue";
 import loading from "@/components/loading.vue";
 
@@ -102,6 +104,7 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const store = useStore();
     const dataMap = reactive({
       flagList: [] as any[],
@@ -116,21 +119,63 @@ export default defineComponent({
 
     const flagRef: any = ref<null | HTMLElement | Object>(null);
 
+    // 保存token到store和localStorage
+    const setRouterCache = () => {
+      const query = router.currentRoute.value.query;
+      const tokenFromQuery = (query.token || "").toString();
+      const tokenFromStorage = localStorage.getItem("Authorization");
+      
+      // 优先使用URL中的token，如果没有则使用localStorage中的
+      const token = tokenFromQuery || tokenFromStorage || "";
+      
+      if (token) {
+        store.dispatch("ACTIONSETTOKEN", token);
+        localStorage.setItem("Authorization", token);
+        console.log("🔑 flag-manage: Token已保存", token);
+      } else {
+        console.warn("⚠️ flag-manage: 未找到token");
+      }
+    };
+
     onMounted(() => {
+      // 先保存token，再查询数据
+      setRouterCache();
       getflagList();
     });
 
     // 获取目标列表
     const getflagList = async () => {
+      // 检查token是否存在（从localStorage、路由参数或store中获取，与 flag.vue 保持一致）
+      const token = localStorage.getItem("Authorization") || 
+                    (route.query.token as string) || 
+                    store.state.tokencache;
+      if (!token || token === "") {
+        console.log("⚠️ 未找到token，跳过API调用");
+        dataMap.hasError = true;
+        dataMap.errorMessage = "未找到认证信息，请重新登录";
+        dataMap.isLoading = false;
+        return;
+      }
+
       dataMap.isLoading = true;
       dataMap.hasError = false;
+      console.log("📡 开始查询目标列表，token:", token);
       try {
         const res: any = await selectFlagH5({});
+        console.log("✅ 查询目标列表成功:", res);
+        console.log("📊 flags数据:", res.data?.flags);
+        // 使用与 flag.vue 完全相同的数据处理逻辑
         if (res.data && res.data.flags) {
-          dataMap.flagList = res.data.flags.map((item: any) => ({
-            id: item.id,
-            text: item.flag,
-          }));
+          // 先清空数组，然后重新填充，确保响应式更新
+          const newFlagList: any[] = [];
+          res.data.flags.forEach((item: any, index: any) => {
+            newFlagList.push({
+              id: item.id,
+              text: item.flag,
+            });
+          });
+          // 一次性赋值整个数组，确保响应式更新
+          dataMap.flagList = newFlagList;
           // 更新store
           store.dispatch("ACTIONCHOOSELIST", dataMap.flagList);
           // 更新numIndex，避免新增时id冲突
@@ -143,21 +188,26 @@ export default defineComponent({
             );
             numIndex = maxId > 0 ? maxId : 0;
           }
+          console.log("✅ 数据已处理，共", dataMap.flagList.length, "条");
+          // 确保在数据更新后，isLoading 被设置为 false
+          dataMap.isLoading = false;
+          dataMap.hasError = false;
         } else {
           // 数据格式异常
+          console.warn("⚠️ API返回数据格式异常:", res);
           dataMap.hasError = true;
           dataMap.errorMessage = "数据格式异常，请稍后重试";
+          dataMap.isLoading = false;
         }
       } catch (error: any) {
         console.error("获取目标列表失败:", error);
         dataMap.hasError = true;
+        dataMap.isLoading = false;
         if (error.message) {
           dataMap.errorMessage = error.message;
         } else {
           dataMap.errorMessage = "网络错误，请检查网络连接后重试";
         }
-      } finally {
-        dataMap.isLoading = false;
       }
     };
 
@@ -221,14 +271,84 @@ export default defineComponent({
       router.back();
     };
 
+    // 保存更改
+    const handleSave = async () => {
+      // 检查token是否存在
+      const token = localStorage.getItem("Authorization") || 
+                    (route.query.token as string) || 
+                    store.state.tokencache;
+      
+      if (!token || token === "") {
+        console.log("⚠️ 未找到token，无法保存");
+        dataMap.hasError = true;
+        dataMap.errorMessage = "未找到认证信息，请重新登录";
+        return;
+      }
+
+      if (dataMap.deleteList.length === 0) {
+        console.log("⚠️ 没有需要保存的更改");
+        return;
+      }
+
+      dataMap.isLoading = true;
+      dataMap.hasError = false;
+
+      try {
+        // 准备删除的flag id列表
+        const deleteflags = dataMap.deleteList.map((x: any) => x.id).join(",");
+        
+        console.log("📤 准备保存，删除的flag ids:", deleteflags);
+        console.log("📤 删除列表详情:", dataMap.deleteList);
+        
+        // 构建请求参数 - 只传递有值的参数，不传空字符串
+        // 参考 draw.vue 的调用方式，但只传删除参数
+        const requestParams: any = {
+          del: deleteflags, // 删除的flag id列表
+        };
+        
+        // 如果接口要求所有参数都存在，可以添加空字符串参数
+        // 但根据错误信息，可能是接口不接受空字符串，所以先只传 del 参数试试
+        
+        console.log("📤 请求参数:", JSON.stringify(requestParams, null, 2));
+        
+        // 调用保存接口
+        const res = await addFlag(requestParams);
+        
+        console.log("✅ 保存成功，接口返回:", res);
+        console.log("📊 接口返回数据:", JSON.stringify(res, null, 2));
+        
+        // 检查接口返回，看是否有错误信息
+        const response = res as any;
+        if (response && response.code !== undefined && response.code !== 200 && response.code !== 0) {
+          throw new Error(response.message || response.msg || "保存失败");
+        }
+        
+        // 清空删除列表
+        dataMap.deleteList = [];
+        store.dispatch("ACTIONDELETELIST", []);
+        // 重新获取列表，确保数据同步
+        await getflagList();
+      } catch (error: any) {
+        console.error("保存失败:", error);
+        dataMap.hasError = true;
+        if (error.message) {
+          dataMap.errorMessage = error.message;
+        } else {
+          dataMap.errorMessage = "保存失败，请稍后重试";
+        }
+      } finally {
+        dataMap.isLoading = false;
+      }
+    };
+
     return {
       ...toRefs(dataMap),
       handleDel,
       handleEdit,
       handleChangeTxt,
-      handleBack,
       handleDragEnd,
       handleRetry,
+      handleSave,
       flagRef,
     };
   },
@@ -242,35 +362,6 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
-
-.flag-manage-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.3rem;
-  border-bottom: 1px solid #eee;
-  position: relative;
-  z-index: 10;
-
-  .header-back {
-    font-size: 0.3rem;
-    color: #131415;
-    cursor: pointer;
-    min-width: 1rem;
-  }
-
-  .header-title {
-    font-size: 0.36rem;
-    font-weight: bold;
-    color: #131415;
-    text-align: center;
-    flex: 1;
-  }
-
-  .header-placeholder {
-    min-width: 1rem;
-  }
 }
 
 .flag-manage-content {
@@ -293,10 +384,11 @@ export default defineComponent({
 
 .flag-list-container {
   min-height: 100%;
-  padding-bottom: 0.3rem;
+  /* 给底部预留空间，避免被保存按钮遮挡 */
+  padding-bottom: 1.2rem;
   
   .flag-item {
-    margin-bottom: 0.22rem;
+    margin-bottom: 0.4rem;
     font-size: 0.3rem;
 
     .item-index {
@@ -417,6 +509,34 @@ export default defineComponent({
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* 保存按钮 */
+.flag-save-btn {
+  width: 2rem;
+  height: 0.76rem;
+  background: #ff5f47;
+  border-radius: 0.38rem;
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 0.3rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.1);
+  
+  .save-text {
+    color: #fff;
+    font-size: 0.32rem;
+    font-weight: bold;
+  }
+  
+  &:active {
+    opacity: 0.8;
+  }
 }
 </style>
 

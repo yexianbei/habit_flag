@@ -349,10 +349,34 @@ export default defineComponent({
       await (dataMap.footerShow = true);
       await nextTick();
       const wrap: any = document.getElementById("draw-wrap");
+      const drawBox: any = wrap.querySelector(".draw-box");
+      
+      if (!drawBox) {
+        console.error("未找到 draw-box 元素");
+        return;
+      }
+      
+      // 保存原始的 padding-bottom 值
+      const originalPaddingBottom = wrap.style.paddingBottom;
+      // 获取 draw-box 的 margin-top（顶部间距），通常是 1.5rem
+      const drawBoxMarginTop = parseFloat(window.getComputedStyle(drawBox).marginTop) || 1.5 * 75;
+      // 临时设置底部间距与顶部间距一致
+      wrap.style.paddingBottom = `${drawBoxMarginTop / 75}rem`;
+      
+      // 获取 draw-box 的实际高度（包括内容）
+      const drawBoxHeight = drawBox.scrollHeight;
+      const drawBoxTop = drawBox.offsetTop;
+      
+      // 计算需要截取的高度：从顶部到 draw-box 底部 + 与顶部一致的边距
+      const targetHeight = drawBoxTop + drawBoxHeight + drawBoxMarginTop;
+      
       await html2canvas(wrap, {
         width: wrap.offsetWidth,
-        height: wrap.offsetHeight,
+        height: targetHeight,
       }).then((canvas: any) => {
+        // 恢复原始的 padding-bottom
+        wrap.style.paddingBottom = originalPaddingBottom;
+        
         const canvaswrap: any = document.querySelector(".canvas-poster");
         canvaswrap.innerHTML = "";
         canvaswrap.appendChild(convertCanvasToImage(canvas));
@@ -361,6 +385,10 @@ export default defineComponent({
         store.dispatch("ACTIONSETIMG", poster.src);
         dataMap.readyJump = true;
         handleSave(poster.src); //将数据保存
+      }).catch((error: any) => {
+        // 如果出错，也要恢复原始的 padding-bottom
+        wrap.style.paddingBottom = originalPaddingBottom;
+        console.error("生成图片失败:", error);
       });
     };
     //canvas转化为img
