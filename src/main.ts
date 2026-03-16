@@ -10,7 +10,12 @@ import '@/assets/style/index.scss'
 import { loadImgReady } from "./common/utils";
 import 'animate.css';
 
-createApp(App).use(router).use(store).mount('#app')
+const app = createApp(App).use(router).use(store)
+app.mount('#app')
+
+// Vue 挂载完成后移除骨架屏
+const skeleton = document.getElementById('app-skeleton')
+if (skeleton) skeleton.remove()
 
 Promise.all(
   loadImgReady([

@@ -7,10 +7,6 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/src/assets/images/basicprofile.png" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.compat.css"
-    />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,viewport-fit=cover"
@@ -39,7 +35,48 @@
   </head>
 
   <body>
-    <div id="app" class="user-select-none"></div>
+    <div id="app" class="user-select-none">
+      <!-- 骨架屏：Vue 挂载前显示，挂载后被替换 -->
+      <div id="app-skeleton" style="
+        position: fixed; inset: 0;
+        background: #fff;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        font-family: sans-serif;
+        z-index: 9999;
+      ">
+        <div style="width: 80vw; max-width: 400px; text-align: center;">
+          <span id="skeleton-num" style="color: #ff5f47; font-size: 4.5vw;">0%</span>
+          <div style="
+            width: 100%; height: 2px; background: #eee;
+            margin: 2.5vw auto; position: relative;
+          ">
+            <div id="skeleton-bar" style="
+              position: absolute; right: 0; top: 0; bottom: 0;
+              background: #999; width: 100%;
+              transition: width 0.1s ease-out;
+            "></div>
+          </div>
+        </div>
+        <div style="position: fixed; bottom: 8vw; font-size: 3.5vw; color: #666;">
+          你的未来，从这里开始
+        </div>
+      </div>
+    </div>
+    <script>
+      // 骨架屏进度动画，与 index.vue 的 coutTimer 保持一致
+      ;(function () {
+        var p = 0
+        var bar = document.getElementById('skeleton-bar')
+        var num = document.getElementById('skeleton-num')
+        var t = setInterval(function () {
+          p++
+          if (num) num.textContent = p + '%'
+          if (bar) bar.style.width = (100 - p) + '%'
+          if (p >= 100) clearInterval(t)
+        }, 10)
+      })()
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

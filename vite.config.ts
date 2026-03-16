@@ -18,7 +18,14 @@ export default defineConfig({
     target: 'es2015',
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: true
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['vue', 'vue-router', 'vuex'],
+        }
+      }
+    }
   },
   server: {
     port: 3000,

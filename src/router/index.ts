@@ -3,12 +3,13 @@
  * @LastEditTime: 2026-01-02 11:17:38
  */
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import IndexView from '../views/index.vue'
 
 export const constantRoutes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'index',
-    component: () => import('../views/index.vue'),
+    component: IndexView,
   },
   {
     path: '/poster',
