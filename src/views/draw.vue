@@ -242,7 +242,7 @@ export default defineComponent({
 
     //动态获取图片
     const getImageUrl = (num: number | string) => {
-      return new URL(`../assets/images/snake/snake-${num}.png`, import.meta.url)
+      return new URL(`../assets/images/horse/horse${num}.png`, import.meta.url)
         .href;
     };
 

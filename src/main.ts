@@ -14,14 +14,15 @@ createApp(App).use(router).use(store).mount('#app')
 
 Promise.all(
   loadImgReady([
-    new URL(`./assets/images/snake/snake-1.png`, import.meta.url).href,
-    new URL(`./assets/images/snake/snake-2.png`, import.meta.url).href,
-    new URL(`./assets/images/snake/snake-3.png`, import.meta.url).href,
-    new URL(`./assets/images/snake/snake-4.png`, import.meta.url).href,
-    new URL(`./assets/images/snake/snake-5.png`, import.meta.url).href,
-    new URL(`./assets/images/snake/snake-6.png`, import.meta.url).href,
-    new URL(`./assets/images/snake/snake-7.png`, import.meta.url).href,
-    new URL(`./assets/images/snake/snake-8.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse1.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse2.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse3.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse4.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse5.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse6.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse7.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse8.png`, import.meta.url).href,
+    new URL(`./assets/images/horse/horse9.png`, import.meta.url).href,
 
     new URL(`./assets/images/bg.png`, import.meta.url).href,
     new URL(`./assets/images/step3/sign-bg.png`, import.meta.url).href,
