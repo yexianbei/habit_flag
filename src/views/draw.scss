@@ -236,7 +236,8 @@
 
 .draw-set-wrap {
     width: 100%;
-    height: var(--draw-set-height);
+    // border-box 下 padding 会吃掉内容高度，需把 safe-area 加进总高，否则底栏会叠到小装饰滚动区上导致点不到下一步
+    height: calc(var(--draw-set-height) + env(safe-area-inset-bottom));
     background: #ececec;
     border-radius: 0.1rem 0.1rem 0 0;
     position: fixed;
@@ -286,6 +287,7 @@
         height: 2rem;
         overflow: hidden;
         position: relative;
+        z-index: 0;
         .draw-set {
             height: 100%;
             .draw-set-img {
@@ -362,10 +364,16 @@
         position: absolute;
         left: 0.3rem;
         right: 0.3rem;
+        // padding edge 在可视底边，需抬到 safe-area 之上，避免点到 Home 条
         bottom: calc(0.3rem + env(safe-area-inset-bottom));
+        z-index: 2;
         span {
             width: 1.6rem;
             height: 0.4rem;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         .prev {
             background: url('@/assets/images/step2/draw-prev.png') no-repeat center center;
@@ -413,6 +421,8 @@
         }
         .draw-set-cont {
             height: 1.5rem;
+            // 避免装饰图横向滚动层盖住底栏按钮
+            z-index: 0;
             .draw-set {
                 .draw-set-img {
                     width: 1.2rem;
