@@ -171,22 +171,33 @@ export default defineComponent({
 <style lang="scss" scoped>
 .sign-wrap {
   background-image: url("@/assets/images/bg.png");
-  // background-color: #ff5f47;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
+  min-height: 100dvh;
   background-size: 100% auto;
   position: fixed;
   left: 0;
   top: 0;
+  right: 0;
+  bottom: 0;
   z-index: 100;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   transition: 0.3s all;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: calc(0.6rem + env(safe-area-inset-top)) 0
+    calc(0.4rem + env(safe-area-inset-bottom));
   .draw-tip {
     width: 3.44rem;
     height: 0.3rem;
     position: absolute;
     right: 0.3rem;
-    top: 0.8rem;
+    top: calc(0.5rem + env(safe-area-inset-top));
     border-top: 1px solid #131415;
     padding-top: 0.1rem;
     .img {
@@ -195,18 +206,21 @@ export default defineComponent({
   }
   .sign-cont {
     width: 6.4rem;
+    max-width: calc(100% - 0.6rem);
     height: 9.8rem;
     background: url("@/assets/images/step3/sign-bg.png") no-repeat center center;
-    background-size: 100% auto;
-    margin: 1.4rem auto 0;
+    background-size: 100% 100%;
+    margin: 0 auto;
     position: relative;
     font-size: 0.26rem;
+    flex-shrink: 0;
     .sign-readme {
       color: #ff5f47;
       font-size: 0.26rem;
       width: 5.6rem;
+      max-width: calc(100% - 0.6rem);
       position: absolute;
-      top: 6.8rem;
+      top: 69.4%;
       left: 0.3rem;
       &.heartFade {
         animation: heart-in 750ms;
@@ -228,13 +242,15 @@ export default defineComponent({
     }
     .sign-text {
       width: 3.5rem;
+      max-width: 55%;
       height: 0.66rem;
       border: 0.02rem solid #131415;
       background: #fff;
       position: absolute;
       left: 0.38rem;
-      bottom: 1.12rem;
+      bottom: 11.4%;
       padding-left: 0.2rem;
+      box-sizing: border-box;
     }
     .next {
       width: 1.6rem;
@@ -244,7 +260,7 @@ export default defineComponent({
       background-size: 1.4rem auto;
       position: absolute;
       right: 0.6rem;
-      bottom: 0.6rem;
+      bottom: 6.1%;
     }
   }
 }
@@ -285,7 +301,6 @@ export default defineComponent({
   z-index: 150;
   top: 0;
   left: 0;
-  // background-color: #ff5f47;
   .cout-cont {
     width: 5rem;
     height: 5rem;
@@ -297,7 +312,6 @@ export default defineComponent({
     .cont-border {
       position: relative;
       .line {
-        // width: 50%;
         background: #fff;
         height: 1px;
         transform-origin: 0 0;
@@ -359,68 +373,15 @@ export default defineComponent({
   }
 }
 
-//针对长屏手机适配
-@media screen and (min-height: 680px) {
-  .sign-cont {
-    margin-top: 30% !important;
-  }
-}
-@media screen and (min-height: 1024px) {
-  .draw-tip {
-    top: 0.2rem !important;
-  }
-  .sign-cont {
-    margin-top: 10% !important;
-    width: 5.9rem !important;
-    height: 8.8rem !important;
-    .sign-readme {
-      top: 6.2rem !important;
-      width: 5.2rem !important;
-      font-size: 0.24rem !important;
-    }
-    .sign-text {
-      font-size: 0.2rem !important;
-    }
-  }
-}
-
-//横屏适配
-@media screen and (orientation: landscape) {
+// 矮屏/横屏：卡片可缩放并可滚动完整展示
+@media screen and (max-height: 700px) {
   .sign-wrap {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  .draw-tip {
-    top: 0.3rem !important;
+    justify-content: flex-start;
+    padding-top: calc(0.8rem + env(safe-area-inset-top));
   }
   .sign-cont {
-    width: 5.5rem !important;
-    height: 7.5rem !important;
-    margin: 0.5rem auto 0 !important;
-    .sign-readme {
-      top: 5.2rem !important;
-      width: 4.8rem !important;
-      font-size: 0.22rem !important;
-    }
-    .sign-text {
-      width: 3rem !important;
-      height: 0.6rem !important;
-      left: 0.3rem !important;
-      // 减少底部距离，让输入框更贴近背景图片中的输入框位置，避免看起来像两个输入框
-      bottom: 0.55rem !important;
-      font-size: 0.24rem !important;
-      // 确保输入框与背景对齐，避免视觉上的双重输入框效果
-      border: 0.02rem solid #131415 !important;
-      background: #fff !important;
-      padding-left: 0.15rem !important;
-    }
-    .next {
-      width: 1.4rem !important;
-      height: 0.4rem !important;
-      right: 0.5rem !important;
-      bottom: 0.5rem !important;
-      background-size: 1.2rem auto !important;
-    }
+    width: 5.4rem;
+    height: 8.2rem;
   }
 }
 </style>

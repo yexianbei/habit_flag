@@ -1,15 +1,23 @@
 .draw-page {
+    --draw-set-height: 3.52rem;
     width: 100%;
     height: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
     position: relative;
     overflow: hidden;
 }
 
 .draw-container {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    min-height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
 }
 
 .draw-tip {
@@ -17,7 +25,7 @@
     height: 0.3rem;
     position: fixed;
     right: 0.3rem;
-    top: 0.8rem;
+    top: calc(0.5rem + env(safe-area-inset-top));
     border-top: 1px solid #131415;
     padding-top: 0.1rem;
     z-index: 9;
@@ -36,28 +44,34 @@
     transition: 0.3s all;
     text-align: center;
     display: inline-block;
-    // 竖屏状态下，为底部操作栏（高度3.52rem）留出足够空间，确保内容不被遮挡
-    padding-bottom: 4rem;
+    box-sizing: border-box;
+    // 为底部操作栏留出空间，跟 CSS 变量联动
+    padding-bottom: calc(var(--draw-set-height) + env(safe-area-inset-bottom) + 0.4rem);
     &.draw-flex {
         display: flex;
     }
     .draw-box {
         width: 6.08rem;
+        max-width: calc(100% - 0.6rem);
         min-height: 10.08rem;
         background: #ffffff;
         border-radius: 0.2rem;
         border: 0.03rem solid rgba(19, 20, 21, 0.5);
-        margin: 1.5rem auto;
+        margin: 1.2rem auto 0.4rem;
+        box-sizing: border-box;
         .draw-cont {
             width: 5.86rem;
+            max-width: calc(100% - 0.16rem);
             min-height: 9.88rem;
             margin: 0.1rem auto;
             background: #ffffff;
             border-radius: 0.2rem;
             border: 1px dashed #ffc309;
             text-align: center;
+            box-sizing: border-box;
             .draw-top-img {
                 width: 4.8rem;
+                max-width: 90%;
                 margin-top: 0.3rem;
             }
             .draw-main {
@@ -87,21 +101,11 @@
                     position: relative;
                     z-index: 9;
                     display: block;
-                    // background: #ffc309;
-                    // &.draw-cloud-left {
-                    // background-image: url('@/assets/images/step2/cloud-left.png');
-                    // background-size: 100% auto;
-                    // background-blend-mode: lighten; 
-                    // filter: drop-shadow(0 0 0 blue);
-                    // }
-                    // &.draw-cloud-right {
-                    // background-image: url('@/assets/images/cloud-right.png');
-                    // background-size: 100% auto;
-                    // }
                 }
             }
             .draw-line {
                 width: 5.16rem;
+                max-width: 95%;
                 height: 0.1rem;
                 display: inline-block;
                 background-image: url('@/assets/images/step2/poster-line.png');
@@ -109,6 +113,7 @@
             }
             .draw-line2 {
                 width: 5.16rem;
+                max-width: 95%;
                 height: 0.1rem;
                 display: inline-block;
                 background-image: url('@/assets/images/step2/poster-line2.png');
@@ -119,7 +124,7 @@
                 min-height: 2.2rem;
                 .draw-item {
                     width: 5.42rem;
-                    // line-height: 0.66rem;
+                    max-width: 96%;
                     position: relative;
                     margin-bottom: 0.2rem;
                     text-align: left;
@@ -134,6 +139,7 @@
                         position: relative;
                         z-index: 2;
                         word-break: break-all;
+                        box-sizing: border-box;
                         .num {
                             position: relative;
                             text-align: center;
@@ -155,9 +161,8 @@
                         }
                     }
                     .draw-item-bg {
-                        width: 5.44rem;
+                        width: calc(100% + 0.02rem);
                         height: 100%;
-                        // background: #ffc309;
                         border-radius: 0.2rem;
                         position: absolute;
                         left: 0.08rem;
@@ -168,13 +173,11 @@
             }
             .draw-footer {
                 width: 5.16rem;
+                max-width: 95%;
                 margin: 0.2rem auto;
                 text-align: left;
                 height: 1.9rem;
                 .draw-left {
-                    .sign-name {
-                        // font-family: BEBAS;
-                    }
                     .sign-time {
                         font-size: 0.26rem;
                         font-family: Poppins-Regular, Poppins;
@@ -213,7 +216,6 @@
                         height: 1.2rem;
                         display: inline-block;
                         background: #999999;
-                        // border: 1px solid #000;
                     }
                     .sign-text {
                         height: 0.26rem;
@@ -234,7 +236,7 @@
 
 .draw-set-wrap {
     width: 100%;
-    height: 3.52rem;
+    height: var(--draw-set-height);
     background: #ececec;
     border-radius: 0.1rem 0.1rem 0 0;
     position: fixed;
@@ -242,6 +244,7 @@
     right: 0;
     bottom: 0;
     z-index: 99;
+    box-sizing: border-box;
     padding-bottom: env(safe-area-inset-bottom);
     .draw-set-header {
         height: 0.7rem;
@@ -284,7 +287,6 @@
         overflow: hidden;
         position: relative;
         .draw-set {
-            // overflow-x: scroll;
             height: 100%;
             .draw-set-img {
                 width: 1.48rem;
@@ -293,10 +295,11 @@
                 display: inline-block;
             }
             .draw-color-wrap {
-                overflow-x: scroll;
+                overflow-x: auto;
                 margin-top: 0.2rem;
                 height: 0.8rem;
                 white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
                 .color {
                     width: 0.7rem;
                     height: 0.7rem;
@@ -324,13 +327,16 @@
             .draw-color-picker {
                 position: absolute;
                 left: 0.5rem;
+                right: 0.5rem;
                 bottom: 0.2rem;
-                width: 6.5rem;
+                width: auto;
+                max-width: 6.5rem;
                 height: 0.6rem;
                 background: #ececec;
                 border: 0.01rem solid #999999;
+                box-sizing: border-box;
                 .color-range {
-                    width: 6.5rem;
+                    width: 100%;
                     height: 0.4rem;
                     position: absolute;
                     left: 0;
@@ -356,8 +362,7 @@
         position: absolute;
         left: 0.3rem;
         right: 0.3rem;
-        bottom: 0.3rem;
-        padding-bottom: env(safe-area-inset-bottom);
+        bottom: calc(0.3rem + env(safe-area-inset-bottom));
         span {
             width: 1.6rem;
             height: 0.4rem;
@@ -387,210 +392,58 @@
     z-index: 130;
 }
 
-//针对ipad适配
-@media screen and (min-height: 1024px) {
-    .draw-tip {
-        top: 0.2rem;
-    }
-    .draw-box {
-        margin: 0.7rem auto !important;
-        .draw-cont {
-            .draw-top-img {
-                width: 4.0rem !important;
-            }
-        }
-    }
-    .draw-set-wrap {
-        height: 2.82rem;
-        .draw-set-header {
-            height: 0.5rem;
-            line-height: 0.5rem;
-            font-size: 0.22rem;
-        }
-        .draw-set {
-            .draw-color-picker {
-                bottom: 0.5rem !important;
-                height: 0.5rem !important;
-                .color-range {
-                    height: 0.3rem !important;
-                }
-                .color-picker {
-                    height: 0.3rem !important;
-                }
-            }
-            .draw-color-wrap {
-                height: 0.5rem !important;
-                .color {
-                    width: 0.5rem !important;
-                    height: 0.5rem !important;
-                }
-            }
-            .draw-set-img {
-                width: 1.08rem !important;
-                height: 1.08rem !important;
-            }
-        }
-    }
-    .draw-set-footer {
-        .next-continue,
-        .prev {
-            background-size: 1.1rem auto !important;
-        }
-    }
-}
-
-//横屏适配
-@media screen and (orientation: landscape) {
+// 矮屏：压缩底栏，内容区 padding 跟变量走
+@media screen and (max-height: 700px) {
     .draw-page {
-        height: 100vh;
-        overflow: hidden;
-        position: relative;
+        --draw-set-height: 2.8rem;
     }
-    .draw-container {
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        position: relative;
-        // 确保可以滚动到底部
-        padding-bottom: 0 !important;
-        // 使用 -webkit-overflow-scrolling 提升滚动体验
-        -webkit-overflow-scrolling: touch;
+    .draw-tip {
+        top: calc(0.25rem + env(safe-area-inset-top));
     }
     .draw-wrap {
-        min-height: calc(100vh - 2.5rem); // 减去操作栏高度
-        // 为底部操作栏留出足够空间（2.5rem 操作栏 + 0.5rem 安全边距）
-        padding-bottom: 3.5rem !important;
-        box-sizing: border-box;
-    }
-    .draw-tip {
-        top: 0.3rem;
-    }
-    .draw-box {
-        margin: 0.3rem auto !important; // 进一步减少上下边距
-        width: 5.8rem !important; // 稍微缩小宽度
-        .draw-cont {
-            width: 5.6rem !important; // 缩小内容区域宽度
-            margin: 0.08rem auto !important; // 减少内边距
-            .draw-top-img {
-                width: 3.2rem !important; // 进一步缩小
-                margin-top: 0.15rem !important;
-            }
-            .draw-main {
-                margin-top: 0.08rem !important;
-                .draw-icon {
-                    width: 1.1rem !important; // 进一步缩小
-                    height: 1.1rem !important;
-                    margin: 0 0.12rem !important;
-                }
-                .draw-cloud {
-                    width: 1.2rem !important; // 进一步缩小
-                    height: 0.6rem !important;
-                }
-            }
-            .draw-line {
-                width: 4.8rem !important; // 缩小线条宽度
-                margin: 0.1rem auto !important;
-            }
-            .draw-list {
-                margin-top: 0.15rem !important; // 减少顶部间距
-                .draw-item {
-                    width: 4.8rem !important; // 稍微缩小
-                    margin-bottom: 0.12rem !important; // 减少间距
-                    .draw-item-cont {
-                        // 保持原始 padding，确保底部颜色条长度不变
-                        padding: 0.13rem 0 0.13rem 0.2rem !important;
-                        font-size: 0.24rem !important; // 稍微缩小字体
-                    }
-                    .draw-item-bg {
-                        // 确保底部颜色条保持原始比例（相对于 5.44rem/5.42rem 的比例）
-                        width: 4.9rem !important; // 按比例缩小（4.8rem * 1.02）
-                        height: 100% !important;
-                        left: 0.08rem !important;
-                        bottom: -0.1rem !important;
-                    }
-                }
-            }
-            .draw-line2 {
-                width: 4.8rem !important; // 缩小线条宽度
-                margin: 0.1rem auto !important;
-            }
-            .draw-footer {
-                margin: 0.12rem auto !important; // 减少间距
-                height: 1.3rem !important; // 缩小高度
-                width: 4.8rem !important; // 缩小宽度
-                .draw-left {
-                    .sign-time {
-                        font-size: 0.2rem !important; // 进一步缩小
-                        margin: 0.08rem 0 !important;
-                    }
-                    .sign-logo {
-                        height: 0.3rem !important; // 进一步缩小
-                    }
-                }
-                .draw-right {
-                    .sign-code {
-                        width: 0.9rem !important; // 进一步缩小
-                        height: 0.9rem !important;
-                    }
-                    .sign-text {
-                        font-size: 0.16rem !important; // 进一步缩小
-                        padding: 0.06rem 0 !important;
-                    }
-                }
-            }
+        .draw-box {
+            margin-top: 0.6rem;
         }
     }
     .draw-set-wrap {
-        height: 2.5rem;
         .draw-set-header {
-            height: 0.6rem;
-            line-height: 0.6rem;
+            height: 0.56rem;
+            line-height: 0.56rem;
             font-size: 0.24rem;
         }
         .draw-set-cont {
             height: 1.5rem;
             .draw-set {
+                .draw-set-img {
+                    width: 1.2rem;
+                    height: 1.2rem;
+                }
                 .draw-color-wrap {
-                    height: 0.6rem !important;
-                    margin-top: 0.15rem !important;
+                    height: 0.6rem;
+                    margin-top: 0.1rem;
                     .color {
-                        width: 0.6rem !important;
-                        height: 0.6rem !important;
-                        margin: 0 0.15rem !important;
+                        width: 0.55rem;
+                        height: 0.55rem;
                     }
                 }
                 .draw-color-picker {
-                    bottom: 0.15rem !important;
-                    height: 0.5rem !important;
-                    width: 6rem !important;
-                    left: 0.3rem !important;
+                    height: 0.5rem;
+                    bottom: 0.12rem;
                     .color-range {
-                        width: 6rem !important;
-                        height: 0.35rem !important;
+                        height: 0.32rem;
                     }
                     .color-picker {
-                        width: 1.4rem !important;
-                        height: 0.35rem !important;
+                        height: 0.32rem;
                     }
-                }
-                .draw-set-img {
-                    width: 1.2rem !important;
-                    height: 1.2rem !important;
-                    margin: 0 0.15rem !important;
                 }
             }
         }
         .draw-set-footer {
-            bottom: 0.2rem;
-            span {
-                width: 1.4rem;
-                height: 0.35rem;
-            }
+            bottom: calc(0.16rem + env(safe-area-inset-bottom));
             .prev,
             .next-continue,
             .next-step {
-                background-size: 1.2rem auto !important;
+                background-size: 1.2rem auto;
             }
         }
     }

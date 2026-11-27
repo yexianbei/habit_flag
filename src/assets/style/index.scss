@@ -1,25 +1,25 @@
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
 body {
   height: 100%;
-  margin: 0;
+  min-height: 100%;
+  min-height: 100dvh;
+  margin: 0 auto;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   min-width: 320px;
-  margin: 0 auto;
   font-size: 0.28rem;
   color: #131415;
   background: #F7F7F7;
   position: relative;
-}
-
-// 横屏适配：允许页面滚动
-@media screen and (orientation: landscape) {
-  body {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
 }
 
 // 在大屏设备上限制body最大宽度，让内容居中显示
@@ -28,27 +28,41 @@ body {
     max-width: 750px;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
   }
+
+  // fixed 层与 body 同宽居中，避免贴浏览器全宽
+  .draw-set-wrap,
+  .sign-wrap,
+  .habbit-start,
+  .canvas-poster,
+  .cout-down {
+    left: 50% !important;
+    right: auto !important;
+    width: min(100%, 750px);
+    transform: translateX(-50%);
+    box-sizing: border-box;
+  }
+
+  .flag-next {
+    width: 1.6rem;
+    left: auto !important;
+    right: calc(50% - 375px + 0.3rem) !important;
+    transform: none;
+  }
+
+  .draw-tip {
+    right: calc(50% - 375px + 0.3rem) !important;
+  }
 }
 
 label {
   font-weight: 700;
 }
 
-html {
-  height: 100%;
-  box-sizing: border-box;
-}
-
 #app {
-  height: 100%;
-}
-
-// 横屏适配：确保 app 容器可以滚动
-@media screen and (orientation: landscape) {
-  #app {
-    min-height: 100%;
-    height: auto;
-  }
+  min-height: 100%;
+  min-height: 100dvh;
+  height: auto;
+  position: relative;
 }
 
 input {
@@ -175,4 +189,3 @@ input[type='range']:focus {
 }
 
 @import './keyframe.scss'
-

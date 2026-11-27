@@ -26,13 +26,46 @@ export const loadImgReady = (imagesArr: any[]) => {
   let promiseImage = [],
     imgs: any[] = [],
     total = imagesArr.length
+  const IMAGE_LOAD_TIMEOUT = 10000 // 10秒超时
+  
   for (let i = 0; i < total; i++) {
-    promiseImage[i] = new Promise(resolve => {
+    promiseImage[i] = new Promise((resolve, reject) => {
       imgs[i] = new Image()
-      imgs[i].src = imagesArr[i]
+      let timeoutId: any = null
+      let isResolved = false
+      
+      // 超时处理
+      timeoutId = setTimeout(() => {
+        if (!isResolved) {
+          isResolved = true
+          console.error(`图片加载超时: ${imagesArr[i]}`)
+          // 即使超时也resolve，避免阻塞页面加载
+          resolve(imgs[i])
+        }
+      }, IMAGE_LOAD_TIMEOUT)
+      
+      // 成功加载
       imgs[i].onload = function () {
-        resolve(imgs[i])
+        if (!isResolved) {
+          isResolved = true
+          if (timeoutId) clearTimeout(timeoutId)
+          resolve(imgs[i])
+        }
       }
+      
+      // 加载失败处理
+      imgs[i].onerror = function (error: any) {
+        if (!isResolved) {
+          isResolved = true
+          if (timeoutId) clearTimeout(timeoutId)
+          console.error(`图片加载失败: ${imagesArr[i]}`, error)
+          // 即使失败也resolve，避免阻塞页面加载
+          resolve(imgs[i])
+        }
+      }
+      
+      // 开始加载
+      imgs[i].src = imagesArr[i]
     })
   }
   return promiseImage

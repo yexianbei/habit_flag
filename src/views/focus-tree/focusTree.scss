@@ -1,0 +1,1722 @@
+/* 专注森林 · 墨色纸园
+ * 冷石灰底 + 墨绿点睛，避开玻璃拟态 / 天空渐变 / 胶囊堆 / 表情符号
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Serif+SC:wght@400;600;700&display=swap');
+
+.ff-page {
+  --ff-ink: #1c2420;
+  --ff-mute: #6a756e;
+  --ff-line: #c5ccc4;
+  --ff-paper: #e6e9e2;
+  --ff-paper-deep: #d5dbd2;
+  --ff-moss: #2f5d45;
+  --ff-moss-bright: #3f7a58;
+  --ff-water: #3a6f7c;
+  --ff-soil: #8a6b4a;
+  --ff-warn: #9a4f38;
+  --ff-danger: #8b3a32;
+  --ff-panel: #f2f4ef;
+
+  position: relative;
+  min-height: 100%;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  color: var(--ff-ink);
+  font-family: 'Noto Serif SC', 'Songti SC', 'PingFang SC', serif;
+  background-color: var(--ff-paper);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, transparent 28%),
+    repeating-linear-gradient(
+      -12deg,
+      transparent,
+      transparent 11px,
+      rgba(28, 36, 32, 0.018) 11px,
+      rgba(28, 36, 32, 0.018) 12px
+    );
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ff-page::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28%;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(47, 93, 69, 0.07) 55%,
+    rgba(47, 93, 69, 0.14) 100%
+  );
+  z-index: 0;
+}
+
+.ff-ui {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: calc(0.32rem + env(safe-area-inset-top)) 0.36rem
+    calc(0.36rem + env(safe-area-inset-bottom));
+}
+
+.ff-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.2rem;
+  margin-bottom: 0.08rem;
+
+  .back {
+    width: 0.64rem;
+    height: 0.64rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.34rem;
+    color: var(--ff-ink);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 0.06rem;
+    border-radius: 0;
+  }
+
+  .brand-block {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+
+    .brand {
+      font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      color: var(--ff-ink);
+      line-height: 1.15;
+    }
+
+    .tag {
+      margin-top: 0.08rem;
+      font-size: 0.22rem;
+      color: var(--ff-mute);
+      letter-spacing: 0.06em;
+    }
+  }
+
+  .nav-text {
+    flex-shrink: 0;
+    margin-top: 0.14rem;
+    font-size: 0.24rem;
+    color: var(--ff-moss);
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    border-bottom: 1px solid var(--ff-moss);
+    padding-bottom: 0.02rem;
+    line-height: 1.2;
+  }
+}
+
+.ff-top.is-sub {
+  .brand-block {
+    text-align: center;
+
+    .brand {
+      font-size: 0.42rem;
+      letter-spacing: 0.1em;
+    }
+  }
+}
+
+.ff-top-right {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.16rem;
+  margin-top: 0.04rem;
+}
+
+.ff-ghost-link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.2rem;
+  color: var(--ff-moss);
+  letter-spacing: 0.08em;
+  padding: 0.08rem 0.02rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.06rem;
+  text-decoration-color: rgba(47, 93, 69, 0.35);
+
+  &:active {
+    color: var(--ff-ink);
+  }
+}
+
+/* —— 游戏场景：树 + 天空 + 山丘 + 土壤，状态信息退到场景边缘 —— */
+.ff-scene {
+  /* 时段主题变量：白天为默认值，其余主题在下方覆盖 */
+  --sky-a: #f2f5ec;
+  --sky-b: #e9efe3;
+  --sky-c: #e0e8d7;
+  --scene-halo: rgba(255, 255, 255, 0.75);
+  --scene-cloud: rgba(255, 255, 255, 0.72);
+  --scene-hill-far: rgba(103, 143, 102, 0.15);
+  --scene-hill-near: rgba(71, 114, 79, 0.17);
+  --scene-far-tree: rgba(47, 93, 69, 0.24);
+  --scene-ground-a: #cbb694;
+  --scene-ground-b: #b69b75;
+  --scene-grass: #648e60;
+  --scene-pebble: rgba(98, 81, 59, 0.35);
+  --orb-right: 0.72rem;
+  --orb-top: 0.48rem;
+  --orb-size: 0.62rem;
+  --orb-color: #e7c47f;
+  --orb-glow: rgba(231, 196, 127, 0.16);
+  --scene-stars: 0;
+
+  position: relative;
+  flex: 1 0 auto;
+  min-height: 6.5rem;
+  margin: 0.1rem 0 0.18rem;
+  border: 1px solid var(--ff-line);
+  border-radius: 0.16rem;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(
+    180deg,
+    var(--sky-a) 0%,
+    var(--sky-b) 48%,
+    var(--sky-c) 100%
+  );
+
+  .sky-halo {
+    position: absolute;
+    left: 50%;
+    top: -1.7rem;
+    width: 8rem;
+    height: 4.6rem;
+    transform: translateX(-50%);
+    background: radial-gradient(
+      ellipse at center,
+      var(--scene-halo) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  /* 夜空星点：白天透明，只在夜晚主题出现 */
+  .sky-stars {
+    position: absolute;
+    inset: 0;
+    opacity: var(--scene-stars);
+    transition: opacity 0.45s ease;
+    pointer-events: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 12% 14%, rgba(255, 255, 255, 0.9) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 26% 30%, rgba(255, 255, 255, 0.7) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 38% 12%, rgba(255, 255, 255, 0.85) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 52% 24%, rgba(255, 255, 255, 0.6) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 64% 10%, rgba(255, 255, 255, 0.8) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 76% 32%, rgba(255, 255, 255, 0.65) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.9) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 18% 44%, rgba(255, 255, 255, 0.55) 0 1px, transparent 1.5px);
+      animation: ff-twinkle 4.2s ease-in-out infinite;
+    }
+  }
+
+  .sky-orb {
+    position: absolute;
+    right: var(--orb-right);
+    top: var(--orb-top);
+    width: var(--orb-size);
+    height: var(--orb-size);
+    border-radius: 50%;
+    background: var(--orb-color);
+    box-shadow: 0 0 0 0.14rem var(--orb-glow);
+    transition: right 0.5s ease, top 0.5s ease, width 0.5s ease,
+      height 0.5s ease, background 0.5s ease;
+
+    /* 夜晚用同色遮片切出月牙 */
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0.14rem;
+      top: -0.05rem;
+      width: 92%;
+      height: 92%;
+      border-radius: 50%;
+      background: var(--sky-a);
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+  }
+
+  .sky-cloud {
+    position: absolute;
+    height: 0.14rem;
+    border-radius: 0.14rem;
+    background: var(--scene-cloud);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      border-radius: 50%;
+      background: inherit;
+    }
+
+    &::before {
+      left: 0.18rem;
+      width: 0.34rem;
+      height: 0.34rem;
+    }
+
+    &::after {
+      right: 0.14rem;
+      width: 0.26rem;
+      height: 0.26rem;
+    }
+  }
+
+  .cloud-a {
+    left: 0.5rem;
+    top: 1.16rem;
+    width: 1.1rem;
+    animation: ff-cloud-drift 16s ease-in-out infinite;
+  }
+
+  .cloud-b {
+    right: 1.5rem;
+    top: 1.92rem;
+    width: 0.82rem;
+    opacity: 0.65;
+    animation: ff-cloud-drift 21s ease-in-out infinite reverse;
+  }
+
+  .hill {
+    position: absolute;
+    left: -12%;
+    width: 124%;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    pointer-events: none;
+  }
+
+  .hill-far {
+    bottom: 0.68rem;
+    height: 1.5rem;
+    background: var(--scene-hill-far);
+  }
+
+  .hill-near {
+    bottom: 0.44rem;
+    height: 1.02rem;
+    background: var(--scene-hill-near);
+
+    /* 远处的树林剪影：只做背景气氛，不参与操作 */
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0.62rem;
+      width: 0.32rem;
+      height: 0.72rem;
+      background: var(--scene-far-tree);
+      clip-path: polygon(
+        50% 0,
+        88% 42%,
+        68% 42%,
+        100% 78%,
+        62% 78%,
+        62% 100%,
+        38% 100%,
+        38% 78%,
+        0 78%,
+        32% 42%,
+        12% 42%
+      );
+    }
+
+    &::before {
+      left: 0.62rem;
+    }
+
+    &::after {
+      right: 0.9rem;
+      transform: scale(0.76);
+    }
+  }
+
+  .ground {
+    position: absolute;
+    left: -6%;
+    right: -6%;
+    bottom: -0.16rem;
+    height: 1.06rem;
+    border-top: 0.03rem solid rgba(255, 255, 255, 0.38);
+    border-radius: 50% 50% 0 0 / 42% 42% 0 0;
+    background: linear-gradient(
+      180deg,
+      var(--scene-ground-a) 0%,
+      var(--scene-ground-b) 100%
+    );
+  }
+
+  .grass {
+    position: absolute;
+    bottom: 0.82rem;
+    width: 0.045rem;
+    height: 0.2rem;
+    border-radius: 0.02rem;
+    background: var(--scene-grass);
+    transform-origin: 50% 100%;
+    z-index: 2;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 78%;
+      border-radius: inherit;
+      background: inherit;
+    }
+
+    &::before {
+      left: -0.03rem;
+      transform: rotate(-32deg);
+    }
+
+    &::after {
+      left: 0.03rem;
+      transform: rotate(32deg);
+    }
+  }
+
+  .grass-a {
+    left: 0.72rem;
+  }
+
+  .grass-b {
+    right: 0.86rem;
+    bottom: 0.76rem;
+    transform: scale(0.82);
+  }
+
+  .pebble {
+    position: absolute;
+    bottom: 0.5rem;
+    border-radius: 50%;
+    background: var(--scene-pebble);
+    z-index: 2;
+  }
+
+  .pebble-a {
+    left: 1.46rem;
+    width: 0.18rem;
+    height: 0.09rem;
+  }
+
+  .pebble-b {
+    right: 1.62rem;
+    width: 0.13rem;
+    height: 0.07rem;
+  }
+}
+
+/* —— 时段主题：太阳位置随时段移动，夜晚换成月亮与星空 —— */
+.ff-scene.theme-dawn {
+  --sky-a: #f8ebd9;
+  --sky-b: #f2ddc7;
+  --sky-c: #e7d3b8;
+  --scene-halo: rgba(255, 236, 205, 0.8);
+  --scene-cloud: rgba(255, 244, 228, 0.72);
+  --scene-hill-far: rgba(151, 122, 88, 0.15);
+  --scene-hill-near: rgba(118, 99, 72, 0.18);
+  --scene-far-tree: rgba(93, 74, 51, 0.26);
+  --scene-ground-a: #c9ad86;
+  --scene-ground-b: #b1976f;
+  --scene-grass: #7c8f5d;
+  --orb-right: 2.1rem;
+  --orb-top: 1.7rem;
+  --orb-size: 0.56rem;
+  --orb-color: #f0a96b;
+  --orb-glow: rgba(240, 169, 107, 0.18);
+}
+
+.ff-scene.theme-morning {
+  --sky-a: #edf4e9;
+  --sky-b: #e3efdc;
+  --sky-c: #d7e5cd;
+  --scene-halo: rgba(255, 255, 255, 0.7);
+  --orb-right: 1.5rem;
+  --orb-top: 0.95rem;
+  --orb-size: 0.6rem;
+  --orb-color: #f3d58a;
+  --orb-glow: rgba(243, 213, 138, 0.18);
+}
+
+.ff-scene.theme-dusk {
+  --sky-a: #f2ddca;
+  --sky-b: #dfc3b4;
+  --sky-c: #c8b2a2;
+  --scene-halo: rgba(255, 220, 190, 0.55);
+  --scene-cloud: rgba(255, 232, 216, 0.55);
+  --scene-hill-far: rgba(105, 91, 84, 0.2);
+  --scene-hill-near: rgba(80, 70, 66, 0.22);
+  --scene-far-tree: rgba(62, 52, 48, 0.3);
+  --scene-ground-a: #b49a78;
+  --scene-ground-b: #9c8060;
+  --scene-grass: #6e7f55;
+  --orb-right: 0.5rem;
+  --orb-top: 1.7rem;
+  --orb-size: 0.66rem;
+  --orb-color: #e58b5f;
+  --orb-glow: rgba(229, 139, 95, 0.2);
+}
+
+.ff-scene.theme-night {
+  --sky-a: #1d2838;
+  --sky-b: #273648;
+  --sky-c: #33455b;
+  --scene-halo: rgba(160, 190, 230, 0.1);
+  --scene-cloud: rgba(190, 210, 235, 0.14);
+  --scene-hill-far: rgba(150, 175, 205, 0.13);
+  --scene-hill-near: rgba(120, 150, 185, 0.15);
+  --scene-far-tree: rgba(8, 16, 26, 0.38);
+  --scene-ground-a: #5a6270;
+  --scene-ground-b: #3f4855;
+  --scene-grass: #405d50;
+  --scene-pebble: rgba(15, 22, 30, 0.4);
+  --orb-right: 1.5rem;
+  --orb-top: 0.62rem;
+  --orb-size: 0.56rem;
+  --orb-color: #f4e9c6;
+  --orb-glow: rgba(244, 233, 198, 0.14);
+  --scene-stars: 1;
+
+  .sky-orb::after {
+    opacity: 1;
+  }
+}
+
+@keyframes ff-twinkle {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.scene-badge {
+  position: absolute;
+  top: 0.18rem;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.06rem 0.12rem;
+  font-size: 0.19rem;
+  letter-spacing: 0.06em;
+  color: var(--ff-ink);
+  background: rgba(247, 248, 244, 0.85);
+  border: 1px solid rgba(28, 36, 32, 0.14);
+  border-radius: 0.04rem;
+}
+
+.scene-name {
+  left: 0.18rem;
+
+  .n {
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+    font-size: 0.27rem;
+    letter-spacing: 0.1em;
+  }
+
+  .s {
+    color: var(--ff-mute);
+  }
+
+  /* 健康状态并入同一条信息带，右上角完全留给太阳 / 月亮 */
+  .scene-health {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.05rem;
+    margin-left: 0.02rem;
+    padding-left: 0.1rem;
+    border-left: 1px solid rgba(28, 36, 32, 0.14);
+    color: var(--ff-moss);
+
+    i {
+      width: 0.09rem;
+      height: 0.09rem;
+      border-radius: 50%;
+      background: #4e9167;
+    }
+
+    &.withering {
+      color: var(--ff-warn);
+
+      i {
+        background: var(--ff-warn);
+      }
+    }
+
+    &.dead {
+      color: var(--ff-danger);
+
+      i {
+        background: var(--ff-danger);
+      }
+    }
+  }
+}
+
+.scene-tree {
+  position: absolute;
+  left: 50%;
+  bottom: 0.52rem;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform: translateX(-50%) scale(1.35);
+  transform-origin: 50% 100%;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -0.08rem;
+    width: 2.5rem;
+    height: 0.26rem;
+    transform: translateX(-50%);
+    background: radial-gradient(
+      ellipse at center,
+      rgba(63, 48, 29, 0.3) 0%,
+      rgba(63, 48, 29, 0) 72%
+    );
+    z-index: -1;
+  }
+}
+
+.scene-hint {
+  position: absolute;
+  left: 50%;
+  top: 0.66rem;
+  z-index: 7;
+  max-width: 82%;
+  transform: translateX(-50%);
+  padding: 0.08rem 0.16rem;
+  font-size: 0.19rem;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  text-align: center;
+  color: #fff;
+  background: rgba(154, 79, 56, 0.92);
+  border-radius: 0.04rem;
+
+  &.danger {
+    background: rgba(139, 58, 50, 0.94);
+  }
+}
+
+.scene-hud {
+  position: absolute;
+  left: 0.16rem;
+  right: 0.16rem;
+  bottom: 0.12rem;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.1rem;
+  padding: 0.08rem 0.1rem;
+  background: rgba(247, 248, 244, 0.9);
+  border: 1px solid rgba(28, 36, 32, 0.18);
+  border-radius: 0.06rem;
+}
+
+.hud-cell {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.05rem;
+  font-size: 0.18rem;
+  color: var(--ff-mute);
+  letter-spacing: 0.02em;
+
+  .hud-name {
+    flex-shrink: 0;
+  }
+
+  .hud-dots {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 0.02rem;
+
+    i {
+      flex: 1;
+      max-width: 0.1rem;
+      height: 0.06rem;
+      border-radius: 0.01rem;
+      background: rgba(28, 36, 32, 0.14);
+      transition: background 0.3s ease;
+    }
+  }
+
+  b {
+    flex-shrink: 0;
+    font-size: 0.18rem;
+    font-weight: 700;
+    color: var(--ff-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &.water .hud-dots i.on {
+    background: var(--ff-water);
+  }
+
+  &.fertilizer .hud-dots i.on {
+    background: var(--ff-moss);
+  }
+
+  &.weed .hud-dots i.on {
+    background: var(--ff-soil);
+  }
+
+  &.complete .hud-name,
+  &.complete b {
+    color: var(--ff-moss);
+  }
+}
+
+@keyframes ff-cloud-drift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(0.22rem);
+  }
+}
+
+.ff-stage-ladder {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.08rem 0.1rem;
+  margin: 0.06rem 0 0.14rem;
+  padding: 0 0.08rem;
+
+  .step {
+    font-size: 0.2rem;
+    letter-spacing: 0.04em;
+    color: var(--ff-mute);
+    opacity: 0.55;
+    padding: 0.04rem 0.1rem;
+    border: 1px solid transparent;
+  }
+
+  .step.done {
+    opacity: 0.85;
+    color: var(--ff-ink);
+  }
+
+  .step.now {
+    opacity: 1;
+    color: var(--ff-moss);
+    border-color: var(--ff-moss);
+    font-weight: 600;
+  }
+
+  .step.locked {
+    opacity: 0.35;
+  }
+}
+
+
+.ff-empty {
+  text-align: center;
+  padding: 0.5rem 0.24rem;
+
+  .mark {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 0.72rem;
+    color: var(--ff-moss);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.2rem;
+    animation: ff-float 4s ease-in-out infinite;
+  }
+
+  .title {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 0.4rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.1rem;
+  }
+
+  .desc {
+    font-size: 0.24rem;
+    color: var(--ff-mute);
+    line-height: 1.6;
+  }
+}
+
+.ff-scene .ff-empty {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0.7rem;
+}
+
+.ff-tree-meta {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.16rem;
+  margin-bottom: 0.18rem;
+  padding-bottom: 0.14rem;
+  border-bottom: 1px solid var(--ff-line);
+
+  .name {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 0.4rem;
+    letter-spacing: 0.14em;
+  }
+
+  .meta {
+    font-size: 0.22rem;
+    color: var(--ff-mute);
+    letter-spacing: 0.04em;
+  }
+}
+
+.ff-meters {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.14rem 0.28rem;
+  margin-bottom: 0.22rem;
+}
+
+.ff-meter {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.1rem;
+  align-items: center;
+  font-size: 0.2rem;
+  color: var(--ff-mute);
+  letter-spacing: 0.04em;
+
+  .bar {
+    height: 2px;
+    background: var(--ff-line);
+    overflow: hidden;
+
+    i {
+      display: block;
+      height: 100%;
+      background: var(--ff-ink);
+      transition: width 0.45s ease;
+    }
+  }
+
+  &.water i {
+    background: var(--ff-water);
+  }
+  &.fert i {
+    background: var(--ff-moss);
+  }
+  &.weed i {
+    background: var(--ff-soil);
+  }
+  &.hp i {
+    background: var(--ff-moss-bright);
+  }
+  &.hp.warn i {
+    background: var(--ff-warn);
+  }
+  &.hp.danger i {
+    background: var(--ff-danger);
+  }
+
+  .val {
+    min-width: 0.4rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--ff-ink);
+  }
+}
+
+/* —— 操作台：三大养护动作是唯一的主视觉 —— */
+.ff-deck {
+  margin-top: auto;
+  padding: 0.06rem 0.02rem env(safe-area-inset-bottom);
+}
+
+.deck-label {
+  margin-bottom: 0.12rem;
+  font-size: 0.19rem;
+  color: var(--ff-mute);
+  letter-spacing: 0.18em;
+}
+
+.ff-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.16rem;
+}
+
+.ff-act {
+  position: relative;
+  appearance: none;
+  min-height: 1.62rem;
+  padding: 0.16rem 0.04rem 0.13rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.03rem;
+  font-family: inherit;
+  color: var(--ff-ink);
+  background: var(--ff-panel);
+  border: 1px solid var(--ff-line);
+  border-top-width: 0.05rem;
+  border-radius: 0.12rem;
+  box-shadow: 0 0.05rem 0 rgba(28, 36, 32, 0.08);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+
+  &:active:not(:disabled) {
+    transform: translateY(0.04rem);
+    box-shadow: 0 0.01rem 0 rgba(28, 36, 32, 0.08);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  .act-icon {
+    width: 0.56rem;
+    height: 0.56rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 0.02rem;
+
+    svg {
+      width: 74%;
+      height: 74%;
+      display: block;
+    }
+  }
+
+  .act-name {
+    font-size: 0.28rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+  }
+
+  .act-sub {
+    font-size: 0.18rem;
+    color: var(--ff-mute);
+    letter-spacing: 0.02em;
+  }
+
+  .act-stock {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.12rem;
+    min-width: 0.32rem;
+    padding: 0.01rem 0.05rem;
+    font-size: 0.17rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ff-mute);
+    background: rgba(28, 36, 32, 0.05);
+    border-radius: 0.06rem;
+  }
+
+  &.water {
+    border-top-color: var(--ff-water);
+
+    .act-icon {
+      color: #2f6674;
+      background: rgba(58, 111, 124, 0.14);
+    }
+  }
+
+  &.fertilize {
+    border-top-color: var(--ff-moss);
+
+    .act-icon {
+      color: #356b4c;
+      background: rgba(63, 122, 88, 0.14);
+    }
+  }
+
+  &.weed {
+    border-top-color: var(--ff-soil);
+
+    .act-icon {
+      color: #7a5b3a;
+      background: rgba(138, 107, 74, 0.14);
+    }
+  }
+
+  &.spent {
+    filter: grayscale(0.8);
+  }
+
+  &:disabled {
+    opacity: 0.48;
+  }
+}
+
+.ff-primary {
+  appearance: none;
+  width: 100%;
+  padding: 0.26rem 0.14rem;
+  font-family: inherit;
+  font-size: 0.3rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: #f7f8f5;
+  background: var(--ff-moss);
+  border: 1px solid var(--ff-moss);
+  border-radius: 0.1rem;
+  box-shadow: 0 0.05rem 0 rgba(47, 93, 69, 0.24);
+  cursor: pointer;
+
+  &:active {
+    transform: translateY(0.03rem);
+  }
+}
+
+.ff-btn {
+  appearance: none;
+  border: 1px solid var(--ff-ink);
+  cursor: pointer;
+  border-radius: 0.04rem;
+  padding: 0.2rem 0.14rem;
+  font-size: 0.26rem;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.08em;
+  color: #f7f8f5;
+  background: var(--ff-ink);
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &.ghost {
+    background: transparent;
+    color: var(--ff-ink);
+  }
+
+  &.moss {
+    background: var(--ff-moss);
+    border-color: var(--ff-moss);
+  }
+
+  &.warn {
+    background: transparent;
+    color: var(--ff-warn);
+    border-color: var(--ff-warn);
+  }
+
+  &.block {
+    width: 100%;
+  }
+}
+
+.deck-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.16rem;
+  margin-top: 0.1rem;
+  padding: 0 0.04rem;
+}
+
+.ff-note {
+  margin-top: 0.14rem;
+  text-align: center;
+  font-size: 0.2rem;
+  color: var(--ff-mute);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+.ff-text-link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--ff-mute);
+  font-family: inherit;
+  font-size: 0.22rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  padding: 0.08rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.06rem;
+
+  &:disabled {
+    opacity: 0.4;
+  }
+}
+
+.ff-effort {
+  font-size: 0.19rem;
+  color: var(--ff-moss);
+  letter-spacing: 0.04em;
+  text-align: right;
+
+  b {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.ff-progress-line {
+  width: 100%;
+  margin-bottom: 0.16rem;
+  font-size: 0.2rem;
+  color: var(--ff-mute);
+  letter-spacing: 0.04em;
+
+  .bar {
+    margin-top: 0.08rem;
+    height: 2px;
+    background: var(--ff-line);
+    overflow: hidden;
+
+    i {
+      display: block;
+      height: 100%;
+      background: var(--ff-moss);
+      transition: width 0.4s ease;
+    }
+  }
+}
+
+/* —— 状态详情弹窗：手机 / 平板共用一个居中容器，页面本身不增高 —— */
+.ff-page.is-locked {
+  overflow: hidden;
+}
+
+.ff-detail-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  background: rgba(28, 36, 32, 0.48);
+  animation: ff-fade-in 0.2s ease;
+}
+
+.ff-detail {
+  width: 100%;
+  max-width: 6rem;
+  max-height: 82dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.3rem 0.32rem 0.26rem;
+  background: var(--ff-panel);
+  border: 1px solid var(--ff-ink);
+  border-radius: 0.1rem;
+  box-shadow: 0 0.12rem 0.4rem rgba(28, 36, 32, 0.22);
+  animation: ff-rise 0.25s ease;
+
+  .ff-detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.2rem;
+    margin-bottom: 0.2rem;
+    padding-bottom: 0.14rem;
+    border-bottom: 1px solid var(--ff-line);
+    font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+    font-size: 0.34rem;
+    letter-spacing: 0.12em;
+  }
+
+  .ff-detail-close {
+    appearance: none;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.2rem;
+    letter-spacing: 0.08em;
+    color: var(--ff-mute);
+    padding: 0.08rem 0.04rem;
+    cursor: pointer;
+
+    &:active {
+      color: var(--ff-ink);
+    }
+  }
+
+  .ff-tree-meta {
+    margin-bottom: 0.14rem;
+    padding-bottom: 0.12rem;
+  }
+
+  .ff-theme-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.08rem;
+    margin-top: 0.12rem;
+    padding-top: 0.12rem;
+    border-top: 1px solid var(--ff-line);
+
+    .lbl {
+      font-size: 0.2rem;
+      color: var(--ff-ink);
+      letter-spacing: 0.04em;
+    }
+  }
+
+  .ff-theme-opt {
+    appearance: none;
+    padding: 0.05rem 0.1rem;
+    font-family: inherit;
+    font-size: 0.18rem;
+    letter-spacing: 0.04em;
+    color: var(--ff-mute);
+    background: transparent;
+    border: 1px solid var(--ff-line);
+    border-radius: 0.04rem;
+    cursor: pointer;
+
+    &.on {
+      color: var(--ff-moss);
+      border-color: var(--ff-moss);
+      background: rgba(47, 93, 69, 0.07);
+    }
+  }
+
+  .ff-note {
+    margin-top: 0.14rem;
+    padding-top: 0.12rem;
+    border-top: 1px solid var(--ff-line);
+
+    .theme-note {
+      display: block;
+      margin-top: 0.06rem;
+      color: var(--ff-moss);
+    }
+  }
+}
+
+@keyframes ff-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ff-daily {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.08rem;
+  margin: -0.08rem 0 0.16rem;
+  padding: 0 0.02rem;
+  font-size: 0.18rem;
+  color: var(--ff-mute);
+  letter-spacing: 0.02em;
+
+  .lbl {
+    color: var(--ff-ink);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  span.full {
+    color: var(--ff-warn);
+    opacity: 0.75;
+  }
+}
+
+.ff-care-hint {
+  font-size: 0.2rem;
+  color: var(--ff-warn);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.14rem;
+  line-height: 1.45;
+
+  &.ok {
+    color: var(--ff-moss);
+  }
+
+  &.warn {
+    color: var(--ff-warn);
+  }
+
+  &.danger {
+    color: var(--ff-danger);
+  }
+}
+
+.ff-shop-bag {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.12rem;
+  margin: 0.2rem 0 0.12rem;
+  padding-bottom: 0.16rem;
+  border-bottom: 1px solid var(--ff-line);
+
+  .cell {
+    flex: 1;
+    text-align: center;
+    font-size: 0.22rem;
+    color: var(--ff-mute);
+
+    b {
+      display: block;
+      margin-top: 0.04rem;
+      font-size: 0.32rem;
+      color: var(--ff-ink);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
+.ff-shop-list {
+  border-top: 1px solid var(--ff-line);
+}
+
+.ff-shop-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.2rem;
+  padding: 0.28rem 0;
+  border-bottom: 1px solid var(--ff-line);
+
+  .info {
+    flex: 1;
+    min-width: 0;
+
+    .n {
+      font-family: 'ZCOOL XiaoWei', serif;
+      font-size: 0.32rem;
+      letter-spacing: 0.1em;
+    }
+
+    .d {
+      margin-top: 0.06rem;
+      font-size: 0.22rem;
+      color: var(--ff-mute);
+      line-height: 1.4;
+    }
+
+    .p {
+      margin-top: 0.08rem;
+      font-size: 0.2rem;
+      color: var(--ff-moss);
+      letter-spacing: 0.04em;
+    }
+  }
+
+  .ops {
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+    flex-shrink: 0;
+
+    .ff-btn {
+      min-width: 1.2rem;
+      padding: 0.12rem 0.18rem;
+      font-size: 0.22rem;
+    }
+  }
+}
+
+.ff-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(1.1rem + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 50;
+  background: var(--ff-ink);
+  color: #f2f4ef;
+  font-size: 0.24rem;
+  letter-spacing: 0.04em;
+  padding: 0.16rem 0.32rem;
+  max-width: 82%;
+  text-align: center;
+  pointer-events: none;
+  border-radius: 0.04rem;
+}
+
+.ff-toast-enter-active,
+.ff-toast-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.ff-toast-enter-from,
+.ff-toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(0.16rem);
+}
+
+/* —— 选种 —— */
+.ff-species-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.2rem;
+  border-top: 1px solid var(--ff-line);
+}
+
+.ff-species-row {
+  display: grid;
+  grid-template-columns: 0.1rem 1fr auto;
+  gap: 0.2rem;
+  align-items: center;
+  padding: 0.26rem 0.04rem 0.26rem 0;
+  border-bottom: 1px solid var(--ff-line);
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &.active {
+    background: rgba(47, 93, 69, 0.08);
+
+    .swatch {
+      opacity: 1;
+    }
+
+    .n {
+      color: var(--ff-moss);
+    }
+  }
+
+  .swatch {
+    width: 0.1rem;
+    height: 100%;
+    min-height: 0.72rem;
+    opacity: 0.45;
+    align-self: stretch;
+  }
+
+  .info {
+    min-width: 0;
+    padding: 0.04rem 0;
+
+    .n {
+      font-family: 'ZCOOL XiaoWei', serif;
+      font-size: 0.32rem;
+      letter-spacing: 0.1em;
+    }
+
+    .d {
+      margin-top: 0.06rem;
+      font-size: 0.22rem;
+      color: var(--ff-mute);
+      line-height: 1.45;
+    }
+  }
+
+  .side {
+    font-size: 0.2rem;
+    color: var(--ff-mute);
+    letter-spacing: 0.04em;
+    text-align: right;
+    line-height: 1.4;
+    padding-right: 0.08rem;
+
+    .rarity {
+      color: var(--ff-ink);
+    }
+  }
+}
+
+/* —— 图鉴 —— */
+.ff-forest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  margin-top: 0.2rem;
+  border-top: 1px solid var(--ff-line);
+  border-left: 1px solid var(--ff-line);
+}
+
+.ff-forest-cell {
+  padding: 0.32rem 0.16rem 0.28rem;
+  text-align: center;
+  border-right: 1px solid var(--ff-line);
+  border-bottom: 1px solid var(--ff-line);
+  min-height: 2.4rem;
+
+  &.locked {
+    .silhouette {
+      opacity: 0.22;
+      filter: grayscale(1);
+    }
+
+    .n {
+      color: var(--ff-mute);
+      letter-spacing: 0.2em;
+    }
+  }
+
+  .silhouette {
+    width: 1.36rem;
+    height: 1.62rem;
+    margin: 0 auto 0.1rem;
+    display: block;
+    overflow: visible;
+  }
+
+  .n {
+    font-family: 'ZCOOL XiaoWei', serif;
+    font-size: 0.28rem;
+    letter-spacing: 0.12em;
+  }
+
+  .m {
+    margin-top: 0.06rem;
+    font-size: 0.2rem;
+    color: var(--ff-mute);
+  }
+}
+
+.ff-celebrate {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(28, 36, 32, 0.48);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0.4rem;
+
+  .box {
+    width: 100%;
+    max-width: 6rem;
+    background: var(--ff-panel);
+    border: 1px solid var(--ff-ink);
+    padding: 0.44rem 0.36rem 0.36rem;
+    animation: ff-rise 0.35s ease;
+
+    .t {
+      font-family: 'ZCOOL XiaoWei', serif;
+      font-size: 0.42rem;
+      letter-spacing: 0.14em;
+      margin-bottom: 0.12rem;
+    }
+
+    .d {
+      font-size: 0.24rem;
+      color: var(--ff-mute);
+      line-height: 1.6;
+      margin-bottom: 0.32rem;
+    }
+  }
+}
+
+/* —— 树：按阶段拉开容器体量 —— */
+.ff-tree {
+  position: relative;
+  z-index: 1;
+  width: 3.2rem;
+  height: 2.4rem;
+  transition: width 0.45s ease, height 0.45s ease;
+
+  .ff-tree-sprite {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    transform-origin: 50% 100%;
+    animation: ff-sway 5.2s ease-in-out infinite;
+  }
+
+  .ff-tree-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* 阶段体量阶梯：一眼能分出发芽→小树→中等→大树→苍天 */
+  &.stage-seed {
+    width: 1.6rem;
+    height: 1.5rem;
+  }
+
+  &.stage-sprout {
+    width: 1.9rem;
+    height: 2rem;
+  }
+
+  &.stage-grow {
+    width: 2.6rem;
+    height: 2.8rem;
+  }
+
+  &.stage-mid {
+    width: 3.2rem;
+    height: 3.3rem;
+  }
+
+  &.stage-bloom {
+    width: 4.6rem;
+    height: 4.8rem;
+  }
+
+  &.stage-fruit {
+    width: 5.4rem;
+    height: 5.8rem;
+  }
+
+  /* 偏高 / 铺展物种：体态更贴特征，中等→大树拉开 */
+  &.species-zhu {
+    &.stage-grow {
+      height: 3.2rem;
+    }
+    &.stage-mid {
+      width: 2.8rem;
+      height: 4rem;
+    }
+    &.stage-bloom {
+      width: 3.6rem;
+      height: 5.4rem;
+    }
+  }
+
+  &.species-song {
+    &.stage-mid {
+      width: 3rem;
+      height: 3.8rem;
+    }
+    &.stage-bloom {
+      width: 4rem;
+      height: 5.2rem;
+    }
+  }
+
+  &.species-ziteng {
+    &.stage-mid {
+      width: 4rem;
+      height: 3.2rem;
+    }
+    &.stage-bloom {
+      width: 5.2rem;
+      height: 4.4rem;
+    }
+  }
+
+  &.species-ningmeng {
+    &.stage-mid {
+      width: 3rem;
+      height: 3.2rem;
+    }
+    &.stage-bloom,
+    &.stage-fruit {
+      width: 4.2rem;
+      height: 4.4rem;
+    }
+  }
+
+  &.withering .ff-tree-sprite {
+    animation-duration: 7.5s;
+  }
+
+  &.dead {
+    opacity: 0.92;
+
+    .ff-tree-sprite {
+      animation: none;
+      filter: brightness(0.95);
+    }
+  }
+
+  &.stage-seed .ff-tree-sprite {
+    animation: none;
+  }
+}
+
+@keyframes ff-sway {
+  0%,
+  100% {
+    transform: rotate(-1.6deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes ff-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.1rem);
+  }
+}
+
+@keyframes ff-breath {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.025);
+  }
+}
+
+@keyframes ff-rise {
+  0% {
+    transform: translateY(0.4rem);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

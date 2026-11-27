@@ -382,11 +382,13 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .flag-wrap-box {
-  height: 100%;
-  // overflow: hidden;
   position: relative;
-  overflow-y: auto;
+  box-sizing: border-box;
   min-height: 100%;
+  min-height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 1.2rem);
 }
 
 .flag-step {
@@ -427,21 +429,19 @@ export default defineComponent({
 
 .flag-list {
   overflow: hidden;
+  margin: 0.3rem auto;
   .flag-item {
-    // width: 2.26rem;
     width: 38%;
     height: 1.3rem;
-    // display: inline-block;
     float: left;
     background: url("@/assets/images/step1/step-choose.png") no-repeat center
       center;
     background-size: 100% 100%;
-    // margin: 0.19rem 0.33rem;
-    // padding: 0.1rem 0.3rem;
     margin: 0.19rem 2%;
     padding: 0.1rem 4%;
     font-size: 0.3rem;
     overflow: hidden;
+    box-sizing: border-box;
     &.active {
       color: #ff5f47;
     }
@@ -454,7 +454,7 @@ export default defineComponent({
 .flag-change-btn {
   width: 3.2rem;
   height: 0.93rem;
-  margin: 0.44rem auto;
+  margin: 0.36rem auto;
   background: url("@/assets/images/step1/btn-change.png") no-repeat left top;
   background-size: 100% auto;
   &.down {
@@ -464,14 +464,16 @@ export default defineComponent({
 
 .flag-input-box {
   width: 6.9rem;
+  max-width: calc(100% - 0.4rem);
   height: 0.88rem;
-  margin: 0 auto;
+  margin: 0 auto 0.4rem;
   background: url("@/assets/images/step1/flag-input.png") no-repeat center
     center;
   background-size: 100% auto;
   position: relative;
   .input {
     width: 5.4rem;
+    max-width: calc(100% - 1.2rem);
     height: 0.54rem;
     border: 0;
     margin-top: 0.05rem;
@@ -496,6 +498,7 @@ export default defineComponent({
   position: fixed;
   bottom: calc(env(safe-area-inset-bottom) + 0.3rem);
   right: 0.3rem;
+  z-index: 10;
   &.hide {
     display: none;
   }
@@ -507,32 +510,45 @@ export default defineComponent({
   left: 0;
   right: 0;
   bottom: 0;
-  // background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   .flag-modal-box {
     width: 6.1rem;
-    height: 7.44rem;
+    max-width: calc(100% - 0.6rem);
+    max-height: calc(100dvh - 1.6rem);
+    height: auto;
     background: #ffffff;
-    border-radius: 0.2rem 0.2rem 0.2rem 0.2rem;
+    border-radius: 0.2rem;
     padding: 0.3rem;
     border: 1px solid #131415;
-    margin-top: 1.4rem;
+    margin: 1.2rem auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     .flag-modal-list {
-      height: 6.8rem;
-      overflow-y: scroll;
+      flex: 1;
+      min-height: 0;
+      max-height: 6.8rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       .flag-modal-item {
         margin-top: 0.22rem;
         font-size: 0.3rem;
         .flag-modal-item-cont {
           width: 5rem;
+          max-width: 100%;
           height: 0.72rem;
           line-height: 0.72rem;
-          display: inline-block;
           background: url("@/assets/images/step1/flag-item.png") no-repeat
             center center;
           background-size: 100% auto;
           padding: 0 0.7rem 0 0.3rem;
           position: relative;
           display: flex !important;
+          box-sizing: border-box;
           .flag-span {
             width: 98%;
             display: inline-block;
@@ -564,69 +580,20 @@ export default defineComponent({
   }
 }
 
-//针对长屏手机适配
-@media screen and (min-height: 680px) {
-  .flag-item {
-    margin: 0.29rem 2%;
-  }
+// 矮屏：收紧间距，保证列表与输入框不被底栏挡住
+@media screen and (max-height: 700px) {
   .flag-step {
-    padding-top: 0.5rem;
+    padding-top: 0.2rem;
   }
   .flag-list {
-    margin: 0.7rem auto;
+    margin: 0.16rem auto;
   }
-}
-//针对长屏手机适配
-@media screen and (min-height: 800px) {
   .flag-item {
-    margin: 0.29rem 2%;
-  }
-  .flag-step {
-    padding-top: 0.5rem;
-  }
-  .flag-list {
-    margin: 0.5rem auto;
-  }
-  .flag-input-box {
-    width: 6.5rem;
-    height: 0.78rem;
-    background-size: 100% 100%;
-  }
-}
-
-//针对ipad适配
-@media screen and (min-height: 1024px) {
-  .flag-item {
-    margin: 0.09rem 2% !important;
-  }
-  .flag-step {
-    padding-top: 0rem;
-  }
-  .flag-list {
-    margin: 0rem auto;
-  }
-}
-
-//横屏适配
-@media screen and (orientation: landscape) {
-  .flag-wrap-box {
-    min-height: 100vh;
-    padding-bottom: 1.5rem; // 为底部按钮留出空间
-  }
-  .flag-next {
-    position: fixed;
-    bottom: calc(env(safe-area-inset-bottom) + 0.3rem);
-    right: 0.3rem;
-    z-index: 10;
-  }
-  .flag-input-box {
-    margin-bottom: 1rem; // 增加底部间距
+    margin: 0.12rem 2%;
+    height: 1.18rem;
   }
   .flag-change-btn {
-    margin: 0.3rem auto; // 减少间距
-  }
-  .flag-list {
-    margin: 0.5rem auto; // 减少间距
+    margin: 0.24rem auto;
   }
 }
 </style>

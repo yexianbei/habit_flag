@@ -31,6 +31,46 @@ export const constantRoutes: Array<RouteRecordRaw> = [
     name: 'flag-manage',
     component: () => import('../views/flag-manage.vue'),
   },
+  {
+    path: '/life-goal',
+    name: 'life-goal',
+    component: () => import('../views/life-goal/list.vue'),
+  },
+  {
+    path: '/life-goal/create',
+    name: 'life-goal-create',
+    component: () => import('../views/life-goal/create.vue'),
+  },
+  {
+    path: '/life-goal/:id',
+    name: 'life-goal-detail',
+    component: () => import('../views/life-goal/detail.vue'),
+  },
+  {
+    path: '/life-goal/:id/share',
+    name: 'life-goal-share',
+    component: () => import('../views/life-goal/share.vue'),
+  },
+  {
+    path: '/focus-tree',
+    name: 'focus-tree',
+    component: () => import('../views/focus-tree/garden.vue'),
+  },
+  {
+    path: '/focus-tree/plant',
+    name: 'focus-tree-plant',
+    component: () => import('../views/focus-tree/plant.vue'),
+  },
+  {
+    path: '/focus-tree/forest',
+    name: 'focus-tree-forest',
+    component: () => import('../views/focus-tree/forest.vue'),
+  },
+  {
+    path: '/focus-tree/shop',
+    name: 'focus-tree-shop',
+    component: () => import('../views/focus-tree/shop.vue'),
+  },
 ]
 
 const router = createRouter({

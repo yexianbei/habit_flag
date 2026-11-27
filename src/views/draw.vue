@@ -7,7 +7,7 @@
     <div class="draw-tip">
       <img class="img" src="@/assets/images/step2/flag-step2.png" />
     </div>
-    <div class="draw-container" :style="`height: ${drawHeight}px`">
+    <div class="draw-container">
       <div
         class="draw-wrap"
         :style="{ backgroundColor: mainColor }"
@@ -18,7 +18,7 @@
         <div class="draw-box">
           <div class="draw-cont" :style="{ border: '1px dashed ' + mainColor }">
             <img
-              src="@/assets/images/step2/2026.png"
+              :src="yearTopImg"
               class="draw-top-img"
               style=""
             />
@@ -213,7 +213,6 @@ export default defineComponent({
       signName: "",
       footerShow: false,
       colorList: [] as any[],
-      drawHeight: window.innerHeight,
       isSecond: false,
       readyJump: false,
       tokencache: "",
@@ -228,6 +227,12 @@ export default defineComponent({
     //立flag的时间
     const signTime = computed(() => {
       return moment(new Date().getTime()).format("YYYY-MM-DD");
+    });
+    // 海报年份顶图：未到 2027 用 2026，到 2027 及以后用 2027
+    const yearTopImg = computed(() => {
+      const year = new Date().getFullYear() >= 2027 ? 2027 : 2026;
+      return new URL(`../assets/images/step2/${year}.png`, import.meta.url)
+        .href;
     });
     //获取颜色数据
     const colorChildren = computed(() => {
@@ -407,6 +412,7 @@ export default defineComponent({
       flagList,
       colorList,
       signTime,
+      yearTopImg,
       colorChildren,
       handleTab,
       handleChangeColor,

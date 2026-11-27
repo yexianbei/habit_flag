@@ -15,22 +15,47 @@
     <script>
       function _a() {
         var el = document.documentElement
-        var clientWidth = document.documentElement.clientWidth
-        // 恢复原来的rem计算方式，保持手机端正常显示
-        var rem = clientWidth / 7.5
-        // 只在大屏设备（宽度>750px）时限制rem最大值，防止过度放大
-        if (clientWidth > 750) {
-          rem = 750 / 7.5 // 最大rem基准为100px
-        }
+        // 设计稿：宽 750 / 高 1334
+        var DESIGN_WIDTH = 750
+        var DESIGN_HEIGHT = 1334
+        var MAX_CONTENT_WIDTH = 750
+        var MIN_REM = 42
+        var MAX_REM = 100
+
+        var viewport = window.visualViewport
+        var clientWidth = Math.min(
+          document.documentElement.clientWidth || window.innerWidth || 0,
+          viewport && viewport.width ? viewport.width : Infinity
+        )
+        var clientHeight =
+          (viewport && viewport.height) ||
+          window.innerHeight ||
+          document.documentElement.clientHeight ||
+          0
+
+        // 大屏按内容区实际宽度算 rem，避免两侧留白后字号仍按全屏宽放大
+        var contentWidth = Math.min(clientWidth, MAX_CONTENT_WIDTH)
+        var remByWidth = contentWidth / (DESIGN_WIDTH / 100)
+        var remByHeight = clientHeight
+          ? clientHeight / (DESIGN_HEIGHT / 100)
+          : remByWidth
+        var rem = Math.min(remByWidth, remByHeight)
+        rem = Math.max(MIN_REM, Math.min(MAX_REM, rem))
+
         el.style.fontSize = rem + 'px'
         var realSize = parseFloat(window.getComputedStyle(el)['font-size'])
-        if (realSize !== rem) {
+        if (realSize && realSize !== rem) {
           el.style.fontSize = (rem / realSize) * rem + 'px'
         }
       }
       _a()
       window.addEventListener('resize', _a, false)
+      window.addEventListener('orientationchange', _a, false)
+      window.addEventListener('pageshow', _a, false)
       window.addEventListener('load', _a, false)
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', _a, false)
+      }
     </script>
   </head>
 

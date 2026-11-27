@@ -17,6 +17,7 @@ app.mount('#app')
 const skeleton = document.getElementById('app-skeleton')
 if (skeleton) skeleton.remove()
 
+// 图片预加载，添加错误处理避免阻塞页面
 Promise.all(
   loadImgReady([
     new URL(`./assets/images/horse/horse1.png`, import.meta.url).href,
@@ -39,11 +40,18 @@ Promise.all(
     new URL(`./assets/images/step1/step-choose.png`, import.meta.url).href,
     new URL(`./assets/images/step2/cloud-right.png`, import.meta.url).href,
     new URL(`./assets/images/step2/cloud-left.png`, import.meta.url).href,
-    new URL(`./assets/images/step2/2026.png`, import.meta.url).href,
+    new URL(
+      `./assets/images/step2/${
+        new Date().getFullYear() >= 2027 ? 2027 : 2026
+      }.png`,
+      import.meta.url
+    ).href,
     new URL(`./assets/images/step2/draw-prev.png`, import.meta.url).href,
     new URL(`./assets/images/step2/draw-next.png`, import.meta.url).href,
     new URL(`./assets/images/step3/alert_no_name.png`, import.meta.url).href,
     new URL(`./assets/images/step3/read_click.png`, import.meta.url).href,
     new URL(`./assets/images/step3/read_unclick.png`, import.meta.url).href,
   ])
-);
+).catch((error) => {
+  console.error('图片预加载失败，但不影响页面使用:', error)
+});

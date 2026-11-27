@@ -182,7 +182,7 @@ export default defineComponent({
   text-align: center;
   position: absolute;
   left: 0;
-  top: 0.8rem;
+  top: calc(0.5rem + env(safe-area-inset-top));
   z-index: 10;
   font-size: 0.3rem;
   font-weight: bold;
@@ -218,8 +218,6 @@ export default defineComponent({
       width: 100%;
       height: 2px;
       margin: 0.2rem auto;
-      // animation: scaleOut 1s ease-in;
-      // visibility: hidden;
       position: relative;
       transition: 0.3s ease-out-in;
       &::before {
@@ -253,7 +251,16 @@ export default defineComponent({
 }
 
 .habit-wrap {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  padding: 2rem 0 3.2rem;
   .tip {
     font-size: 0.5rem;
     font-weight: bold;
@@ -264,19 +271,24 @@ export default defineComponent({
     bottom: 0;
     left: 0;
     right: 0;
+    pointer-events: none;
     .img {
       width: 100%;
+      display: block;
     }
   }
   .habit-time-box {
-    width: 5.6rem;
-    height: 5.6rem;
+    width: min(5.6rem, 78vw);
+    height: min(5.6rem, 78vw);
+    max-width: 5.6rem;
+    max-height: 5.6rem;
     background: url("@/assets/images/circle.png") no-repeat center center;
     background-size: 100% auto;
-    margin: 2.5rem auto 0;
+    margin: 0 auto;
     overflow: hidden;
     position: relative;
     z-index: 2;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -318,26 +330,23 @@ export default defineComponent({
     height: 0.76rem;
     background: url("@/assets/images/start-btn.png") no-repeat center top;
     background-size: 100% auto;
-    margin: 0.34rem auto;
+    margin: 0.4rem auto 0;
     position: relative;
     z-index: 2;
+    flex-shrink: 0;
   }
 }
 
-//针对长屏手机适配
-@media screen and (min-height: 600px) {
-  .habit-time-box {
-    margin-top: 40% !important;
-  }
-}
-//针对ipad适配
-@media screen and (min-height: 1024px) {
+@media screen and (max-height: 640px) {
   .habit-logo {
-    top: 0.5rem !important;
+    top: calc(0.2rem + env(safe-area-inset-top));
   }
   .habit-wrap {
+    padding: 1.4rem 0 2.4rem;
+    justify-content: flex-start;
     .habit-time-box {
-      margin-top: 20% !important;
+      width: 4.4rem;
+      height: 4.4rem;
     }
   }
 }
