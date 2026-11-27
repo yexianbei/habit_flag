@@ -5,21 +5,25 @@ html {
 
 body {
   height: 100%;
-  min-height: 100%;
-  min-height: 100dvh;
   margin: 0 auto;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  // Android WebView 保持 overflow:hidden，避免整页滚动层抢走底栏点击
+  overflow: hidden;
   min-width: 320px;
   font-size: 0.28rem;
   color: #131415;
   background: #F7F7F7;
   position: relative;
+}
+
+@media screen and (orientation: landscape) {
+  body {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 }
 
 // 在大屏设备上限制body最大宽度，让内容居中显示
@@ -62,10 +66,16 @@ label {
 }
 
 #app {
-  min-height: 100%;
-  min-height: 100dvh;
-  height: auto;
+  // 恢复确定高度链；100dvh 在部分 Android WebView 无效
+  height: 100%;
   position: relative;
+}
+
+@media screen and (orientation: landscape) {
+  #app {
+    min-height: 100%;
+    height: auto;
+  }
 }
 
 input {

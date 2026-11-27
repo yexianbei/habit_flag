@@ -2,8 +2,6 @@
     --draw-set-height: 3.52rem;
     width: 100%;
     height: 100%;
-    min-height: 100%;
-    min-height: 100dvh;
     position: relative;
     overflow: hidden;
 }
@@ -11,8 +9,6 @@
 .draw-container {
     width: 100%;
     height: 100%;
-    min-height: 100%;
-    min-height: 100dvh;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
@@ -25,7 +21,8 @@
     height: 0.3rem;
     position: fixed;
     right: 0.3rem;
-    top: calc(0.5rem + env(safe-area-inset-top));
+    top: 0.5rem;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
     border-top: 1px solid #131415;
     padding-top: 0.1rem;
     z-index: 9;
@@ -45,8 +42,9 @@
     text-align: center;
     display: inline-block;
     box-sizing: border-box;
-    // 为底部操作栏留出空间，跟 CSS 变量联动
-    padding-bottom: calc(var(--draw-set-height) + env(safe-area-inset-bottom) + 0.4rem);
+    // 为底部操作栏留出空间（safe-area 用单独声明做回退，避免旧 WebView 整段 calc 失效）
+    padding-bottom: calc(var(--draw-set-height) + 0.4rem);
+    padding-bottom: calc(var(--draw-set-height) + env(safe-area-inset-bottom, 0px) + 0.4rem);
     &.draw-flex {
         display: flex;
     }
@@ -236,8 +234,8 @@
 
 .draw-set-wrap {
     width: 100%;
-    // border-box 下 padding 会吃掉内容高度，需把 safe-area 加进总高，否则底栏会叠到小装饰滚动区上导致点不到下一步
-    height: calc(var(--draw-set-height) + env(safe-area-inset-bottom));
+    // 与适配前一致：content-box + 外加 safe-area padding，避免 Android 上内容区被压矮、底栏叠进滚动层
+    height: var(--draw-set-height);
     background: #ececec;
     border-radius: 0.1rem 0.1rem 0 0;
     position: fixed;
@@ -245,8 +243,9 @@
     right: 0;
     bottom: 0;
     z-index: 99;
-    box-sizing: border-box;
-    padding-bottom: env(safe-area-inset-bottom);
+    box-sizing: content-box;
+    padding-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     .draw-set-header {
         height: 0.7rem;
         line-height: 0.7rem;
@@ -288,13 +287,23 @@
         overflow: hidden;
         position: relative;
         z-index: 0;
+        // 滚动层不抢 footer 点击（Android WebView 对 overflow scroll 命中更激进）
+        pointer-events: none;
         .draw-set {
             height: 100%;
+            pointer-events: auto;
+            &.draw-set-deco {
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+            }
             .draw-set-img {
                 width: 1.48rem;
                 height: 1.48rem;
                 margin: 0 0.2rem;
                 display: inline-block;
+                pointer-events: auto;
             }
             .draw-color-wrap {
                 overflow-x: auto;
@@ -364,21 +373,25 @@
         position: absolute;
         left: 0.3rem;
         right: 0.3rem;
-        // padding edge 在可视底边，需抬到 safe-area 之上，避免点到 Home 条
-        bottom: calc(0.3rem + env(safe-area-inset-bottom));
-        z-index: 2;
+        // 恢复适配前定位：bottom 固定，safe-area 用 footer 自身 padding，避免 calc(env()) 在旧内核整段失效
+        bottom: 0.3rem;
+        padding-bottom: 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        z-index: 10;
+        pointer-events: auto;
         button {
             width: 1.6rem;
             height: 0.48rem;
             padding: 0;
             border: 0;
-            background-color: transparent;
+            background-color: rgba(0, 0, 0, 0.001);
             position: relative;
-            z-index: 2;
+            z-index: 10;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
             appearance: none;
             -webkit-appearance: none;
+            touch-action: manipulation;
         }
         .prev {
             background: url('@/assets/images/step2/draw-prev.png') no-repeat center center;
@@ -411,7 +424,8 @@
         --draw-set-height: 2.8rem;
     }
     .draw-tip {
-        top: calc(0.25rem + env(safe-area-inset-top));
+        top: 0.25rem;
+        top: calc(0.25rem + env(safe-area-inset-top, 0px));
     }
     .draw-wrap {
         .draw-box {
@@ -426,7 +440,6 @@
         }
         .draw-set-cont {
             height: 1.5rem;
-            // 避免装饰图横向滚动层盖住底栏按钮
             z-index: 0;
             .draw-set {
                 .draw-set-img {
@@ -454,7 +467,7 @@
             }
         }
         .draw-set-footer {
-            bottom: calc(0.16rem + env(safe-area-inset-bottom));
+            bottom: 0.16rem;
             .prev,
             .next-continue,
             .next-step {

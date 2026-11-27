@@ -166,7 +166,9 @@ export default defineComponent({
 .sign-wrap {
   background-image: url("@/assets/images/bg.png");
   width: 100%;
+  height: 100%;
   min-height: 100%;
+  min-height: 100vh;
   min-height: 100dvh;
   background-size: 100% auto;
   position: fixed;
@@ -183,14 +185,16 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  padding: calc(0.6rem + env(safe-area-inset-top)) 0
-    calc(0.4rem + env(safe-area-inset-bottom));
+  padding: 0.6rem 0 0.4rem;
+  padding: calc(0.6rem + env(safe-area-inset-top, 0px)) 0
+    calc(0.4rem + env(safe-area-inset-bottom, 0px));
   .draw-tip {
     width: 3.44rem;
     height: 0.3rem;
     position: absolute;
     right: 0.3rem;
-    top: calc(0.5rem + env(safe-area-inset-top));
+    top: 0.5rem;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
     border-top: 1px solid #131415;
     padding-top: 0.1rem;
     .img {

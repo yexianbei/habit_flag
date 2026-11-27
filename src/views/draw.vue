@@ -7,7 +7,7 @@
     <div class="draw-tip">
       <img class="img" src="@/assets/images/step2/flag-step2.png" />
     </div>
-    <div class="draw-container">
+    <div class="draw-container" :style="{ height: drawHeight + 'px' }">
       <div
         class="draw-wrap"
         :style="{ backgroundColor: mainColor }"
@@ -124,11 +124,7 @@
       </div>
       <div class="draw-set-cont">
         <!--背景色-->
-        <div
-          class="draw-set"
-          style="overflow-x: scroll"
-          v-show="tabIndex === 0"
-        >
+        <div class="draw-set" v-show="tabIndex === 0">
           <div class="draw-color-wrap iflex ac">
             <div
               class="color"
@@ -148,15 +144,12 @@
             ></div>
           </div>
         </div>
-        <!--小装饰-->
-        <div
-          class="flex ac draw-set"
-          style="overflow-x: scroll"
-          v-show="tabIndex === 1"
-        >
+        <!--小装饰：滚动交给 CSS，避免整层 overflow-x:scroll 在 Android 抢走底栏点击-->
+        <div class="flex ac draw-set draw-set-deco" v-show="tabIndex === 1">
           <img
             class="draw-set-img"
             v-for="item in 9"
+            :key="item"
             :src="getImageUrl(item)"
             @click="handleChangeImage(item)"
           />
@@ -199,6 +192,8 @@ import {
   watch,
   computed,
   nextTick,
+  onMounted,
+  onUnmounted,
 } from "vue";
 import { useStore } from "../store";
 import { queryColorIndex } from "../common/utils";
@@ -226,11 +221,26 @@ export default defineComponent({
       signName: "",
       footerShow: false,
       colorList: [] as any[],
+      // Android WebView 用明确 px 高度，避免 % / dvh 高度链断裂
+      drawHeight: typeof window !== "undefined" ? window.innerHeight : 0,
       isSecond: false,
       readyJump: false,
       tokencache: "",
     });
     dataMap.colorList = colorList; //获取颜色数据
+
+    const syncDrawHeight = () => {
+      dataMap.drawHeight = window.innerHeight;
+    };
+    onMounted(() => {
+      syncDrawHeight();
+      window.addEventListener("resize", syncDrawHeight);
+      window.addEventListener("orientationchange", syncDrawHeight);
+    });
+    onUnmounted(() => {
+      window.removeEventListener("resize", syncDrawHeight);
+      window.removeEventListener("orientationchange", syncDrawHeight);
+    });
 
     const tokencache: any = computed(() => {
       dataMap.tokencache = store.state.tokencache;
