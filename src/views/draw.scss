@@ -4,11 +4,19 @@
     height: 100%;
     position: relative;
     overflow: hidden;
+    // 内容区与底栏分栏，避免 Android/X5 上全屏滚动层压住 fixed 底栏抢走点击
+    display: flex;
+    flex-direction: column;
+    // 打开签名层时取消裁剪（签名节点会再挂到 body）
+    &.draw-sign-open {
+        overflow: visible;
+    }
 }
 
 .draw-container {
     width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     position: relative;
@@ -42,9 +50,8 @@
     text-align: center;
     display: inline-block;
     box-sizing: border-box;
-    // 为底部操作栏留出空间（safe-area 用单独声明做回退，避免旧 WebView 整段 calc 失效）
-    padding-bottom: calc(var(--draw-set-height) + 0.4rem);
-    padding-bottom: calc(var(--draw-set-height) + env(safe-area-inset-bottom, 0px) + 0.4rem);
+    // 底栏已在文档流中，只需少量底部内边距
+    padding-bottom: 0.4rem;
     &.draw-flex {
         display: flex;
     }
@@ -234,21 +241,23 @@
 
 .draw-set-wrap {
     width: 100%;
-    // 与适配前一致：content-box + 外加 safe-area padding，避免 Android 上内容区被压矮、底栏叠进滚动层
-    height: var(--draw-set-height);
+    flex-shrink: 0;
+    // 文档流底栏：header / cont / footer 纵向排列，与装饰滚动区零重叠
+    height: auto;
+    min-height: var(--draw-set-height);
     background: #ececec;
     border-radius: 0.1rem 0.1rem 0 0;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
     z-index: 99;
     box-sizing: content-box;
+    display: flex;
+    flex-direction: column;
     padding-bottom: 0;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     .draw-set-header {
         height: 0.7rem;
         line-height: 0.7rem;
+        flex-shrink: 0;
         .draw-tab {
             width: 100%;
             height: 100%;
@@ -284,19 +293,24 @@
     }
     .draw-set-cont {
         height: 2rem;
+        flex-shrink: 0;
         overflow: hidden;
         position: relative;
         z-index: 0;
-        // 滚动层不抢 footer 点击（Android WebView 对 overflow scroll 命中更激进）
+        // 空白区域不接事件；仅色块/图片/滑条可点，避免 Android 整层 overflow 抢 footer
         pointer-events: none;
         .draw-set {
             height: 100%;
-            pointer-events: auto;
+            pointer-events: none;
             &.draw-set-deco {
                 overflow-x: auto;
                 overflow-y: hidden;
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
+                // 横向滑动需落在可滚容器上；高度限制为图片行，底部留白不接 touch
+                height: 1.48rem;
+                margin: 0.26rem 0;
+                pointer-events: auto;
             }
             .draw-set-img {
                 width: 1.48rem;
@@ -311,6 +325,7 @@
                 height: 0.8rem;
                 white-space: nowrap;
                 -webkit-overflow-scrolling: touch;
+                pointer-events: auto;
                 .color {
                     width: 0.7rem;
                     height: 0.7rem;
@@ -346,6 +361,7 @@
                 background: #ececec;
                 border: 0.01rem solid #999999;
                 box-sizing: border-box;
+                pointer-events: auto;
                 .color-range {
                     width: 100%;
                     height: 0.4rem;
@@ -370,13 +386,9 @@
         }
     }
     .draw-set-footer {
-        position: absolute;
-        left: 0.3rem;
-        right: 0.3rem;
-        // 恢复适配前定位：bottom 固定，safe-area 用 footer 自身 padding，避免 calc(env()) 在旧内核整段失效
-        bottom: 0.3rem;
-        padding-bottom: 0;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        position: relative;
+        flex-shrink: 0;
+        margin: 0.16rem 0.3rem 0.3rem;
         z-index: 10;
         pointer-events: auto;
         button {
@@ -442,6 +454,10 @@
             height: 1.5rem;
             z-index: 0;
             .draw-set {
+                &.draw-set-deco {
+                    height: 1.2rem;
+                    margin: 0.15rem 0;
+                }
                 .draw-set-img {
                     width: 1.2rem;
                     height: 1.2rem;
@@ -467,7 +483,7 @@
             }
         }
         .draw-set-footer {
-            bottom: 0.16rem;
+            margin: 0.1rem 0.3rem 0.16rem;
             .prev,
             .next-continue,
             .next-step {

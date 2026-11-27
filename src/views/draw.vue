@@ -3,11 +3,11 @@
  * @LastEditTime: 2026-01-02 11:14:41
 -->
 <template>
-  <div class="draw-page">
+  <div class="draw-page" :class="{ 'draw-sign-open': signShow }">
     <div class="draw-tip">
       <img class="img" src="@/assets/images/step2/flag-step2.png" />
     </div>
-    <div class="draw-container" :style="{ height: drawHeight + 'px' }">
+    <div class="draw-container">
       <div
         class="draw-wrap"
         :style="{ backgroundColor: mainColor }"
@@ -156,20 +156,28 @@
         </div>
       </div>
       <div class="flex ac jb draw-set-footer">
-        <button type="button" class="prev" aria-label="上一步" @click="handlePrev"></button>
+        <button
+          type="button"
+          class="prev"
+          aria-label="上一步"
+          @click.stop="handlePrev"
+          @touchend.prevent="handlePrev"
+        ></button>
         <button
           type="button"
           class="next-continue"
           v-if="!isSecond"
           aria-label="继续"
-          @click="handleNext"
+          @click.stop="handleNext"
+          @touchend.prevent="handleNext"
         ></button>
         <button
           type="button"
           class="next-step"
           v-else
           aria-label="下一步"
-          @click="handleNext"
+          @click.stop="handleNext"
+          @touchend.prevent="handleNext"
         ></button>
       </div>
     </div>
@@ -178,7 +186,7 @@
       :show="signShow"
       :mainColor="mainColor"
       :ready="readyJump"
-      @update:show="(v) => (signShow = v)"
+      @update:show="onSignShow"
       @finish="handldDraw"
     />
   </div>
@@ -192,8 +200,6 @@ import {
   watch,
   computed,
   nextTick,
-  onMounted,
-  onUnmounted,
 } from "vue";
 import { useStore } from "../store";
 import { queryColorIndex } from "../common/utils";
@@ -221,26 +227,11 @@ export default defineComponent({
       signName: "",
       footerShow: false,
       colorList: [] as any[],
-      // Android WebView 用明确 px 高度，避免 % / dvh 高度链断裂
-      drawHeight: typeof window !== "undefined" ? window.innerHeight : 0,
       isSecond: false,
       readyJump: false,
       tokencache: "",
     });
     dataMap.colorList = colorList; //获取颜色数据
-
-    const syncDrawHeight = () => {
-      dataMap.drawHeight = window.innerHeight;
-    };
-    onMounted(() => {
-      syncDrawHeight();
-      window.addEventListener("resize", syncDrawHeight);
-      window.addEventListener("orientationchange", syncDrawHeight);
-    });
-    onUnmounted(() => {
-      window.removeEventListener("resize", syncDrawHeight);
-      window.removeEventListener("orientationchange", syncDrawHeight);
-    });
 
     const tokencache: any = computed(() => {
       dataMap.tokencache = store.state.tokencache;
@@ -312,8 +303,20 @@ export default defineComponent({
     const handleChangeImage = (num: number) => {
       dataMap.mainImg = num;
     };
+    // 触摸 + 点击都会触发时去重，避免 Android 双发或只触发其一
+    let lastNavAt = 0;
+    const guardNav = () => {
+      const now = Date.now();
+      if (now - lastNavAt < 450) return false;
+      lastNavAt = now;
+      return true;
+    };
+    const onSignShow = (v: boolean) => {
+      dataMap.signShow = v;
+    };
     // 点击下一步,判断是否已选择图片，若未选择则底部菜单栏切换到图片选择
     const handleNext = () => {
+      if (!guardNav()) return;
       if (!dataMap.isSecond) {
         handleTab(1);
         return;
@@ -322,6 +325,7 @@ export default defineComponent({
     };
     //返回上一个选择flag页面
     const handlePrev = () => {
+      if (!guardNav()) return;
       router.replace({
         name: "flag",
         query: {
@@ -442,6 +446,7 @@ export default defineComponent({
       handleChangeImage,
       handleNext,
       handlePrev,
+      onSignShow,
       handldDraw,
       handleSave,
       getImageUrl,

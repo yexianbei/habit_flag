@@ -3,11 +3,12 @@
  * @LastEditTime: 2024-11-28 22:20:50
 -->
 <template>
-  <!-- 不用 transition：X5 WebView 常丢 animationend/transitionend，会卡在 opacity:0 表现为点下一步无反应 -->
+  <!-- 不用 transition；打开时挂到 body，避免 Android/X5 在 overflow:hidden 祖先内裁掉 fixed -->
   <div
+    v-if="show"
+    ref="signEl"
     class="sign-wrap"
     :style="{ backgroundColor: mainColor }"
-    v-show="show"
   >
     <div class="draw-tip">
       <img class="img" src="@/assets/images/step3/flag-step3.png" />
@@ -35,9 +36,10 @@
   <!--弹窗-->
   <modal :title="title" v-model:alertShow="alertShow" />
   <div
+    v-if="coutShow"
+    ref="coutEl"
     class="flex ac jc cout-down"
     :style="{ backgroundColor: mainColor }"
-    v-show="coutShow"
   >
     <div class="cout-cont">
       <div class="cout-time" v-for="item in 3" :key="item">
@@ -63,7 +65,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, toRefs, watchEffect } from "vue";
+import {
+  defineComponent,
+  onMounted,
+  onBeforeUnmount,
+  reactive,
+  toRefs,
+  watchEffect,
+  watch,
+  nextTick,
+  ref,
+} from "vue";
 import { useRouter, useRoute } from "vue-router";
 import modal from "@/components/modal.vue";
 export default defineComponent({
@@ -89,6 +101,8 @@ export default defineComponent({
     console.log("props", props);
     const router = useRouter();
     const route = useRoute();
+    const signEl = ref<HTMLElement | null>(null);
+    const coutEl = ref<HTMLElement | null>(null);
     const dataMap = reactive({
       isCheck: false,
       signName: "",
@@ -100,6 +114,33 @@ export default defineComponent({
       title: "",
       flagReady: false,
     });
+
+    const mountToBody = (el: HTMLElement | null) => {
+      if (el && el.parentElement !== document.body) {
+        document.body.appendChild(el);
+      }
+    };
+
+    watch(
+      () => props.show,
+      async (visible: boolean) => {
+        document.body.classList.toggle("hf-sign-open", !!visible);
+        if (!visible) return;
+        await nextTick();
+        mountToBody(signEl.value);
+      },
+      { immediate: true }
+    );
+
+    watch(
+      () => dataMap.coutShow,
+      async (visible: boolean) => {
+        document.body.classList.toggle("hf-cout-open", !!visible);
+        if (!visible) return;
+        await nextTick();
+        mountToBody(coutEl.value);
+      }
+    );
 
     watchEffect(() => {
       console.log("watchEffect", props.ready, dataMap.current);
@@ -117,6 +158,12 @@ export default defineComponent({
 
     onMounted(() => {
       dataMap.signName = route.query.name as string;
+    });
+
+    onBeforeUnmount(() => {
+      document.body.classList.remove("hf-sign-open", "hf-cout-open");
+      signEl.value?.remove();
+      coutEl.value?.remove();
     });
 
     const init = () => {
@@ -155,6 +202,8 @@ export default defineComponent({
 
     return {
       ...toRefs(dataMap),
+      signEl,
+      coutEl,
       handleCheck,
       handleFinish,
     };
@@ -166,17 +215,13 @@ export default defineComponent({
 .sign-wrap {
   background-image: url("@/assets/images/bg.png");
   width: 100%;
-  height: 100%;
-  min-height: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
   background-size: 100% auto;
   position: fixed;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 100;
+  z-index: 1000;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -188,6 +233,10 @@ export default defineComponent({
   padding: 0.6rem 0 0.4rem;
   padding: calc(0.6rem + env(safe-area-inset-top, 0px)) 0
     calc(0.4rem + env(safe-area-inset-bottom, 0px));
+  // 避免残留 opacity/transform 让 Android 看起来像「没打开」
+  opacity: 1;
+  visibility: visible;
+  transform: none;
   .draw-tip {
     width: 3.44rem;
     height: 0.3rem;
@@ -295,9 +344,14 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   position: fixed;
-  z-index: 150;
+  z-index: 1100;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 1;
+  visibility: visible;
+  transform: none;
   .cout-cont {
     width: 5rem;
     height: 5rem;

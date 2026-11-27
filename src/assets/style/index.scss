@@ -19,6 +19,12 @@ body {
   position: relative;
 }
 
+// 签名/倒计时层挂到 body 时放开裁剪，避免 Android fixed 被 overflow 吃掉
+body.hf-sign-open,
+body.hf-cout-open {
+  overflow: visible;
+}
+
 @media screen and (orientation: landscape) {
   body {
     overflow-y: auto;
@@ -35,7 +41,7 @@ body {
 
   // fixed 层与 body 同宽居中，避免贴浏览器全宽
   // 不用 transform 居中，避免和弹层过渡动画互相覆盖导致「点了没反应」
-  .draw-set-wrap,
+  // draw-set-wrap 已改为文档流底栏，勿再按 fixed 拉宽偏移
   .sign-wrap,
   .habbit-start,
   .canvas-poster,
