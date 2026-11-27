@@ -3,58 +3,60 @@
  * @LastEditTime: 2024-11-28 22:20:50
 -->
 <template>
-  <!-- 不用 transition：X5 常丢 transitionend；由父级保证不在 overflow:hidden 内 -->
-  <div
-    v-if="show"
-    class="sign-wrap"
-    :style="{ backgroundColor: mainColor }"
-  >
-    <div class="draw-tip">
-      <img class="img" src="@/assets/images/step3/flag-step3.png" />
-    </div>
-    <div class="sign-cont">
-      <div
-        class="sign-readme"
-        :class="{ heartFade: heartFade }"
-        @click="handleCheck"
-      >
-        <i :class="{ check: isCheck }"></i>
-        我已认真阅读以上建议，请未来放心，新的一年我会继续加油！
+  <!-- 单根节点；v-show 避免手机端反复挂载失败；不用 transition -->
+  <div class="sign-root">
+    <div
+      v-show="show"
+      class="sign-wrap"
+      :style="{ backgroundColor: mainColor || '#ff5f47' }"
+    >
+      <div class="draw-tip">
+        <img class="img" src="@/assets/images/step3/flag-step3.png" />
       </div>
-      <input
-        type="text"
-        class="sign-text"
-        v-model="signName"
-        maxlength="8"
-        placeholder="准备好了，就在此署名吧"
-      />
-      <div class="next" @click="handleFinish"></div>
-    </div>
-  </div>
-
-  <!--弹窗-->
-  <modal :title="title" v-model:alertShow="alertShow" />
-  <div
-    v-if="coutShow"
-    class="flex ac jc cout-down"
-    :style="{ backgroundColor: mainColor }"
-  >
-    <div class="cout-cont">
-      <div class="cout-time" v-for="item in 3" :key="item">
+      <div class="sign-cont">
         <div
-          class="cont-border flex ac jc"
-          :class="`time${item}`"
-          v-show="current >= item"
+          class="sign-readme"
+          :class="{ heartFade: heartFade }"
+          @click="handleCheck"
         >
-          <div class="line" v-show="current === item"></div>
+          <i :class="{ check: isCheck }"></i>
+          我已认真阅读以上建议，请未来放心，新的一年我会继续加油！
         </div>
-        <div class="flex ac jc time-num">
-          <span v-show="current === item">{{ item }}</span>
+        <input
+          type="text"
+          class="sign-text"
+          v-model="signName"
+          maxlength="8"
+          placeholder="准备好了，就在此署名吧"
+        />
+        <div class="next" @click="handleFinish"></div>
+      </div>
+    </div>
+
+    <!--弹窗-->
+    <modal :title="title" v-model:alertShow="alertShow" />
+    <div
+      v-show="coutShow"
+      class="flex ac jc cout-down"
+      :style="{ backgroundColor: mainColor || '#ff5f47' }"
+    >
+      <div class="cout-cont">
+        <div class="cout-time" v-for="item in 3" :key="item">
           <div
-            class="flex ac jc cout-text"
-            v-show="current <= 0 && flagReady"
+            class="cont-border flex ac jc"
+            :class="`time${item}`"
+            v-show="current >= item"
           >
-            你·的·新·年·Flag<br /><br />正式生效
+            <div class="line" v-show="current === item"></div>
+          </div>
+          <div class="flex ac jc time-num">
+            <span v-show="current === item">{{ item }}</span>
+            <div
+              class="flex ac jc cout-text"
+              v-show="current <= 0 && flagReady"
+            >
+              你·的·新·年·Flag<br /><br />正式生效
+            </div>
           </div>
         </div>
       </div>
@@ -190,16 +192,26 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+.sign-root {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 1000;
+}
+
 .sign-wrap {
   background-image: url("@/assets/images/bg.png");
-  width: 100%;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
   background-size: 100% auto;
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 99999 !important;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -211,9 +223,10 @@ export default defineComponent({
   padding: 0.6rem 0 0.4rem;
   padding: calc(0.6rem + env(safe-area-inset-top, 0px)) 0
     calc(0.4rem + env(safe-area-inset-bottom, 0px));
-  opacity: 1;
-  visibility: visible;
-  transform: none;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  pointer-events: auto;
   .draw-tip {
     width: 3.44rem;
     height: 0.3rem;

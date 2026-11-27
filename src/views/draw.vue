@@ -158,28 +158,20 @@
         </div>
       </div>
       <div class="flex ac jb draw-set-footer">
-        <!-- 不用 touchend.prevent：部分安卓手机上会吞掉后续逻辑；空 button 也不稳定，保留文字兜底 -->
-        <button type="button" class="prev" aria-label="上一步" @click.stop="handlePrev">
-          上一步
-        </button>
-        <button
-          type="button"
+        <!-- 与 flag 页一致用 span+click；安卓上 button 常只有高亮不触发逻辑 -->
+        <span class="prev" @click="handlePrev" @touchend.prevent="handlePrev"></span>
+        <span
           class="next-continue"
-          v-if="!isSecond"
-          aria-label="继续"
-          @click.stop="handleNext"
-        >
-          继续
-        </button>
-        <button
-          type="button"
+          v-if="tabIndex !== 1"
+          @click="handleNext"
+          @touchend.prevent="handleNext"
+        ></span>
+        <span
           class="next-step"
           v-else
-          aria-label="下一步"
-          @click.stop="handleNext"
-        >
-          下一步
-        </button>
+          @click="handleNext"
+          @touchend.prevent="handleNext"
+        ></span>
       </div>
     </div>
     <div class="canvas-poster" v-show="false"></div>
@@ -306,18 +298,30 @@ export default defineComponent({
       dataMap.mainImg = num;
     };
     const onSignShow = (v: boolean) => {
-      dataMap.signShow = v;
+      dataMap.signShow = !!v;
     };
-    // 点击下一步,判断是否已选择图片，若未选择则底部菜单栏切换到图片选择
+    // click 与 touchend 都会进这里，短时去重
+    let lastNavAt = 0;
+    const guardNav = () => {
+      const now = Date.now();
+      if (now - lastNavAt < 400) return false;
+      lastNavAt = now;
+      return true;
+    };
+    // 点击下一步：以 tabIndex 为准（比 isSecond 更直观），进签名页
     const handleNext = () => {
-      if (!dataMap.isSecond) {
+      if (!guardNav()) return;
+      if (dataMap.tabIndex !== 1) {
         handleTab(1);
         return;
       }
+      dataMap.isSecond = true;
       dataMap.signShow = true;
+      document.body.classList.add("hf-sign-open");
     };
     //返回上一个选择flag页面
     const handlePrev = () => {
+      if (!guardNav()) return;
       router.replace({
         name: "flag",
         query: {
