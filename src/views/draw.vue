@@ -163,16 +163,29 @@
         </div>
       </div>
       <div class="flex ac jb draw-set-footer">
-        <span class="prev" @click="handlePrev"></span>
-        <span class="next-continue" v-if="!isSecond" @click="handleNext"></span>
-        <span class="next-step" v-else @click="handleNext"></span>
+        <button type="button" class="prev" aria-label="上一步" @click="handlePrev"></button>
+        <button
+          type="button"
+          class="next-continue"
+          v-if="!isSecond"
+          aria-label="继续"
+          @click="handleNext"
+        ></button>
+        <button
+          type="button"
+          class="next-step"
+          v-else
+          aria-label="下一步"
+          @click="handleNext"
+        ></button>
       </div>
     </div>
     <div class="canvas-poster" v-show="false"></div>
     <sign
-      v-model:show="signShow"
-      v-model:mainColor="mainColor"
-      v-model:ready="readyJump"
+      :show="signShow"
+      :mainColor="mainColor"
+      :ready="readyJump"
+      @update:show="(v) => (signShow = v)"
       @finish="handldDraw"
     />
   </div>

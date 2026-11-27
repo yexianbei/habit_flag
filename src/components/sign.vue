@@ -3,69 +3,63 @@
  * @LastEditTime: 2024-11-28 22:20:50
 -->
 <template>
-  <transition name="bounce2">
-    <div
-      class="sign-wrap"
-      :style="{ backgroundColor: mainColor }"
-      v-show="show"
-    >
-      <div class="draw-tip">
-        <img class="img" src="@/assets/images/step3/flag-step3.png" />
-      </div>
-      <div class="sign-cont">
-        <div
-          class="sign-readme"
-          :class="{ heartFade: heartFade }"
-          @click="handleCheck"
-        >
-          <i :class="{ check: isCheck }"></i>
-          我已认真阅读以上建议，请未来放心，新的一年我会继续加油！
-        </div>
-        <input
-          type="text"
-          class="sign-text"
-          v-model="signName"
-          maxlength="8"
-          placeholder="准备好了，就在此署名吧"
-        />
-        <div class="next" @click="handleFinish"></div>
-      </div>
+  <!-- 不用 transition：X5 WebView 常丢 animationend/transitionend，会卡在 opacity:0 表现为点下一步无反应 -->
+  <div
+    class="sign-wrap"
+    :style="{ backgroundColor: mainColor }"
+    v-show="show"
+  >
+    <div class="draw-tip">
+      <img class="img" src="@/assets/images/step3/flag-step3.png" />
     </div>
-  </transition>
+    <div class="sign-cont">
+      <div
+        class="sign-readme"
+        :class="{ heartFade: heartFade }"
+        @click="handleCheck"
+      >
+        <i :class="{ check: isCheck }"></i>
+        我已认真阅读以上建议，请未来放心，新的一年我会继续加油！
+      </div>
+      <input
+        type="text"
+        class="sign-text"
+        v-model="signName"
+        maxlength="8"
+        placeholder="准备好了，就在此署名吧"
+      />
+      <div class="next" @click="handleFinish"></div>
+    </div>
+  </div>
 
   <!--弹窗-->
   <modal :title="title" v-model:alertShow="alertShow" />
-  <transition name="fade">
-    <div
-      class="flex ac jc cout-down"
-      :style="{ backgroundColor: mainColor }"
-      v-show="coutShow"
-    >
-      <div class="cout-cont">
-        <div class="cout-time" v-for="item in 3">
+  <div
+    class="flex ac jc cout-down"
+    :style="{ backgroundColor: mainColor }"
+    v-show="coutShow"
+  >
+    <div class="cout-cont">
+      <div class="cout-time" v-for="item in 3" :key="item">
+        <div
+          class="cont-border flex ac jc"
+          :class="`time${item}`"
+          v-show="current >= item"
+        >
+          <div class="line" v-show="current === item"></div>
+        </div>
+        <div class="flex ac jc time-num">
+          <span v-show="current === item">{{ item }}</span>
           <div
-            class="cont-border flex ac jc"
-            :class="`time${item}`"
-            v-show="current >= item"
+            class="flex ac jc cout-text"
+            v-show="current <= 0 && flagReady"
           >
-            <div class="line" v-show="current === item"></div>
-          </div>
-          <div class="flex ac jc time-num">
-            <span v-show="current === item">{{ item }}</span>
-            <transition name="fade">
-              <div
-                class="flex ac jc cout-text"
-                v-show="current <= 0 && flagReady"
-              >
-                你·的·新·年·Flag<br /><br />正式生效
-              </div>
-            </transition>
+            你·的·新·年·Flag<br /><br />正式生效
           </div>
         </div>
-        <!-- v-show="current === item" -->
       </div>
     </div>
-  </transition>
+  </div>
 </template>
 
 <script lang="ts">
@@ -184,7 +178,6 @@ export default defineComponent({
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  transition: 0.3s all;
   display: flex;
   flex-direction: column;
   align-items: center;

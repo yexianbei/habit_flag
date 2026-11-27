@@ -367,13 +367,18 @@
         // padding edge 在可视底边，需抬到 safe-area 之上，避免点到 Home 条
         bottom: calc(0.3rem + env(safe-area-inset-bottom));
         z-index: 2;
-        span {
+        button {
             width: 1.6rem;
-            height: 0.4rem;
+            height: 0.48rem;
+            padding: 0;
+            border: 0;
+            background-color: transparent;
             position: relative;
             z-index: 2;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
+            appearance: none;
+            -webkit-appearance: none;
         }
         .prev {
             background: url('@/assets/images/step2/draw-prev.png') no-repeat center center;

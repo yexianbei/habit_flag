@@ -30,6 +30,7 @@ body {
   }
 
   // fixed 层与 body 同宽居中，避免贴浏览器全宽
+  // 不用 transform 居中，避免和弹层过渡动画互相覆盖导致「点了没反应」
   .draw-set-wrap,
   .sign-wrap,
   .habbit-start,
@@ -37,8 +38,10 @@ body {
   .cout-down {
     left: 50% !important;
     right: auto !important;
-    width: min(100%, 750px);
-    transform: translateX(-50%);
+    width: 750px !important;
+    max-width: 100vw !important;
+    margin-left: -375px;
+    transform: none !important;
     box-sizing: border-box;
   }
 
