@@ -3,7 +3,9 @@
  * @LastEditTime: 2026-01-02 11:14:41
 -->
 <template>
-  <div class="draw-page" :class="{ 'draw-sign-open': signShow }">
+  <!-- 签名层放在 overflow:hidden 的 draw-page 外，避免手机端 fixed 被裁掉 -->
+  <div class="draw-page-root">
+  <div class="draw-page">
     <div class="draw-tip">
       <img class="img" src="@/assets/images/step2/flag-step2.png" />
     </div>
@@ -156,39 +158,39 @@
         </div>
       </div>
       <div class="flex ac jb draw-set-footer">
-        <button
-          type="button"
-          class="prev"
-          aria-label="上一步"
-          @click.stop="handlePrev"
-          @touchend.prevent="handlePrev"
-        ></button>
+        <!-- 不用 touchend.prevent：部分安卓手机上会吞掉后续逻辑；空 button 也不稳定，保留文字兜底 -->
+        <button type="button" class="prev" aria-label="上一步" @click.stop="handlePrev">
+          上一步
+        </button>
         <button
           type="button"
           class="next-continue"
           v-if="!isSecond"
           aria-label="继续"
           @click.stop="handleNext"
-          @touchend.prevent="handleNext"
-        ></button>
+        >
+          继续
+        </button>
         <button
           type="button"
           class="next-step"
           v-else
           aria-label="下一步"
           @click.stop="handleNext"
-          @touchend.prevent="handleNext"
-        ></button>
+        >
+          下一步
+        </button>
       </div>
     </div>
     <div class="canvas-poster" v-show="false"></div>
-    <sign
-      :show="signShow"
-      :mainColor="mainColor"
-      :ready="readyJump"
-      @update:show="onSignShow"
-      @finish="handldDraw"
-    />
+  </div>
+  <sign
+    :show="signShow"
+    :mainColor="mainColor"
+    :ready="readyJump"
+    @update:show="onSignShow"
+    @finish="handldDraw"
+  />
   </div>
 </template>
 
@@ -303,20 +305,11 @@ export default defineComponent({
     const handleChangeImage = (num: number) => {
       dataMap.mainImg = num;
     };
-    // 触摸 + 点击都会触发时去重，避免 Android 双发或只触发其一
-    let lastNavAt = 0;
-    const guardNav = () => {
-      const now = Date.now();
-      if (now - lastNavAt < 450) return false;
-      lastNavAt = now;
-      return true;
-    };
     const onSignShow = (v: boolean) => {
       dataMap.signShow = v;
     };
     // 点击下一步,判断是否已选择图片，若未选择则底部菜单栏切换到图片选择
     const handleNext = () => {
-      if (!guardNav()) return;
       if (!dataMap.isSecond) {
         handleTab(1);
         return;
@@ -325,7 +318,6 @@ export default defineComponent({
     };
     //返回上一个选择flag页面
     const handlePrev = () => {
-      if (!guardNav()) return;
       router.replace({
         name: "flag",
         query: {

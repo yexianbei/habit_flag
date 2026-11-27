@@ -19,10 +19,10 @@ body {
   position: relative;
 }
 
-// 签名/倒计时层挂到 body 时放开裁剪，避免 Android fixed 被 overflow 吃掉
+// 签名/倒计时层挂到 body 时放开裁剪，避免手机端 Android fixed 被 overflow 吃掉
 body.hf-sign-open,
 body.hf-cout-open {
-  overflow: visible;
+  overflow: visible !important;
 }
 
 @media screen and (orientation: landscape) {

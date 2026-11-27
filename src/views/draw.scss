@@ -1,3 +1,11 @@
+.draw-page-root {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    // 不裁剪签名 fixed 层；裁剪只放在内部 draw-page
+    overflow: visible;
+}
+
 .draw-page {
     --draw-set-height: 3.52rem;
     width: 100%;
@@ -7,10 +15,6 @@
     // 内容区与底栏分栏，避免 Android/X5 上全屏滚动层压住 fixed 底栏抢走点击
     display: flex;
     flex-direction: column;
-    // 打开签名层时取消裁剪（签名节点会再挂到 body）
-    &.draw-sign-open {
-        overflow: visible;
-    }
 }
 
 .draw-container {
@@ -393,28 +397,37 @@
         pointer-events: auto;
         button {
             width: 1.6rem;
-            height: 0.48rem;
+            min-width: 1.6rem;
+            height: 0.56rem;
+            min-height: 0.56rem;
             padding: 0;
             border: 0;
-            background-color: rgba(0, 0, 0, 0.001);
+            // 透明底在部分安卓机上会导致 click 不触发，改用实色底 + 图片盖住
+            background-color: #ececec;
+            color: transparent;
+            font-size: 0;
+            line-height: 0;
+            overflow: hidden;
             position: relative;
             z-index: 10;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0.08);
             appearance: none;
             -webkit-appearance: none;
             touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
         }
         .prev {
-            background: url('@/assets/images/step2/draw-prev.png') no-repeat center center;
+            background: #ececec url('@/assets/images/step2/draw-prev.png') no-repeat center center;
             background-size: 1.4rem auto;
         }
         .next-continue {
-            background: url('@/assets/images/step2/draw-next.png') no-repeat center center;
+            background: #ececec url('@/assets/images/step2/draw-next.png') no-repeat center center;
             background-size: 1.4rem auto;
         }
         .next-step {
-            background: url('@/assets/images/step2/next-step.png') no-repeat center center;
+            background: #ececec url('@/assets/images/step2/next-step.png') no-repeat center center;
             background-size: 1.4rem auto;
         }
     }

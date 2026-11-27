@@ -3,10 +3,9 @@
  * @LastEditTime: 2024-11-28 22:20:50
 -->
 <template>
-  <!-- 不用 transition；打开时挂到 body，避免 Android/X5 在 overflow:hidden 祖先内裁掉 fixed -->
+  <!-- 不用 transition：X5 常丢 transitionend；由父级保证不在 overflow:hidden 内 -->
   <div
     v-if="show"
-    ref="signEl"
     class="sign-wrap"
     :style="{ backgroundColor: mainColor }"
   >
@@ -37,7 +36,6 @@
   <modal :title="title" v-model:alertShow="alertShow" />
   <div
     v-if="coutShow"
-    ref="coutEl"
     class="flex ac jc cout-down"
     :style="{ backgroundColor: mainColor }"
   >
@@ -73,8 +71,6 @@ import {
   toRefs,
   watchEffect,
   watch,
-  nextTick,
-  ref,
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import modal from "@/components/modal.vue";
@@ -101,8 +97,6 @@ export default defineComponent({
     console.log("props", props);
     const router = useRouter();
     const route = useRoute();
-    const signEl = ref<HTMLElement | null>(null);
-    const coutEl = ref<HTMLElement | null>(null);
     const dataMap = reactive({
       isCheck: false,
       signName: "",
@@ -115,30 +109,18 @@ export default defineComponent({
       flagReady: false,
     });
 
-    const mountToBody = (el: HTMLElement | null) => {
-      if (el && el.parentElement !== document.body) {
-        document.body.appendChild(el);
-      }
-    };
-
     watch(
       () => props.show,
-      async (visible: boolean) => {
+      (visible: boolean) => {
         document.body.classList.toggle("hf-sign-open", !!visible);
-        if (!visible) return;
-        await nextTick();
-        mountToBody(signEl.value);
       },
       { immediate: true }
     );
 
     watch(
       () => dataMap.coutShow,
-      async (visible: boolean) => {
+      (visible: boolean) => {
         document.body.classList.toggle("hf-cout-open", !!visible);
-        if (!visible) return;
-        await nextTick();
-        mountToBody(coutEl.value);
       }
     );
 
@@ -162,8 +144,6 @@ export default defineComponent({
 
     onBeforeUnmount(() => {
       document.body.classList.remove("hf-sign-open", "hf-cout-open");
-      signEl.value?.remove();
-      coutEl.value?.remove();
     });
 
     const init = () => {
@@ -202,8 +182,6 @@ export default defineComponent({
 
     return {
       ...toRefs(dataMap),
-      signEl,
-      coutEl,
       handleCheck,
       handleFinish,
     };
@@ -233,7 +211,6 @@ export default defineComponent({
   padding: 0.6rem 0 0.4rem;
   padding: calc(0.6rem + env(safe-area-inset-top, 0px)) 0
     calc(0.4rem + env(safe-area-inset-bottom, 0px));
-  // 避免残留 opacity/transform 让 Android 看起来像「没打开」
   opacity: 1;
   visibility: visible;
   transform: none;
@@ -254,6 +231,8 @@ export default defineComponent({
     width: 6.4rem;
     max-width: calc(100% - 0.6rem);
     height: 9.8rem;
+    max-height: calc(100vh - 1.2rem);
+    max-height: calc(100dvh - 1.2rem);
     background: url("@/assets/images/step3/sign-bg.png") no-repeat center center;
     background-size: 100% 100%;
     margin: 0 auto;
@@ -424,15 +403,17 @@ export default defineComponent({
   }
 }
 
-// 矮屏/横屏：卡片可缩放并可滚动完整展示
+// 矮屏手机：从顶部排布并限制卡片高度，避免「其实打开了但看不见」
 @media screen and (max-height: 700px) {
   .sign-wrap {
     justify-content: flex-start;
-    padding-top: calc(0.8rem + env(safe-area-inset-top));
+    padding-top: calc(0.8rem + env(safe-area-inset-top, 0px));
   }
   .sign-cont {
     width: 5.4rem;
     height: 8.2rem;
+    max-height: calc(100vh - 1.6rem);
+    max-height: calc(100dvh - 1.6rem);
   }
 }
 </style>
