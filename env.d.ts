@@ -4,6 +4,8 @@
  */
 /// <reference types="vite/client" />
 
+declare const __APP_VERSION__: string
+
 // 声明模块
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'

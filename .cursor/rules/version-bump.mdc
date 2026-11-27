@@ -1,0 +1,11 @@
+---
+description: 提交推送前自动升小版本号；大版本需用户同意
+alwaysApply: true
+---
+
+# 版本号约定
+
+- 版本格式：`MAJOR.MINOR.PATCH`（如 `1.0.0`），写在 `package.json` 的 `version`，构建时注入为 `__APP_VERSION__`，首页底部显示 `vX.Y.Z`。
+- **每次**用户要求「提交」或「提交并推送」时：先执行 `npm run version:patch`（或 `node scripts/bump-patch.mjs`）把 **PATCH +1**，再把 `package.json` 一并加入本次提交。
+- **不要**擅自升级 MAJOR 或 MINOR；只有用户明确同意后才改大版本/次版本。
+- 首次引入或用户指定起始版本时，可按用户说的设为 `1.0.0` 等，之后仍按「每次提交 patch+1」执行。

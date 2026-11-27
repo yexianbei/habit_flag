@@ -39,6 +39,7 @@
     <div class="habit-img">
       <img class="img" src="../assets/images/Frame.png" />
     </div>
+    <div class="app-version">v{{ appVersion }}</div>
   </div>
   <loading v-model:isLoading="isLoading" />
 </template>
@@ -70,6 +71,7 @@ export default defineComponent({
       min: "00",
       second: "00",
       isLoading: false,
+      appVersion: typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "0.0.0",
     });
     onMounted(() => {
       setRouterCache();
@@ -248,6 +250,19 @@ export default defineComponent({
     position: absolute;
     bottom: 2rem;
   }
+}
+
+.app-version {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(0.24rem + env(safe-area-inset-bottom));
+  z-index: 2;
+  font-size: 0.22rem;
+  line-height: 1;
+  color: rgba(19, 20, 21, 0.35);
+  pointer-events: none;
+  letter-spacing: 0.02rem;
 }
 
 .habit-wrap {

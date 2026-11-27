@@ -1,11 +1,12 @@
 {
     "name": "project",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "license": "MIT",
     "scripts": {
         "dev": "vite",
         "build": "vue-tsc --noEmit --skipLibCheck && vite build",
-        "serve": "vite preview"
+        "serve": "vite preview",
+        "version:patch": "node scripts/bump-patch.mjs"
     },
     "dependencies": {
         "@babel/polyfill": "^7.12.1",
