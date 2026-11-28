@@ -1,6 +1,7 @@
 /*
- * @description: 专注森林 API（localStorage）
+ * @description: 专注森林 API（localStorage + 云函数同步）
  * 道具通过商店用努力值购买；测试阶段默认给予充足努力值。
+ * 种树状态按用户写入云函数，跨设备按 updatedAt 最后写入获胜。
  */
 import {
   ActiveTree,
@@ -27,6 +28,12 @@ import {
   isMatureStage,
   nextStage,
 } from '../types/focusTree'
+import {
+  canSyncForestCloud,
+  fetchForestCloud,
+  rememberCloudIdentity,
+  saveForestCloud,
+} from './focusForestCloud'
 
 const STORAGE_KEY = 'habit_focus_forest_v2'
 const EFFORT_KEY = 'habit_focus_effort_v1'
@@ -35,6 +42,11 @@ const EFFORT_KEY = 'habit_focus_effort_v1'
 let clientEffort: number | null = null
 let bridgeReady = false
 let effortBootstrapped = false
+/** 云端是否已完成首拉（本会话） */
+let cloudHydrated = false
+let cloudHydratePromise: Promise<void> | null = null
+let cloudSaveTimer: ReturnType<typeof setTimeout> | null = null
+const CLOUD_SAVE_DEBOUNCE_MS = 800
 
 function uid(prefix = 'ft') {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
@@ -77,39 +89,120 @@ function readState(): ForestState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return defaultState()
-    const parsed = JSON.parse(raw)
-    const state: ForestState = {
-      ...defaultState(),
-      ...parsed,
-      inventory: { ...defaultInventory(), ...(parsed.inventory || {}) },
-      forest: Array.isArray(parsed.forest) ? parsed.forest : [],
-      focusHistory: Array.isArray(parsed.focusHistory) ? parsed.focusHistory : [],
-    }
-    // 兼容旧存档：补上阶段养护计数
-    if (state.activeTree && !state.activeTree.stageCare) {
-      state.activeTree = {
-        ...state.activeTree,
-        stageCare: emptyStageCare(),
-        stageProgress: 0,
-      }
-    }
-    // 兼容旧存档 + 跨天归零当日次数
-    const today = localDate()
-    const prev = state.dailyCare as DailyCare | undefined
-    state.dailyCare =
-      prev && prev.date === today
-        ? { ...prev }
-        : emptyDailyCare(today)
-    return state
+    return normalizeState(JSON.parse(raw))
   } catch (e) {
     console.error('读取专注森林失败', e)
     return defaultState()
   }
 }
 
+function parseUpdatedAt(value?: string | null): number {
+  if (!value) return 0
+  const t = Date.parse(String(value))
+  return Number.isFinite(t) ? t : 0
+}
+
+function normalizeState(raw: any): ForestState {
+  const parsed = raw && typeof raw === 'object' ? raw : {}
+  const state: ForestState = {
+    ...defaultState(),
+    ...parsed,
+    inventory: { ...defaultInventory(), ...(parsed.inventory || {}) },
+    forest: Array.isArray(parsed.forest) ? parsed.forest : [],
+    focusHistory: Array.isArray(parsed.focusHistory) ? parsed.focusHistory : [],
+  }
+  if (state.activeTree && !state.activeTree.stageCare) {
+    state.activeTree = {
+      ...state.activeTree,
+      stageCare: emptyStageCare(),
+      stageProgress: 0,
+    }
+  }
+  const today = localDate()
+  const prev = state.dailyCare as DailyCare | undefined
+  state.dailyCare =
+    prev && prev.date === today ? { ...prev } : emptyDailyCare(today)
+  return state
+}
+
+function scheduleCloudSave(state: ForestState) {
+  if (!canSyncForestCloud()) return
+  if (cloudSaveTimer) clearTimeout(cloudSaveTimer)
+  const snapshot = JSON.parse(JSON.stringify(state)) as ForestState
+  cloudSaveTimer = setTimeout(() => {
+    cloudSaveTimer = null
+    saveForestCloud(snapshot)
+      .then((res) => {
+        if (res?.conflict && res.state) {
+          const merged = normalizeState(res.state)
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+        }
+      })
+      .catch(() => {
+        /* 离线/失败保留本地，下次再传 */
+      })
+  }, CLOUD_SAVE_DEBOUNCE_MS)
+}
+
 function writeState(state: ForestState) {
   state.updatedAt = new Date().toISOString()
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  scheduleCloudSave(state)
+}
+
+/**
+ * 从路由 / App 注入身份后，拉取云端并与本地按 updatedAt 合并。
+ * 可重复调用；同一会话只真正请求一次（除非 force）。
+ */
+export async function hydrateForestFromCloud(force = false): Promise<ForestState> {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search)
+    const hash = window.location.hash || ''
+    const hashQuery = hash.includes('?') ? hash.split('?')[1] : ''
+    const q = new URLSearchParams(hashQuery)
+    rememberCloudIdentity(
+      params.get('dailyUserId') || q.get('dailyUserId'),
+      params.get('token') || q.get('token') || localStorage.getItem('Authorization')
+    )
+  }
+
+  if (!canSyncForestCloud()) {
+    return readState()
+  }
+  if (cloudHydrated && !force) {
+    return readState()
+  }
+  if (cloudHydratePromise && !force) {
+    await cloudHydratePromise
+    return readState()
+  }
+
+  cloudHydratePromise = (async () => {
+    const remote = await fetchForestCloud()
+    const local = readState()
+    if (remote?.state) {
+      const remoteAt = parseUpdatedAt(remote.updatedAt || remote.state.updatedAt)
+      const localAt = parseUpdatedAt(local.updatedAt)
+      if (remoteAt >= localAt) {
+        const merged = normalizeState(remote.state)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged))
+      } else {
+        // 本地更新：立刻上传，避免被其它设备旧数据覆盖
+        await saveForestCloud(local)
+      }
+    } else if (local.updatedAt && (local.activeTree || local.forest.length || local.focusHistory.length)) {
+      // 云端尚无存档，把本地首次上传
+      await saveForestCloud(local)
+    }
+    cloudHydrated = true
+  })()
+
+  try {
+    await cloudHydratePromise
+  } finally {
+    cloudHydratePromise = null
+  }
+  return readState()
 }
 
 function readStoredEffort(): number | null {
@@ -426,15 +519,13 @@ export function listShopGoods() {
   return ok(SHOP_GOODS)
 }
 
-export function getForestState() {
-  ensureBridge()
-  const s = tickDecay()
+function buildForestView(s: ForestState) {
   const effort = getClientEffort()
   const species = s.activeTree ? getSpecies(s.activeTree.speciesId) : null
   const quota = s.activeTree
     ? getStageCareQuota(s.activeTree.stage, !!species?.canFruit)
     : 0
-  return ok({
+  return {
     ...s,
     effort,
     species: TREE_SPECIES,
@@ -446,7 +537,14 @@ export function getForestState() {
     matureDays: MATURE_DAYS,
     stageProgressPct: s.activeTree ? stageCarePct(s.activeTree) : 0,
     careHint: s.activeTree ? careHintText(s.activeTree) : '',
-  })
+  }
+}
+
+export async function getForestState() {
+  ensureBridge()
+  await hydrateForestFromCloud()
+  const s = tickDecay()
+  return ok(buildForestView(s))
 }
 
 function careHintText(tree: ActiveTree): string {

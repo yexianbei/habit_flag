@@ -76,6 +76,7 @@ export default defineComponent({
           name: route.query.name,
           token: route.query.token,
           effort: route.query.effort,
+          dailyUserId: route.query.dailyUserId,
         },
       })
     }

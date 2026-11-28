@@ -13,6 +13,19 @@
     />
     <title>你·的·Flag</title>
     <script>
+      // 按深链区分能力：种树 / 心愿岛 不走 Flag 启动壳
+      ;(function () {
+        var hash = (location.hash || '').replace(/^#/, '')
+        var path = hash.split('?')[0] || '/'
+        var shell = { title: '你·的·Flag', tip: '你的未来，从这里开始', accent: '#ff5f47', bg: '#fff' }
+        if (path.indexOf('/focus-tree') === 0) {
+          shell = { title: '专注森林', tip: '一棵树，一段专注', accent: '#3d8b6e', bg: '#eef6f1' }
+        } else if (path.indexOf('/life-goal') === 0) {
+          shell = { title: '心愿岛', tip: '写下你的心愿', accent: '#5b7cfa', bg: '#f4f6ff' }
+        }
+        document.title = shell.title
+        window.__APP_SHELL__ = shell
+      })()
       function _a() {
         var el = document.documentElement
         // 手机端只按宽度算 rem（与适配前一致）。按高度取 min 会在 Android WebView 把整页压小，底栏命中错乱。
@@ -38,7 +51,7 @@
 
   <body>
     <div id="app" class="user-select-none">
-      <!-- 骨架屏：Vue 挂载前显示，挂载后被替换 -->
+      <!-- 骨架屏：Vue 挂载前显示，挂载后被替换；文案按深链能力切换 -->
       <div id="app-skeleton" style="
         position: fixed; inset: 0;
         background: #fff;
@@ -60,17 +73,23 @@
             "></div>
           </div>
         </div>
-        <div style="position: fixed; bottom: 8vw; font-size: 3.5vw; color: #666;">
+        <div id="skeleton-tip" style="position: fixed; bottom: 8vw; font-size: 3.5vw; color: #666;">
           你的未来，从这里开始
         </div>
       </div>
     </div>
     <script>
-      // 骨架屏进度动画，与 index.vue 的 coutTimer 保持一致
+      // 骨架屏按能力换肤 + 进度动画（Flag 首页与 index.vue 的 coutTimer 一致）
       ;(function () {
-        var p = 0
-        var bar = document.getElementById('skeleton-bar')
+        var shell = window.__APP_SHELL__ || {}
+        var sk = document.getElementById('app-skeleton')
+        var tip = document.getElementById('skeleton-tip')
         var num = document.getElementById('skeleton-num')
+        var bar = document.getElementById('skeleton-bar')
+        if (sk && shell.bg) sk.style.background = shell.bg
+        if (tip && shell.tip) tip.textContent = shell.tip
+        if (num && shell.accent) num.style.color = shell.accent
+        var p = 0
         var t = setInterval(function () {
           p++
           if (num) num.textContent = p + '%'

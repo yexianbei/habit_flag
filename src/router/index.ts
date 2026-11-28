@@ -3,13 +3,13 @@
  * @LastEditTime: 2026-01-02 11:17:38
  */
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import IndexView from '../views/index.vue'
 
 export const constantRoutes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'index',
-    component: IndexView,
+    // 懒加载：种树等独立能力入口不再先拉 Flag 首页
+    component: () => import('../views/index.vue'),
   },
   {
     path: '/poster',

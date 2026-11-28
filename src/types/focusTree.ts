@@ -362,6 +362,10 @@ declare global {
   interface Window {
     __HABIT_CLIENT__?: {
       effort?: number
+      /** App 注入，用于种树云端同步 */
+      dailyUserId?: string
+      /** 可选覆盖云函数入口，默认 agent.xianbeikeji.com/forest */
+      forestCloudUrl?: string
     }
     /** Android BrowserX5 注入：努力值扣款与账本 */
     HabitForest?: {
