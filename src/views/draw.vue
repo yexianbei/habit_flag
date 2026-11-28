@@ -84,7 +84,7 @@
                 <img src="@/assets/images/logo.png" class="sign-logo" />
               </div>
               <div class="draw-right" v-if="footerShow">
-                <img src="@/assets/images/code.png" class="sign-code" />
+                <img src="@/assets/images/code1.png" class="sign-code" />
                 <div class="sign-text">长按保存图片</div>
                 <div class="sign-color">
                   <div class="top-color">
