@@ -37,6 +37,8 @@
   </head>
 
   <body>
+    <!-- 全局浮层挂载点：在 #app 外，避开页面 overflow/transition 对 fixed 的裁剪 -->
+    <div id="overlay-root"></div>
     <div id="app" class="user-select-none">
       <!-- 骨架屏：Vue 挂载前显示，挂载后被替换 -->
       <div id="app-skeleton" style="

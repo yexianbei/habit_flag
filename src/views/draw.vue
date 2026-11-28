@@ -160,20 +160,14 @@
     <!-- 导航按钮独立 fixed（与 flag-next 同模式），彻底离开装饰滚动层 -->
     <div class="draw-nav-prev" @click="handlePrev"></div>
     <div
+      ref="nextBtn"
       class="draw-nav-next"
       :class="tabIndex === 1 ? 'is-step' : 'is-continue'"
+      role="button"
       @click="handleNext"
     ></div>
     <div class="canvas-poster" v-show="false"></div>
   </div>
-  <!-- 签名层必须在 overflow:hidden 的 draw-page 之外，否则安卓手机 fixed 会被裁掉 -->
-  <sign
-    :show="signShow"
-    :mainColor="mainColor"
-    :ready="readyJump"
-    @update:show="onSignShow"
-    @finish="handldDraw"
-  />
   </div>
 </template>
 
@@ -185,6 +179,9 @@ import {
   watch,
   computed,
   nextTick,
+  onMounted,
+  onBeforeUnmount,
+  ref,
 } from "vue";
 import { useStore } from "../store";
 import { queryColorIndex } from "../common/utils";
@@ -192,28 +189,23 @@ import { useRouter, useRoute } from "vue-router";
 import moment from "moment";
 import colorList from "./color";
 import html2canvas from "html2canvas";
-import sign from "../components/sign.vue";
 import { addFlag } from "../api/flag";
 export default defineComponent({
-  components: {
-    sign,
-  },
   setup() {
     const store = useStore();
     const router = useRouter();
     const route = useRoute();
+    const nextBtn = ref<HTMLElement | null>(null);
     let dataMap = reactive({
       tabIndex: 0,
       rangeVal: 0,
       mainColorId: 4,
       mainColor: "",
       mainImg: 1,
-      signShow: false,
       signName: "",
       footerShow: false,
       colorList: [] as any[],
       isSecond: false,
-      readyJump: false,
       tokencache: "",
     });
     dataMap.colorList = colorList; //获取颜色数据
@@ -288,17 +280,18 @@ export default defineComponent({
     const handleChangeImage = (num: number) => {
       dataMap.mainImg = num;
     };
-    const onSignShow = (v: boolean) => {
-      dataMap.signShow = !!v;
-    };
-    // 点击下一步：未到小装饰先切 tab；已在小装饰则打开签名
+    // 点击下一步：未到小装饰先切 tab；已在小装饰则打开「全局签名层」
+    let lastNextAt = 0;
     const handleNext = () => {
+      const now = Date.now();
+      if (now - lastNextAt < 500) return;
+      lastNextAt = now;
       if (dataMap.tabIndex !== 1) {
         handleTab(1);
         return;
       }
       dataMap.isSecond = true;
-      dataMap.signShow = true;
+      store.dispatch("ACTION_OPEN_SIGN", { mainColor: dataMap.mainColor });
     };
     //返回上一个选择flag页面
     const handlePrev = () => {
@@ -309,6 +302,36 @@ export default defineComponent({
         },
       });
     };
+
+    // 签名完成（全局层回调）→ 截图；截图完成后通知签名层可跳转海报
+    watch(
+      () => store.state.signFinishSeq,
+      (seq) => {
+        if (!seq) return;
+        const name = store.state.signFinishName;
+        if (name) handldDraw(name);
+      }
+    );
+
+    // 原生监听兜底：部分安卓 WebView 上 Vue @click 不触发，但能看到高亮
+    onMounted(() => {
+      const el = nextBtn.value;
+      if (!el) return;
+      const onNativeNext = (e: Event) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleNext();
+      };
+      el.addEventListener("click", onNativeNext, true);
+      el.addEventListener("touchend", onNativeNext, { passive: false });
+      (el as any)._nativeNext = onNativeNext;
+    });
+    onBeforeUnmount(() => {
+      const el = nextBtn.value as any;
+      if (!el || !el._nativeNext) return;
+      el.removeEventListener("click", el._nativeNext, true);
+      el.removeEventListener("touchend", el._nativeNext);
+    });
     // 调用api保存
     const handleSave = async (src: any) => {
       // 检查token是否存在
@@ -391,7 +414,7 @@ export default defineComponent({
         const poster: any = document.querySelector(".poster-img");
         console.log("poster.src", poster.src);
         store.dispatch("ACTIONSETIMG", poster.src);
-        dataMap.readyJump = true;
+        store.dispatch("ACTION_SET_SIGN_READY", true);
         handleSave(poster.src); //将数据保存
       }).catch((error: any) => {
         // 如果出错，也要恢复原始的 padding-bottom
@@ -422,7 +445,7 @@ export default defineComponent({
       handleChangeImage,
       handleNext,
       handlePrev,
-      onSignShow,
+      nextBtn,
       handldDraw,
       handleSave,
       getImageUrl,

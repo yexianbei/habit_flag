@@ -19,10 +19,15 @@ body {
   position: relative;
 }
 
-// 签名/倒计时层挂到 body 时放开裁剪，避免手机端 Android fixed 被 overflow 吃掉
+// 签名/倒计时层挂到 overlay-root 时放开裁剪
 body.hf-sign-open,
 body.hf-cout-open {
   overflow: visible !important;
+}
+
+#overlay-root {
+  position: relative;
+  z-index: 100000;
 }
 
 @media screen and (orientation: landscape) {

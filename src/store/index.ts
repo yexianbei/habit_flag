@@ -13,6 +13,12 @@ export const store = createStore({
       imghtml: '',
       tokencache:'',
       updateflagList: [],
+      // 签名层提升为全局状态：不挂在 draw 页内，避免安卓 overflow/fixed 裁剪
+      signVisible: false,
+      signMainColor: '#ff5f47',
+      signReady: false,
+      signFinishName: '',
+      signFinishSeq: 0,
     }
   },
   getters: {
@@ -38,7 +44,23 @@ export const store = createStore({
     },
     SETTOKEN(state: any, val: any) {
       state.tokencache = val
-    }
+    },
+    OPEN_SIGN(state: any, payload: { mainColor?: string }) {
+      state.signMainColor = payload?.mainColor || '#ff5f47'
+      state.signReady = false
+      state.signVisible = true
+    },
+    CLOSE_SIGN(state: any) {
+      state.signVisible = false
+    },
+    SET_SIGN_READY(state: any, ready: boolean) {
+      state.signReady = !!ready
+    },
+    FINISH_SIGN(state: any, name: string) {
+      state.signFinishName = name || ''
+      state.signFinishSeq = state.signFinishSeq + 1
+      state.signVisible = false
+    },
   },
   actions: {
     ACTIONCHOOSELIST(
@@ -76,6 +98,18 @@ export const store = createStore({
       value: any
     ) {
       commit('SETTOKEN', value)
+    },
+    ACTION_OPEN_SIGN({ commit }, payload: { mainColor?: string }) {
+      commit('OPEN_SIGN', payload || {})
+    },
+    ACTION_CLOSE_SIGN({ commit }) {
+      commit('CLOSE_SIGN')
+    },
+    ACTION_SET_SIGN_READY({ commit }, ready: boolean) {
+      commit('SET_SIGN_READY', ready)
+    },
+    ACTION_FINISH_SIGN({ commit }, name: string) {
+      commit('FINISH_SIGN', name)
     },
   }
 })

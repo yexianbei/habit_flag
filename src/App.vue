@@ -8,19 +8,38 @@
       <component :is="Component" />
     </transition>
   </router-view>
+  <!-- 签名层提到路由之外：与具体页面解耦，安卓才能稳定显示「下一页」 -->
+  <sign
+    :show="signVisible"
+    :mainColor="signMainColor"
+    :ready="signReady"
+    @update:show="onSignShow"
+    @finish="onSignFinish"
+  />
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from "vue";
+import { defineComponent, watch, computed } from "vue";
 import { useStore } from "./store";
 import { useRoute, useRouter } from "vue-router";
+import sign from "./components/sign.vue";
 
 export default defineComponent({
   name: "App",
+  components: { sign },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const store = useStore();
+    const signVisible = computed(() => store.state.signVisible);
+    const signMainColor = computed(() => store.state.signMainColor);
+    const signReady = computed(() => store.state.signReady);
+    const onSignShow = (v: boolean) => {
+      if (!v) store.dispatch("ACTION_CLOSE_SIGN");
+    };
+    const onSignFinish = (name: string) => {
+      store.dispatch("ACTION_FINISH_SIGN", name);
+    };
     watch(
       () => [route.name, route.path] as const,
       ([val, path]) => {
@@ -89,6 +108,13 @@ export default defineComponent({
     //         immediate: true
     //     }
     // );
+    return {
+      signVisible,
+      signMainColor,
+      signReady,
+      onSignShow,
+      onSignFinish,
+    };
   },
 });
 </script>
