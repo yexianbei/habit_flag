@@ -78,6 +78,7 @@ import {
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import modal from "@/components/modal.vue";
+import { useStore } from "@/store";
 export default defineComponent({
   components: {
     modal,
@@ -101,6 +102,7 @@ export default defineComponent({
     console.log("props", props);
     const router = useRouter();
     const route = useRoute();
+    const store = useStore();
     const signEl = ref<HTMLElement | null>(null);
     const coutEl = ref<HTMLElement | null>(null);
     const dataMap = reactive({
@@ -163,6 +165,8 @@ export default defineComponent({
           setTimeout(() => {
             dataMap.coutShow = false;
             document.body.classList.remove("hf-cout-open");
+            // 进海报后结束签名流程，抽签底栏可恢复（页面通常已切走）
+            store.dispatch("ACTION_END_SIGN_FLOW");
             router.replace({
               name: "poster",
             });
@@ -228,6 +232,8 @@ export default defineComponent({
 .sign-wrap {
   background-image: url("@/assets/images/bg.png");
   width: 100%;
+  min-height: 100%;
+  min-height: 100vh;
   background-size: 100% auto;
   position: fixed;
   left: 0;
@@ -249,6 +255,8 @@ export default defineComponent({
   opacity: 1;
   visibility: visible;
   transform: none;
+  // 不透明铺满，避免安卓上透出抽签页底栏
+  background-color: #ff5f47;
   .draw-tip {
     width: 3.44rem;
     height: 0.3rem;

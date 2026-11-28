@@ -103,8 +103,8 @@
         </div>
       </div>
     </div>
-    <!--海报底部设置-->
-    <div class="draw-set-wrap">
+    <!--海报底部设置：签名流程中必须隐藏，否则安卓上会叠在签名页上面 -->
+    <div class="draw-set-wrap" v-show="!signFlowActive">
       <div class="flex ac ja draw-set-header">
         <span
           class="draw-tab"
@@ -158,8 +158,9 @@
       </div>
     </div>
     <!-- 导航按钮独立 fixed（与 flag-next 同模式），彻底离开装饰滚动层 -->
-    <div class="draw-nav-prev" @click="handlePrev"></div>
+    <div class="draw-nav-prev" v-show="!signFlowActive" @click="handlePrev"></div>
     <div
+      v-show="!signFlowActive"
       ref="nextBtn"
       class="draw-nav-next"
       :class="tabIndex === 1 ? 'is-step' : 'is-continue'"
@@ -196,6 +197,7 @@ export default defineComponent({
     const router = useRouter();
     const route = useRoute();
     const nextBtn = ref<HTMLElement | null>(null);
+    const signFlowActive = computed(() => store.state.signFlowActive);
     let dataMap = reactive({
       tabIndex: 0,
       rangeVal: 0,
@@ -328,9 +330,12 @@ export default defineComponent({
     });
     onBeforeUnmount(() => {
       const el = nextBtn.value as any;
-      if (!el || !el._nativeNext) return;
-      el.removeEventListener("click", el._nativeNext, true);
-      el.removeEventListener("touchend", el._nativeNext);
+      if (el && el._nativeNext) {
+        el.removeEventListener("click", el._nativeNext, true);
+        el.removeEventListener("touchend", el._nativeNext);
+      }
+      // 离开抽签页时结束签名流程，避免状态残留
+      store.dispatch("ACTION_END_SIGN_FLOW");
     });
     // 调用api保存
     const handleSave = async (src: any) => {
@@ -446,6 +451,7 @@ export default defineComponent({
       handleNext,
       handlePrev,
       nextBtn,
+      signFlowActive,
       handldDraw,
       handleSave,
       getImageUrl,

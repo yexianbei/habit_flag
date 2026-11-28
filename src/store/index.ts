@@ -15,6 +15,8 @@ export const store = createStore({
       updateflagList: [],
       // 签名层提升为全局状态：不挂在 draw 页内，避免安卓 overflow/fixed 裁剪
       signVisible: false,
+      // 从打开签名到进海报前保持 true，用于隐藏抽签页底栏（避免安卓叠层错乱）
+      signFlowActive: false,
       signMainColor: '#ff5f47',
       signReady: false,
       signFinishName: '',
@@ -48,10 +50,13 @@ export const store = createStore({
     OPEN_SIGN(state: any, payload: { mainColor?: string }) {
       state.signMainColor = payload?.mainColor || '#ff5f47'
       state.signReady = false
+      state.signFlowActive = true
       state.signVisible = true
     },
     CLOSE_SIGN(state: any) {
       state.signVisible = false
+      state.signFlowActive = false
+      state.signReady = false
     },
     SET_SIGN_READY(state: any, ready: boolean) {
       state.signReady = !!ready
@@ -60,6 +65,12 @@ export const store = createStore({
       state.signFinishName = name || ''
       state.signFinishSeq = state.signFinishSeq + 1
       state.signVisible = false
+      // signFlowActive 保持 true，直到进海报，避免底栏重新露出
+    },
+    END_SIGN_FLOW(state: any) {
+      state.signVisible = false
+      state.signFlowActive = false
+      state.signReady = false
     },
   },
   actions: {
@@ -110,6 +121,9 @@ export const store = createStore({
     },
     ACTION_FINISH_SIGN({ commit }, name: string) {
       commit('FINISH_SIGN', name)
+    },
+    ACTION_END_SIGN_FLOW({ commit }) {
+      commit('END_SIGN_FLOW')
     },
   }
 })

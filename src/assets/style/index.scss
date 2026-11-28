@@ -28,6 +28,12 @@ body.hf-cout-open {
 #overlay-root {
   position: relative;
   z-index: 100000;
+  pointer-events: none;
+}
+
+#overlay-root .sign-wrap,
+#overlay-root .cout-down {
+  pointer-events: auto;
 }
 
 @media screen and (orientation: landscape) {
@@ -86,6 +92,7 @@ label {
   // 恢复确定高度链；100dvh 在部分 Android WebView 无效
   height: 100%;
   position: relative;
+  z-index: 1;
 }
 
 @media screen and (orientation: landscape) {
