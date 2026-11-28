@@ -4,43 +4,25 @@
 -->
 <template>
   <router-view v-slot="{ Component }">
-    <transition name="homeapp">
+    <!-- 不用 transition：X5/安卓常丢 animationend，新页面会卡在 opacity:0「像没跳转」 -->
+    <!-- keep-alive：签名完成回抽签截图时保留海报 DOM -->
+    <keep-alive include="DrawPage">
       <component :is="Component" />
-    </transition>
+    </keep-alive>
   </router-view>
-  <!-- 签名层在路由之外、#app 内最后渲染，配合隐藏抽签底栏，避免叠层/丢层 -->
-  <sign
-    :show="signVisible"
-    :mainColor="signMainColor"
-    :ready="signReady"
-    @update:show="onSignShow"
-    @finish="onSignFinish"
-  />
 </template>
 
 <script lang="ts">
-import { defineComponent, watch, computed } from "vue";
+import { defineComponent, watch } from "vue";
 import { useStore } from "./store";
 import { useRoute, useRouter } from "vue-router";
-import sign from "./components/sign.vue";
 
 export default defineComponent({
   name: "App",
-  components: { sign },
   setup() {
     const route = useRoute();
     const router = useRouter();
     const store = useStore();
-    const signVisible = computed(() => store.state.signVisible);
-    const signMainColor = computed(() => store.state.signMainColor);
-    const signReady = computed(() => store.state.signReady);
-    // 仅隐藏签名表单，不要 END 整个流程（否则倒计时期间底栏会杀回来）
-    const onSignShow = (v: boolean) => {
-      if (!v) store.commit("CLOSE_SIGN_FORM");
-    };
-    const onSignFinish = (name: string) => {
-      store.dispatch("ACTION_FINISH_SIGN", name);
-    };
     watch(
       () => [route.name, route.path] as const,
       ([val, path]) => {
@@ -93,29 +75,6 @@ export default defineComponent({
       },
       { immediate: true }
     );
-
-    // watch(
-    //     () => store.state.stat,
-    //     (val) => {
-    //         routervalue = router.currentRoute.value.query
-    //         debugger
-    //         console.log("stat", val);
-    //         // if (val === "0") {
-    //         //     router.replace({
-    //         //         name: "index"
-    //         //     });
-    //         // }
-    //     }, {
-    //         immediate: true
-    //     }
-    // );
-    return {
-      signVisible,
-      signMainColor,
-      signReady,
-      onSignShow,
-      onSignFinish,
-    };
   },
 });
 </script>
@@ -126,35 +85,5 @@ export default defineComponent({
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-}
-
-.homeapp-enter-active {
-  animation: moveIn 0.5s ease-in-out;
-}
-
-.homeapp-leave-active {
-  animation: moveOut 0.5s ease-in-out;
-}
-
-@keyframes moveIn {
-  0% {
-    opacity: 0;
-    /* transform: translateY(200px); */
-  }
-  100% {
-    opacity: 1;
-    /* transform: translateY(0px); */
-  }
-}
-
-@keyframes moveOut {
-  0% {
-    opacity: 1;
-    /* transform: translateY(0); */
-  }
-  100% {
-    opacity: 0;
-    /* transform: translateY(-200px); */
-  }
 }
 </style>

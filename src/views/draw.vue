@@ -5,7 +5,7 @@
 <template>
   <div class="draw-shell">
   <div class="draw-page">
-    <div class="draw-tip" v-show="!signFlowActive">
+    <div class="draw-tip" v-show="!capturing">
       <img class="img" src="@/assets/images/step2/flag-step2.png" />
     </div>
     <div class="draw-container">
@@ -103,8 +103,8 @@
         </div>
       </div>
     </div>
-    <!--海报底部设置：签名流程中必须隐藏，否则安卓上会叠在签名页上面 -->
-    <div class="draw-set-wrap" v-show="!signFlowActive">
+    <!--海报底部设置-->
+    <div class="draw-set-wrap" v-show="!capturing">
       <div class="flex ac ja draw-set-header">
         <span
           class="draw-tab"
@@ -157,16 +157,17 @@
         </div>
       </div>
     </div>
-    <!-- 导航按钮独立 fixed（与 flag-next 同模式），彻底离开装饰滚动层 -->
-    <div class="draw-nav-prev" v-show="!signFlowActive" @click="handlePrev"></div>
+    <!-- 导航按钮独立 fixed（与 flag-next 同模式） -->
+    <div class="draw-nav-prev" v-show="!capturing" @click="handlePrev"></div>
     <div
-      v-show="!signFlowActive"
+      v-show="!capturing"
       ref="nextBtn"
       class="draw-nav-next"
       :class="tabIndex === 1 ? 'is-step' : 'is-continue'"
       role="button"
       @click="handleNext"
     ></div>
+    <div class="draw-capturing" v-if="capturing">生成中…</div>
     <div class="canvas-poster" v-show="false"></div>
   </div>
   </div>
@@ -181,6 +182,7 @@ import {
   computed,
   nextTick,
   onMounted,
+  onActivated,
   onBeforeUnmount,
   ref,
 } from "vue";
@@ -192,12 +194,12 @@ import colorList from "./color";
 import html2canvas from "html2canvas";
 import { addFlag } from "../api/flag";
 export default defineComponent({
+  name: "DrawPage",
   setup() {
     const store = useStore();
     const router = useRouter();
     const route = useRoute();
     const nextBtn = ref<HTMLElement | null>(null);
-    const signFlowActive = computed(() => store.state.signFlowActive);
     let dataMap = reactive({
       tabIndex: 0,
       rangeVal: 0,
@@ -209,6 +211,7 @@ export default defineComponent({
       colorList: [] as any[],
       isSecond: false,
       tokencache: "",
+      capturing: false,
     });
     dataMap.colorList = colorList; //获取颜色数据
 
@@ -282,7 +285,7 @@ export default defineComponent({
     const handleChangeImage = (num: number) => {
       dataMap.mainImg = num;
     };
-    // 点击下一步：未到小装饰先切 tab；已在小装饰则打开「全局签名层」
+    // 点击下一步：未到小装饰先切 tab；已在小装饰则路由进入签名页
     let lastNextAt = 0;
     const handleNext = () => {
       const now = Date.now();
@@ -294,6 +297,10 @@ export default defineComponent({
       }
       dataMap.isSecond = true;
       store.dispatch("ACTION_OPEN_SIGN", { mainColor: dataMap.mainColor });
+      router.push({
+        name: "sign",
+        query: { ...route.query },
+      });
     };
     //返回上一个选择flag页面
     const handlePrev = () => {
@@ -305,18 +312,37 @@ export default defineComponent({
       });
     };
 
-    // 签名完成（全局层回调）→ 截图；截图完成后通知签名层可跳转海报
-    watch(
-      () => store.state.signFinishSeq,
-      (seq) => {
-        if (!seq) return;
-        const name = store.state.signFinishName;
-        if (name) handldDraw(name);
+    // 从签名页返回并带 _capture：截图后进海报
+    let capturingLock = false;
+    const runCaptureIfNeeded = async () => {
+      if (route.query._capture !== "1" || capturingLock) return;
+      capturingLock = true;
+      dataMap.capturing = true;
+      const name =
+        (route.query._signName as string) ||
+        store.state.signFinishName ||
+        "";
+      try {
+        if (name) {
+          await handldDraw(name);
+        }
+        store.dispatch("ACTION_END_SIGN_FLOW");
+        // 清掉 capture 参数，避免反复截图
+        const q: Record<string, any> = { ...route.query };
+        delete q._capture;
+        delete q._signName;
+        await router.replace({ name: "poster", query: q });
+      } finally {
+        dataMap.capturing = false;
+        capturingLock = false;
       }
-    );
+    };
 
-    // 原生监听兜底：部分安卓 WebView 上 Vue @click 不触发，但能看到高亮
+    onActivated(() => {
+      runCaptureIfNeeded();
+    });
     onMounted(() => {
+      runCaptureIfNeeded();
       const el = nextBtn.value;
       if (!el) return;
       const onNativeNext = (e: Event) => {
@@ -334,8 +360,6 @@ export default defineComponent({
         el.removeEventListener("click", el._nativeNext, true);
         el.removeEventListener("touchend", el._nativeNext);
       }
-      // 离开抽签页时结束签名流程，避免状态残留
-      store.dispatch("ACTION_END_SIGN_FLOW");
     });
     // 调用api保存
     const handleSave = async (src: any) => {
@@ -421,6 +445,7 @@ export default defineComponent({
         store.dispatch("ACTIONSETIMG", poster.src);
         store.dispatch("ACTION_SET_SIGN_READY", true);
         handleSave(poster.src); //将数据保存
+        return poster.src;
       }).catch((error: any) => {
         // 如果出错，也要恢复原始的 padding-bottom
         wrap.style.paddingBottom = originalPaddingBottom;
@@ -451,7 +476,6 @@ export default defineComponent({
       handleNext,
       handlePrev,
       nextBtn,
-      signFlowActive,
       handldDraw,
       handleSave,
       getImageUrl,

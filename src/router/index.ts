@@ -27,6 +27,11 @@ export const constantRoutes: Array<RouteRecordRaw> = [
     component: () => import('../views/draw.vue'),
   },
   {
+    path: '/sign',
+    name: 'sign',
+    component: () => import('../views/sign.vue'),
+  },
+  {
     path: '/flag-manage',
     name: 'flag-manage',
     component: () => import('../views/flag-manage.vue'),
@@ -76,6 +81,22 @@ export const constantRoutes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHashHistory('/'),
   routes: constantRoutes,
+})
+
+function isFocusTreeRoute(name: unknown, path: string): boolean {
+  const nameStr = typeof name === 'string' ? name : ''
+  return nameStr.indexOf('focus-tree') === 0 || path.indexOf('/focus-tree') === 0
+}
+
+router.beforeEach((to, _from, next) => {
+  if (isFocusTreeRoute(to.name, to.path)) {
+    import('../views/focus-tree/preload')
+      .then((m) => m.preloadFocusTreeImages())
+      .catch((error) => {
+        console.error('种树资源预加载模块加载失败:', error)
+      })
+  }
+  next()
 })
 
 export default router

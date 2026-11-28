@@ -93,6 +93,11 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    // 独立路由页模式：完成签名后由页面跳转截图，不再走页内倒计时浮层
+    pageMode: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props: any, { emit }: any) {
     console.log("props", props);
@@ -204,6 +209,9 @@ export default defineComponent({
         return;
       }
       emit("finish", dataMap.signName);
+      if (props.pageMode) {
+        return;
+      }
       dataMap.coutShow = true;
       init();
       emit("update:show", false);
@@ -222,15 +230,17 @@ export default defineComponent({
 .sign-wrap {
   background-image: url("@/assets/images/bg.png");
   width: 100%;
+  height: 100%;
   min-height: 100%;
   min-height: 100vh;
   background-size: 100% auto;
-  position: fixed;
+  // 路由页内用 absolute 铺满，避免再和其它 fixed 底栏抢层级
+  position: absolute;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 99999;
+  z-index: 1;
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -245,7 +255,6 @@ export default defineComponent({
   opacity: 1;
   visibility: visible;
   transform: none;
-  // 不透明铺满，避免安卓上透出抽签页底栏
   background-color: #ff5f47;
   .draw-tip {
     width: 3.44rem;

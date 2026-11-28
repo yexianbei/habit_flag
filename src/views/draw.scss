@@ -374,6 +374,22 @@
     }
 }
 
+.draw-capturing {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 300;
+    background: rgba(19, 20, 21, 0.55);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.32rem;
+    letter-spacing: 0.04rem;
+}
+
 // 与 flag-next 相同：独立 fixed，不被设置栏/滚动层挡住
 .draw-nav-prev,
 .draw-nav-next {
