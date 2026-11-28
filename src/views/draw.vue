@@ -3,8 +3,7 @@
  * @LastEditTime: 2026-01-02 11:14:41
 -->
 <template>
-  <!-- 签名层放在 overflow:hidden 的 draw-page 外，避免手机端 fixed 被裁掉 -->
-  <div class="draw-page-root">
+  <div class="draw-shell">
   <div class="draw-page">
     <div class="draw-tip">
       <img class="img" src="@/assets/images/step2/flag-step2.png" />
@@ -146,7 +145,7 @@
             ></div>
           </div>
         </div>
-        <!--小装饰：滚动交给 CSS，避免整层 overflow-x:scroll 在 Android 抢走底栏点击-->
+        <!--小装饰-->
         <div class="flex ac draw-set draw-set-deco" v-show="tabIndex === 1">
           <img
             class="draw-set-img"
@@ -157,25 +156,17 @@
           />
         </div>
       </div>
-      <div class="flex ac jb draw-set-footer">
-        <!-- 与 flag 页一致用 span+click；安卓上 button 常只有高亮不触发逻辑 -->
-        <span class="prev" @click="handlePrev" @touchend.prevent="handlePrev"></span>
-        <span
-          class="next-continue"
-          v-if="tabIndex !== 1"
-          @click="handleNext"
-          @touchend.prevent="handleNext"
-        ></span>
-        <span
-          class="next-step"
-          v-else
-          @click="handleNext"
-          @touchend.prevent="handleNext"
-        ></span>
-      </div>
     </div>
+    <!-- 导航按钮独立 fixed（与 flag-next 同模式），彻底离开装饰滚动层 -->
+    <div class="draw-nav-prev" @click="handlePrev"></div>
+    <div
+      class="draw-nav-next"
+      :class="tabIndex === 1 ? 'is-step' : 'is-continue'"
+      @click="handleNext"
+    ></div>
     <div class="canvas-poster" v-show="false"></div>
   </div>
+  <!-- 签名层必须在 overflow:hidden 的 draw-page 之外，否则安卓手机 fixed 会被裁掉 -->
   <sign
     :show="signShow"
     :mainColor="mainColor"
@@ -300,28 +291,17 @@ export default defineComponent({
     const onSignShow = (v: boolean) => {
       dataMap.signShow = !!v;
     };
-    // click 与 touchend 都会进这里，短时去重
-    let lastNavAt = 0;
-    const guardNav = () => {
-      const now = Date.now();
-      if (now - lastNavAt < 400) return false;
-      lastNavAt = now;
-      return true;
-    };
-    // 点击下一步：以 tabIndex 为准（比 isSecond 更直观），进签名页
+    // 点击下一步：未到小装饰先切 tab；已在小装饰则打开签名
     const handleNext = () => {
-      if (!guardNav()) return;
       if (dataMap.tabIndex !== 1) {
         handleTab(1);
         return;
       }
       dataMap.isSecond = true;
       dataMap.signShow = true;
-      document.body.classList.add("hf-sign-open");
     };
     //返回上一个选择flag页面
     const handlePrev = () => {
-      if (!guardNav()) return;
       router.replace({
         name: "flag",
         query: {

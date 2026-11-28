@@ -41,7 +41,7 @@ body.hf-cout-open {
 
   // fixed 层与 body 同宽居中，避免贴浏览器全宽
   // 不用 transform 居中，避免和弹层过渡动画互相覆盖导致「点了没反应」
-  // draw-set-wrap 已改为文档流底栏，勿再按 fixed 拉宽偏移
+  .draw-set-wrap,
   .sign-wrap,
   .habbit-start,
   .canvas-poster,
@@ -55,11 +55,17 @@ body.hf-cout-open {
     box-sizing: border-box;
   }
 
-  .flag-next {
+  .flag-next,
+  .draw-nav-next {
     width: 1.6rem;
     left: auto !important;
     right: calc(50% - 375px + 0.3rem) !important;
     transform: none;
+  }
+
+  .draw-nav-prev {
+    left: calc(50% - 375px + 0.3rem) !important;
+    right: auto !important;
   }
 
   .draw-tip {
