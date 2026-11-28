@@ -5,7 +5,7 @@
 <template>
   <!--logo-->
   <div class="habit-logo">
-    <img class="logo" src="../assets/images/basicprofile.png" />
+    <img class="logo" src="@/assets/images/basicprofile.png" />
     小习惯
   </div>
   <!-- 开头进度条-->
@@ -37,7 +37,7 @@
     </div>
     <div class="habit-btn" @click="handleStart"></div>
     <div class="habit-img">
-      <img class="img" src="../assets/images/Frame.png" />
+      <img class="img" src="@/assets/images/Frame.png" />
     </div>
     <div class="app-version">v{{ appVersion }}</div>
   </div>
@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, onMounted, onUnmounted } from "vue";
-import { useStore } from "../store";
+import { useStore } from "../../store";
 import { useRouter, useRoute } from "vue-router";
 import loading from "@/components/loading.vue";
 const time1 = "2022/01/01 00:00:00";

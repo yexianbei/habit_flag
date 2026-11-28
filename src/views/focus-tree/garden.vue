@@ -2,7 +2,7 @@
  * @description: 专注森林 · 主园（游戏化操作布局）
 -->
 <template>
-  <div class="ff-page" :class="{ 'is-locked': detailOpen }">
+  <div class="ff-page is-garden" :class="{ 'is-locked': detailOpen }">
     <div class="ff-ui">
       <div class="ff-top">
         <div class="brand-block">

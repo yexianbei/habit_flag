@@ -88,10 +88,10 @@ import {
   watch,
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useStore } from "../store";
+import { useStore } from "../../store";
 import { VueDraggableNext } from "vue-draggable-next";
-import { selectFlagH5, addFlag } from "../api/flag";
-import editmodal from "../components/editmodal.vue";
+import { selectFlagH5, addFlag } from "../../api/flag";
+import editmodal from "@/components/editmodal.vue";
 import loading from "@/components/loading.vue";
 
 let numIndex: number = 0;

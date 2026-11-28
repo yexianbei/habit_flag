@@ -11,7 +11,7 @@
         <div class="flag-choose-bottom">已选</div>
       </div>
       <div class="flag-tip">
-        <img class="img" src="../assets/images/step1/flag-tip.png" />
+        <img class="img" src="@/assets/images/step1/flag-tip.png" />
       </div>
     </div>
     <!--中间筛选部分-->
@@ -114,22 +114,20 @@ import {
   nextTick,
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useStore } from "../store";
+import { useStore } from "../../store";
 import { VueDraggableNext } from "vue-draggable-next";
-import { selectFlagH5 } from "../api/flag";
-import { isAndroid } from "../common/utils";
+import { selectFlagH5 } from "../../api/flag";
+import { isAndroid } from "../../common/utils";
 import modal from "@/components/modal.vue";
-import editmodal from "../components/editmodal.vue";
+import editmodal from "@/components/editmodal.vue";
 import loading from "@/components/loading.vue";
-import test from "../components/test.vue";
-import flagMapList from "./flag";
+import flagMapList from "./constants/flagMap";
 let numIndex: number = 0;
 export default defineComponent({
   components: {
     draggable: VueDraggableNext,
     modal,
     editmodal,
-    test,
     loading,
   },
   setup() {

@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { defineComponent, reactive, toRefs, computed } from "vue";
-import { useStore } from "../store";
+import { useStore } from "../../store";
 export default defineComponent({
   setup() {
     const store = useStore();

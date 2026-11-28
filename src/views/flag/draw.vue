@@ -186,13 +186,13 @@ import {
   onBeforeUnmount,
   ref,
 } from "vue";
-import { useStore } from "../store";
-import { queryColorIndex } from "../common/utils";
+import { useStore } from "../../store";
+import { queryColorIndex } from "../../common/utils";
 import { useRouter, useRoute } from "vue-router";
 import moment from "moment";
-import colorList from "./color";
+import colorList from "./constants/colorList";
 import html2canvas from "html2canvas";
-import { addFlag } from "../api/flag";
+import { addFlag } from "../../api/flag";
 export default defineComponent({
   name: "DrawPage",
   setup() {
@@ -227,7 +227,7 @@ export default defineComponent({
     // 海报年份顶图：未到 2027 用 2026，到 2027 及以后用 2027
     const yearTopImg = computed(() => {
       const year = new Date().getFullYear() >= 2027 ? 2027 : 2026;
-      return new URL(`../assets/images/step2/${year}.png`, import.meta.url)
+      return new URL(`../../assets/images/step2/${year}.png`, import.meta.url)
         .href;
     });
     //获取颜色数据
@@ -243,7 +243,7 @@ export default defineComponent({
 
     //动态获取图片
     const getImageUrl = (num: number | string) => {
-      return new URL(`../assets/images/horse/horse${num}.png`, import.meta.url)
+      return new URL(`../../assets/images/horse/horse${num}.png`, import.meta.url)
         .href;
     };
 

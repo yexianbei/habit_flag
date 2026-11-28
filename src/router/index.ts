@@ -9,32 +9,32 @@ export const constantRoutes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'index',
     // 懒加载：种树等独立能力入口不再先拉 Flag 首页
-    component: () => import('../views/index.vue'),
+    component: () => import('../views/flag/index.vue'),
   },
   {
     path: '/poster',
     name: 'poster',
-    component: () => import('../views/poster.vue'),
+    component: () => import('../views/flag/poster.vue'),
   },
   {
     path: '/flag',
     name: 'flag',
-    component: () => import('../views/flag.vue'),
+    component: () => import('../views/flag/flag.vue'),
   },
   {
     path: '/draw',
     name: 'draw',
-    component: () => import('../views/draw.vue'),
+    component: () => import('../views/flag/draw.vue'),
   },
   {
     path: '/sign',
     name: 'sign',
-    component: () => import('../views/sign.vue'),
+    component: () => import('../views/flag/sign.vue'),
   },
   {
     path: '/flag-manage',
     name: 'flag-manage',
-    component: () => import('../views/flag-manage.vue'),
+    component: () => import('../views/flag/flag-manage.vue'),
   },
   {
     path: '/life-goal',

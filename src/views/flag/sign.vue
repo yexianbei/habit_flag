@@ -17,8 +17,8 @@
 <script lang="ts">
 import { defineComponent, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { useStore } from "../store";
-import sign from "../components/sign.vue";
+import { useStore } from "../../store";
+import sign from "@/components/sign.vue";
 
 export default defineComponent({
   name: "SignPage",

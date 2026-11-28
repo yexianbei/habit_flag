@@ -158,15 +158,15 @@ export default defineComponent({
       }
     })
 
-    // 落地水花：在树根附近四散
+    // 落地水花：在树根附近四散（位移用 em，随树容器 font-size 缩放）
     const splashes = makeParticles(8, (i) => {
       const dir = i % 2 === 0 ? -1 : 1
       const step = Math.floor(i / 2)
       return {
         '--x0': `${42 + step * 4}%`,
         '--y0': '88%',
-        '--sx': `${dir * (0.12 + step * 0.09)}rem`,
-        '--sy': `${-0.1 - step * 0.045}rem`,
+        '--sx': `${dir * (0.35 + step * 0.28)}em`,
+        '--sy': `${-0.28 - step * 0.14}em`,
         '--d': `${0.52 + i * 0.045}s`,
       }
     })
@@ -189,8 +189,8 @@ export default defineComponent({
     const weeds = makeParticles(4, (i) => ({
       '--x0': `${16 + i * 20}%`,
       '--y0': `${84 - (i % 2) * 4}%`,
-      '--wx': `${(i % 2 ? 1 : -1) * (0.3 + i * 0.14)}rem`,
-      '--wy': `${-0.55 - i * 0.1}rem`,
+      '--wx': `${(i % 2 ? 1 : -1) * (0.9 + i * 0.4)}em`,
+      '--wy': `${-1.6 - i * 0.3}em`,
       '--wr': `${(i % 2 ? 1 : -1) * (40 + i * 18)}deg`,
       '--d': `${0.34 + i * 0.055}s`,
     }))
@@ -199,8 +199,8 @@ export default defineComponent({
     const dusts = makeParticles(7, (i) => ({
       '--x0': `${28 + i * 7}%`,
       '--y0': '90%',
-      '--sx': `${(i % 2 ? 1 : -1) * (0.1 + i * 0.055)}rem`,
-      '--sy': `${-0.08 - (i % 3) * 0.05}rem`,
+      '--sx': `${(i % 2 ? 1 : -1) * (0.3 + i * 0.16)}em`,
+      '--sy': `${-0.24 - (i % 3) * 0.14}em`,
       '--d': `${0.36 + i * 0.035}s`,
     }))
 
@@ -232,37 +232,35 @@ export default defineComponent({
   display: block;
 }
 
-/* —— 工具：尺寸随树体量平滑变化，但限制在手持道具的合理范围 —— */
+/* —— 工具：宽高百分比 + em 阴影，完整落在树容器内，避免被场景裁切到角落 —— */
 .fx-tool {
   position: absolute;
   display: block;
-  width: 38%;
-  min-width: 0.95rem;
-  max-width: 2rem;
+  width: 42%;
+  max-width: 4.2em;
   height: auto;
   opacity: 0;
   overflow: visible;
-  filter: drop-shadow(0 0.04rem 0.06rem rgba(28, 36, 32, 0.18));
+  filter: drop-shadow(0 0.12em 0.18em rgba(28, 36, 32, 0.18));
 }
 
 .fx-can {
-  right: -4%;
-  top: -8%;
+  right: 2%;
+  top: 2%;
   transform-origin: 68% 62%;
 }
 
 .fx-bag {
-  left: -6%;
-  top: -10%;
+  left: 2%;
+  top: 2%;
   transform-origin: 55% 22%;
 }
 
 .fx-hoe {
-  right: -6%;
-  top: 24%;
-  width: 32%;
-  min-width: 1rem;
-  max-width: 1.7rem;
+  right: 4%;
+  top: 18%;
+  width: 36%;
+  max-width: 3.6em;
   transform-origin: 78% 12%;
 }
 
@@ -272,27 +270,27 @@ export default defineComponent({
 }
 
 @keyframes fx-can-pour {
-  0% { opacity: 0; transform: translate(0.8rem, -0.15rem) rotate(-8deg); }
+  0% { opacity: 0; transform: translate(0.9em, -0.35em) rotate(-8deg); }
   12% { opacity: 1; transform: translate(0, 0) rotate(-8deg); }
-  24% { transform: translate(0, 0.04rem) rotate(26deg); }
-  34% { transform: translate(0, 0.04rem) rotate(30deg); }
-  64% { transform: translate(0, 0.04rem) rotate(27deg); }
+  24% { transform: translate(0, 0.12em) rotate(26deg); }
+  34% { transform: translate(0, 0.12em) rotate(30deg); }
+  64% { transform: translate(0, 0.12em) rotate(27deg); }
   76% { transform: translate(0, 0) rotate(-8deg); }
-  88% { opacity: 1; transform: translate(0.1rem, 0) rotate(-6deg); }
-  100% { opacity: 0; transform: translate(0.85rem, -0.1rem) rotate(-8deg); }
+  88% { opacity: 1; transform: translate(0.2em, 0) rotate(-6deg); }
+  100% { opacity: 0; transform: translate(0.95em, -0.25em) rotate(-8deg); }
 }
 
 /* 花洒水束：断续的细水流，避免形成一条实心水柱 */
 .fx-stream {
   position: absolute;
-  left: 58%;
-  top: 17%;
-  width: 0.055rem;
-  height: 30%;
+  left: 52%;
+  top: 22%;
+  width: 0.16em;
+  height: 36%;
   background: repeating-linear-gradient(
     180deg,
-    rgba(140, 198, 212, 0.8) 0 0.07rem,
-    rgba(140, 198, 212, 0) 0.07rem 0.13rem
+    rgba(140, 198, 212, 0.8) 0 0.2em,
+    rgba(140, 198, 212, 0) 0.2em 0.38em
   );
   transform-origin: top center;
   transform: rotate(20deg) scaleY(0);
@@ -312,8 +310,8 @@ export default defineComponent({
 
 .fx-wdrop {
   position: absolute;
-  width: 0.085rem;
-  height: 0.18rem;
+  width: 0.28em;
+  height: 0.55em;
   border-radius: 60% 60% 60% 60% / 40% 40% 70% 70%;
   background: linear-gradient(180deg, #d9f0f4 0%, #7cb9c8 45%, #3a6f7c 100%);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35);
@@ -333,8 +331,8 @@ export default defineComponent({
 
 .fx-splash {
   position: absolute;
-  width: 0.06rem;
-  height: 0.06rem;
+  width: 0.2em;
+  height: 0.2em;
   border-radius: 50%;
   background: #6fa9b8;
   opacity: 0;
@@ -378,19 +376,19 @@ export default defineComponent({
 }
 
 @keyframes fx-bag-tip {
-  0% { opacity: 0; transform: translate(-0.8rem, -0.15rem) rotate(12deg); }
+  0% { opacity: 0; transform: translate(-0.9em, -0.35em) rotate(12deg); }
   12% { opacity: 1; transform: translate(0, 0) rotate(12deg); }
-  26% { transform: translate(0.05rem, 0.05rem) rotate(58deg); }
-  68% { transform: translate(0.05rem, 0.05rem) rotate(55deg); }
+  26% { transform: translate(0.14em, 0.14em) rotate(58deg); }
+  68% { transform: translate(0.14em, 0.14em) rotate(55deg); }
   78% { transform: translate(0, 0) rotate(12deg); }
-  88% { opacity: 1; transform: translate(-0.08rem, 0) rotate(10deg); }
-  100% { opacity: 0; transform: translate(-0.8rem, -0.1rem) rotate(12deg); }
+  88% { opacity: 1; transform: translate(-0.2em, 0) rotate(10deg); }
+  100% { opacity: 0; transform: translate(-0.9em, -0.25em) rotate(12deg); }
 }
 
 .fx-grain {
   position: absolute;
-  width: 0.075rem;
-  height: 0.075rem;
+  width: 0.24em;
+  height: 0.24em;
   border-radius: 1px;
   background: #8a6b4a;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
@@ -437,11 +435,11 @@ export default defineComponent({
   position: absolute;
   left: 44%;
   bottom: 3%;
-  width: 0.38rem;
-  height: 0.38rem;
+  width: 1.15em;
+  height: 1.15em;
   opacity: 0;
   transform-origin: 50% 100%;
-  transform: scale(0.2) translateY(0.16rem);
+  transform: scale(0.2) translateY(0.45em);
 
   svg { width: 100%; height: 100%; display: block; }
 }
@@ -451,10 +449,10 @@ export default defineComponent({
 }
 
 @keyframes fx-sprout-up {
-  0% { opacity: 0; transform: scale(0.2) translateY(0.16rem); }
+  0% { opacity: 0; transform: scale(0.2) translateY(0.45em); }
   35% { opacity: 1; transform: scale(1) translateY(0); }
   75% { opacity: 1; transform: scale(1) translateY(0); }
-  100% { opacity: 0; transform: scale(1.05) translateY(-0.06rem); }
+  100% { opacity: 0; transform: scale(1.05) translateY(-0.18em); }
 }
 
 /* ─────────── 除草 ─────────── */
@@ -464,20 +462,20 @@ export default defineComponent({
 
 /* 绕柄上端转动：正角度为举起、负角度为挥下掘土，锄刃扫过树根 */
 @keyframes fx-hoe-dig {
-  0% { opacity: 0; transform: translate(0.6rem, -0.35rem) rotate(18deg); }
-  12% { opacity: 1; transform: translate(0.15rem, -0.1rem) rotate(14deg); }
-  32% { transform: translate(-0.25rem, 0.28rem) rotate(-24deg); }
-  42% { transform: translate(-0.2rem, 0.22rem) rotate(-20deg); }
+  0% { opacity: 0; transform: translate(0.7em, -0.9em) rotate(18deg); }
+  12% { opacity: 1; transform: translate(0.35em, -0.28em) rotate(14deg); }
+  32% { transform: translate(-0.7em, 0.75em) rotate(-24deg); }
+  42% { transform: translate(-0.55em, 0.6em) rotate(-20deg); }
   60% { transform: translate(0, 0) rotate(4deg); }
-  76% { opacity: 1; transform: translate(0.12rem, -0.1rem) rotate(14deg); }
-  100% { opacity: 0; transform: translate(0.6rem, -0.35rem) rotate(18deg); }
+  76% { opacity: 1; transform: translate(0.3em, -0.28em) rotate(14deg); }
+  100% { opacity: 0; transform: translate(0.7em, -0.9em) rotate(18deg); }
 }
 
 .fx-weed {
   position: absolute;
   display: block;
-  width: 0.34rem;
-  height: 0.34rem;
+  width: 1.05em;
+  height: 1.05em;
   left: var(--x0);
   top: var(--y0);
   opacity: 0;
@@ -491,16 +489,16 @@ export default defineComponent({
 }
 
 @keyframes fx-weed-pull {
-  0% { opacity: 0; transform: translate(0, 0.06rem) rotate(0deg) scale(0.85); }
+  0% { opacity: 0; transform: translate(0, 0.18em) rotate(0deg) scale(0.85); }
   18% { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
-  38% { transform: translate(0, -0.02rem) rotate(-6deg) scale(1); }
+  38% { transform: translate(0, -0.06em) rotate(-6deg) scale(1); }
   100% { opacity: 0; transform: translate(var(--wx), var(--wy)) rotate(var(--wr)) scale(0.7); }
 }
 
 .fx-dust {
   position: absolute;
-  width: 0.07rem;
-  height: 0.07rem;
+  width: 0.22em;
+  height: 0.22em;
   border-radius: 50%;
   background: #a68a66;
   opacity: 0;
@@ -521,8 +519,8 @@ export default defineComponent({
   left: 28%;
   bottom: 3%;
   width: 46%;
-  height: 0.1rem;
-  border-bottom: 0.035rem solid rgba(138, 107, 74, 0.75);
+  height: 0.3em;
+  border-bottom: 0.1em solid rgba(138, 107, 74, 0.75);
   border-radius: 50%;
   opacity: 0;
   transform: scaleX(0.3);
