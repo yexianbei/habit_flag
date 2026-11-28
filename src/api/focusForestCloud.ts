@@ -43,6 +43,21 @@ function readToken(): string {
   )
 }
 
+/** 从 JWT payload 读 subject（服务端把 dailyUserId 放在 sub），不验签仅用于身份回填 */
+function dailyUserIdFromToken(token: string): string {
+  try {
+    const parts = String(token || '').split('.')
+    if (parts.length < 2) return ''
+    const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+    const pad = b64.length % 4 === 0 ? '' : '='.repeat(4 - (b64.length % 4))
+    const json = JSON.parse(atob(b64 + pad))
+    const sub = json && (json.sub || json.dailyUserId)
+    return sub ? String(sub) : ''
+  } catch {
+    return ''
+  }
+}
+
 function readDailyUserId(): string {
   if (typeof window === 'undefined') return ''
   const fromWin = window.__HABIT_CLIENT__?.dailyUserId
@@ -56,11 +71,10 @@ function readDailyUserId(): string {
   const params = new URLSearchParams(window.location.search)
   const hash = window.location.hash || ''
   const hashQuery = hash.includes('?') ? hash.split('?')[1] : ''
-  return (
-    params.get('dailyUserId') ||
-    new URLSearchParams(hashQuery).get('dailyUserId') ||
-    ''
-  )
+  const q = new URLSearchParams(hashQuery)
+  const fromQuery = params.get('dailyUserId') || q.get('dailyUserId') || ''
+  if (fromQuery) return fromQuery
+  return dailyUserIdFromToken(readToken())
 }
 
 /** 缓存 App 传入的用户 id，便于后续上传 */
