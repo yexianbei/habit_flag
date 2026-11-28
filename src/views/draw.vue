@@ -5,7 +5,7 @@
 <template>
   <div class="draw-shell">
   <div class="draw-page">
-    <div class="draw-tip">
+    <div class="draw-tip" v-show="!signFlowActive">
       <img class="img" src="@/assets/images/step2/flag-step2.png" />
     </div>
     <div class="draw-container">

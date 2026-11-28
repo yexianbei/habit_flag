@@ -53,6 +53,10 @@ export const store = createStore({
       state.signFlowActive = true
       state.signVisible = true
     },
+    CLOSE_SIGN_FORM(state: any) {
+      // 只关签名表单，保持 signFlowActive，抽签底栏继续隐藏
+      state.signVisible = false
+    },
     CLOSE_SIGN(state: any) {
       state.signVisible = false
       state.signFlowActive = false

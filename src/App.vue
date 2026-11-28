@@ -8,7 +8,7 @@
       <component :is="Component" />
     </transition>
   </router-view>
-  <!-- 签名层提到路由之外：与具体页面解耦，安卓才能稳定显示「下一页」 -->
+  <!-- 签名层在路由之外、#app 内最后渲染，配合隐藏抽签底栏，避免叠层/丢层 -->
   <sign
     :show="signVisible"
     :mainColor="signMainColor"
@@ -34,8 +34,9 @@ export default defineComponent({
     const signVisible = computed(() => store.state.signVisible);
     const signMainColor = computed(() => store.state.signMainColor);
     const signReady = computed(() => store.state.signReady);
+    // 仅隐藏签名表单，不要 END 整个流程（否则倒计时期间底栏会杀回来）
     const onSignShow = (v: boolean) => {
-      if (!v) store.dispatch("ACTION_CLOSE_SIGN");
+      if (!v) store.commit("CLOSE_SIGN_FORM");
     };
     const onSignFinish = (name: string) => {
       store.dispatch("ACTION_FINISH_SIGN", name);

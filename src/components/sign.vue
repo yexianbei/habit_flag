@@ -3,10 +3,9 @@
  * @LastEditTime: 2024-11-28 22:20:50
 -->
 <template>
-  <!-- 打开后挂到 #overlay-root（body 下、#app 外），彻底躲开页面 overflow -->
+  <!-- 不再手动 appendChild：安卓上挪 DOM 会导致「底栏藏了但签名页不出现」 -->
   <div
     v-if="show"
-    ref="signEl"
     class="sign-wrap"
     :style="{ backgroundColor: mainColor || '#ff5f47' }"
   >
@@ -37,7 +36,6 @@
   <modal :title="title" v-model:alertShow="alertShow" />
   <div
     v-if="coutShow"
-    ref="coutEl"
     class="flex ac jc cout-down"
     :style="{ backgroundColor: mainColor || '#ff5f47' }"
   >
@@ -73,8 +71,6 @@ import {
   toRefs,
   watchEffect,
   watch,
-  nextTick,
-  ref,
 } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import modal from "@/components/modal.vue";
@@ -103,8 +99,6 @@ export default defineComponent({
     const router = useRouter();
     const route = useRoute();
     const store = useStore();
-    const signEl = ref<HTMLElement | null>(null);
-    const coutEl = ref<HTMLElement | null>(null);
     const dataMap = reactive({
       isCheck: false,
       signName: "",
@@ -117,17 +111,18 @@ export default defineComponent({
       flagReady: false,
     });
 
-    const mountOverlay = (el: HTMLElement | null) => {
-      const host = document.getElementById("overlay-root") || document.body;
-      if (el && el.parentElement !== host) {
-        host.appendChild(el);
+    const syncBodyLock = (on: boolean) => {
+      document.body.classList.toggle("hf-sign-open", on);
+      const app = document.getElementById("app");
+      if (app) {
+        app.classList.toggle("hf-sign-open", on);
       }
     };
 
     watch(
       () => props.show,
-      async (visible: boolean) => {
-        document.body.classList.toggle("hf-sign-open", !!visible);
+      (visible: boolean) => {
+        syncBodyLock(!!visible || dataMap.coutShow);
         if (!visible) return;
         // 每次重新打开重置本地状态（签名层常驻 App，不会随路由销毁）
         dataMap.isCheck = false;
@@ -141,19 +136,15 @@ export default defineComponent({
           dataMap.timer = "" as any;
         }
         dataMap.signName = (route.query.name as string) || dataMap.signName;
-        await nextTick();
-        mountOverlay(signEl.value);
       },
       { immediate: true }
     );
 
     watch(
       () => dataMap.coutShow,
-      async (visible: boolean) => {
+      (visible: boolean) => {
         document.body.classList.toggle("hf-cout-open", !!visible);
-        if (!visible) return;
-        await nextTick();
-        mountOverlay(coutEl.value);
+        syncBodyLock(!!props.show || !!visible);
       }
     );
 
@@ -181,6 +172,7 @@ export default defineComponent({
 
     onBeforeUnmount(() => {
       document.body.classList.remove("hf-sign-open", "hf-cout-open");
+      document.getElementById("app")?.classList.remove("hf-sign-open");
     });
 
     const init = () => {
@@ -219,8 +211,6 @@ export default defineComponent({
 
     return {
       ...toRefs(dataMap),
-      signEl,
-      coutEl,
       handleCheck,
       handleFinish,
     };

@@ -19,21 +19,11 @@ body {
   position: relative;
 }
 
-// 签名/倒计时层挂到 overlay-root 时放开裁剪
+// 签名打开时放开裁剪，避免 fixed 签名层在安卓上被裁没
 body.hf-sign-open,
-body.hf-cout-open {
+body.hf-cout-open,
+#app.hf-sign-open {
   overflow: visible !important;
-}
-
-#overlay-root {
-  position: relative;
-  z-index: 100000;
-  pointer-events: none;
-}
-
-#overlay-root .sign-wrap,
-#overlay-root .cout-down {
-  pointer-events: auto;
 }
 
 @media screen and (orientation: landscape) {
