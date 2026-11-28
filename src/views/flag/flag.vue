@@ -335,7 +335,8 @@ export default defineComponent({
       router.replace({
         name: "draw",
         query: {
-          name: route.query.name,
+          name: route.query.name || route.query.nickname,
+          token: route.query.token,
         },
       });
     };
@@ -426,12 +427,13 @@ export default defineComponent({
 }
 
 .flag-list {
-  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   margin: 0.3rem auto;
   .flag-item {
     width: 38%;
     height: 1.3rem;
-    float: left;
     background: url("@/assets/images/step1/step-choose.png") no-repeat center
       center;
     background-size: 100% 100%;

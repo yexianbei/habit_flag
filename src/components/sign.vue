@@ -105,7 +105,7 @@ export default defineComponent({
     const route = useRoute();
     const store = useStore();
     const dataMap = reactive({
-      isCheck: false,
+      isCheck: true,
       signName: "",
       alertShow: false,
       heartFade: false,
@@ -115,6 +115,12 @@ export default defineComponent({
       title: "",
       flagReady: false,
     });
+
+    const resolveSignName = () => {
+      const q = route.query;
+      const raw = (q.nickname || q.name || "") as string;
+      return typeof raw === "string" ? raw.trim() : "";
+    };
 
     const syncBodyLock = (on: boolean) => {
       document.body.classList.toggle("hf-sign-open", on);
@@ -130,7 +136,7 @@ export default defineComponent({
         syncBodyLock(!!visible || dataMap.coutShow);
         if (!visible) return;
         // 每次重新打开重置本地状态（签名层常驻 App，不会随路由销毁）
-        dataMap.isCheck = false;
+        dataMap.isCheck = true;
         dataMap.coutShow = false;
         dataMap.current = 3;
         dataMap.flagReady = false;
@@ -140,7 +146,7 @@ export default defineComponent({
           clearInterval(dataMap.timer);
           dataMap.timer = "" as any;
         }
-        dataMap.signName = (route.query.name as string) || dataMap.signName;
+        dataMap.signName = resolveSignName();
       },
       { immediate: true }
     );
@@ -172,7 +178,8 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      dataMap.signName = route.query.name as string;
+      dataMap.isCheck = true;
+      dataMap.signName = resolveSignName();
     });
 
     onBeforeUnmount(() => {
@@ -190,7 +197,7 @@ export default defineComponent({
     };
 
     const handleCheck = () => {
-      dataMap.isCheck = true;
+      dataMap.isCheck = !dataMap.isCheck;
     };
 
     const handleFinish = () => {

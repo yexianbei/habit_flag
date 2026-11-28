@@ -1,5 +1,5 @@
 <!--
- * @description: 专注森林 · 图鉴
+ * @description: 专注森林 · 我的森林
 -->
 <template>
   <div class="ff-page">
@@ -7,7 +7,7 @@
       <div class="ff-top is-sub">
         <div class="back" @click="goBack">←</div>
         <div class="brand-block">
-          <div class="brand">森林图鉴</div>
+          <div class="brand">我的森林</div>
           <div class="tag">已收录 {{ collectedCount }}/{{ species.length }}</div>
         </div>
         <div style="width: 0.64rem"></div>

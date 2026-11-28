@@ -307,7 +307,8 @@ export default defineComponent({
       router.replace({
         name: "flag",
         query: {
-          name: route.query.name,
+          name: route.query.name || route.query.nickname,
+          token: route.query.token,
         },
       });
     };

@@ -244,14 +244,15 @@
 
 .draw-set-wrap {
     width: 100%;
-    height: var(--draw-set-height);
-    background: #ececec;
+    // 设置区 + 导航条连成一块不透明底栏，避免海报内容从按钮缝透上来
+    height: calc(var(--draw-set-height) + var(--draw-nav-height));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: #fff;
     border-radius: 0.1rem 0.1rem 0 0;
     position: fixed;
     left: 0;
     right: 0;
-    // 抬高，给下方独立导航按钮留空，避免与装饰滚动层抢点击
-    bottom: calc(var(--draw-nav-height) + env(safe-area-inset-bottom, 0px));
+    bottom: 0;
     z-index: 99;
     box-sizing: border-box;
     .draw-set-header {

@@ -1,5 +1,5 @@
 <!--
- * @description: 专注森林 · 商店
+ * @description: 专注森林 · 道具商店
 -->
 <template>
   <div class="ff-page">
@@ -7,7 +7,7 @@
       <div class="ff-top is-sub">
         <div class="back" @click="goBack">←</div>
         <div class="brand-block">
-          <div class="brand">养护商店</div>
+          <div class="brand">道具商店</div>
           <div class="tag">努力值 {{ effort }}</div>
         </div>
         <div style="width: 0.64rem"></div>

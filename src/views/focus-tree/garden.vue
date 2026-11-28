@@ -11,7 +11,7 @@
         </div>
         <div class="ff-top-right">
           <div class="ff-effort">努力 <b>{{ effort }}</b></div>
-          <button class="ff-ghost-link" @click="goForest">图鉴</button>
+          <button class="ff-ghost-link" @click="goForest">我的森林</button>
         </div>
       </div>
 
@@ -57,17 +57,21 @@
           </div>
 
           <div v-if="tree.healthState !== 'dead'" class="scene-hud">
-            <div
-              v-for="p in carePips"
-              :key="p.key"
-              class="hud-cell"
-              :class="[p.key, { complete: p.done >= p.quota }]"
-            >
-              <span class="hud-name">{{ p.label }}</span>
-              <span class="hud-dots">
-                <i v-for="n in p.quota" :key="n" :class="{ on: n <= p.done }"></i>
-              </span>
-              <b>{{ p.done }}/{{ p.quota }}</b>
+            <div class="hud-head">
+              <span>本阶段</span>
+              <b>{{ stageProgressPct }}%</b>
+            </div>
+            <div class="hud-tracks">
+              <div
+                v-for="p in carePips"
+                :key="p.key"
+                class="hud-row"
+                :class="[p.key, { complete: p.done >= p.quota }]"
+              >
+                <span class="hud-name">{{ p.label }}</span>
+                <span class="hud-bar"><i :style="{ width: p.pct + '%' }"></i></span>
+                <b>{{ p.done }}/{{ p.quota }}</b>
+              </div>
             </div>
           </div>
         </template>
@@ -86,8 +90,8 @@
           <div class="ff-actions">
             <button
               class="ff-act water"
-              :class="{ spent: dailyLeft.water === 0 }"
-              :disabled="busy || dailyLeft.water === 0 || inv.waterDrop === 0"
+              :class="{ spent: dailyLeft.water === 0, empty: inv.waterDrop === 0 }"
+              :disabled="busy || dailyLeft.water === 0"
               @click="doCare('water')"
             >
               <span class="act-icon">
@@ -97,14 +101,14 @@
                 </svg>
               </span>
               <span class="act-name">浇水</span>
-              <span class="act-sub">{{ inv.waterDrop > 0 ? '今日剩 ' + dailyLeft.water + ' 次' : '水滴不足' }}</span>
-              <span class="act-stock">{{ inv.waterDrop }}</span>
+              <span class="act-sub">{{ waterActSub }}</span>
+              <span class="act-stock" :class="{ low: inv.waterDrop === 0 }">{{ inv.waterDrop }}</span>
             </button>
 
             <button
               class="ff-act fertilize"
-              :class="{ spent: dailyLeft.fertilizer === 0 }"
-              :disabled="busy || dailyLeft.fertilizer === 0 || inv.fertilizer === 0"
+              :class="{ spent: dailyLeft.fertilizer === 0, empty: inv.fertilizer === 0 }"
+              :disabled="busy || dailyLeft.fertilizer === 0"
               @click="doCare('fertilize')"
             >
               <span class="act-icon">
@@ -116,14 +120,14 @@
                 </svg>
               </span>
               <span class="act-name">施肥</span>
-              <span class="act-sub">{{ inv.fertilizer > 0 ? '今日剩 ' + dailyLeft.fertilizer + ' 次' : '肥料不足' }}</span>
-              <span class="act-stock">{{ inv.fertilizer }}</span>
+              <span class="act-sub">{{ fertilizeActSub }}</span>
+              <span class="act-stock" :class="{ low: inv.fertilizer === 0 }">{{ inv.fertilizer }}</span>
             </button>
 
             <button
               class="ff-act weed"
-              :class="{ spent: dailyLeft.weed === 0 }"
-              :disabled="busy || dailyLeft.weed === 0 || inv.herbicide === 0"
+              :class="{ spent: dailyLeft.weed === 0, empty: inv.herbicide === 0 }"
+              :disabled="busy || dailyLeft.weed === 0"
               @click="doCare('weed')"
             >
               <span class="act-icon">
@@ -133,8 +137,8 @@
                 </svg>
               </span>
               <span class="act-name">除草</span>
-              <span class="act-sub">{{ inv.herbicide > 0 ? '今日剩 ' + dailyLeft.weed + ' 次' : '药剂不足' }}</span>
-              <span class="act-stock">{{ inv.herbicide }}</span>
+              <span class="act-sub">{{ weedActSub }}</span>
+              <span class="act-stock" :class="{ low: inv.herbicide === 0 }">{{ inv.herbicide }}</span>
             </button>
           </div>
         </template>
@@ -144,7 +148,7 @@
         </button>
 
         <div class="deck-foot">
-          <button class="ff-ghost-link" @click="goShop">补给道具</button>
+          <button class="ff-ghost-link" @click="goShop">道具商店</button>
           <button v-if="tree" class="ff-ghost-link" @click="detailOpen = true">状态详情</button>
         </div>
       </div>
@@ -154,7 +158,7 @@
       <div v-if="toast" class="ff-toast">{{ toast }}</div>
     </transition>
 
-    <!-- 状态详情：弹窗展示，不占用有限的页面空间；点遮罩或关闭均可退出 -->
+    <!-- 状态详情：遮罩 + 居中卡片弹窗 -->
     <div
       v-if="detailOpen && tree && species"
       class="ff-detail-mask"
@@ -162,84 +166,106 @@
     >
       <div class="ff-detail" role="dialog" aria-modal="true" aria-label="状态详情">
         <div class="ff-detail-head">
-          <span>状态详情</span>
-          <button class="ff-detail-close" @click="detailOpen = false">关闭</button>
-        </div>
-        <div class="ff-tree-meta">
-          <span class="name">{{ species.name }}</span>
-          <span class="meta">{{ stageLabel }} · {{ healthLabel }}</span>
-        </div>
-        <div class="ff-stage-ladder" aria-label="生长阶段">
-          <span v-for="s in stageSteps" :key="s.id" class="step" :class="s.cls">{{ s.label }}</span>
-        </div>
-        <div class="ff-progress-line">
-          本阶段进度 {{ stageProgressPct }}% · 三项配额全满即可进阶
-          <div class="bar"><i :style="{ width: stageProgressPct + '%' }"></i></div>
-        </div>
-        <div class="ff-daily">
-          <span class="lbl">今日</span>
-          <span :class="{ full: dailyLeft.water === 0 }">浇水 {{ dailyCare.water }}/{{ dailyLimit.water }}</span>
-          <span :class="{ full: dailyLeft.fertilizer === 0 }">施肥 {{ dailyCare.fertilizer }}/{{ dailyLimit.fertilizer }}</span>
-          <span :class="{ full: dailyLeft.weed === 0 }">除草 {{ dailyCare.weed }}/{{ dailyLimit.weed }}</span>
-        </div>
-        <div class="ff-meters">
-          <div class="ff-meter hp" :class="hpClass">
-            <span>生命</span>
-            <div class="bar"><i :style="{ width: tree.health + '%' }"></i></div>
-            <span class="val">{{ Math.round(tree.health) }}</span>
+          <div class="ff-detail-title">
+            <span class="t">状态详情</span>
+            <span class="s">{{ species.name }} · {{ stageLabel }}</span>
           </div>
-          <div class="ff-meter water">
-            <span>水分</span>
-            <div class="bar"><i :style="{ width: tree.meters.water + '%' }"></i></div>
-            <span class="val">{{ Math.round(tree.meters.water) }}</span>
-          </div>
-          <div class="ff-meter fert">
-            <span>肥力</span>
-            <div class="bar"><i :style="{ width: tree.meters.fertilizer + '%' }"></i></div>
-            <span class="val">{{ Math.round(tree.meters.fertilizer) }}</span>
-          </div>
-          <div class="ff-meter weed">
-            <span>杂草</span>
-            <div class="bar"><i :style="{ width: tree.meters.weed + '%' }"></i></div>
-            <span class="val">{{ Math.round(tree.meters.weed) }}</span>
-          </div>
+          <button class="ff-detail-close" aria-label="关闭" @click="detailOpen = false">×</button>
         </div>
-        <div
-          class="ff-care-hint"
-          :class="{ ok: careOk, danger: tree.healthState === 'dead', warn: tree.healthState === 'withering' }"
-        >
-          {{ careHint }}
-        </div>
-        <div class="ff-theme-row">
-          <span class="lbl">场景时间</span>
-          <button
-            v-for="t in themeOptions"
-            :key="t.id"
-            class="ff-theme-opt"
-            :class="{ on: activeTheme === t.id }"
-            @click="setThemeOverride(t.id)"
-          >
-            {{ t.label }}
-          </button>
-          <button
-            class="ff-theme-opt"
-            :class="{ on: !themeOverride }"
-            @click="setThemeOverride('')"
-          >
-            自动
-          </button>
-        </div>
-        <div class="ff-note">
-          三项各做满 {{ careQuota }} 次才进阶 · 每天按上限养护，约 {{ matureDays }} 天出图鉴 · 久未照料会枯萎
-          <span class="theme-note">当前场景：{{ themeLabel }}（按设备时间自动切换）</span>
+
+        <div class="ff-detail-body">
+          <section class="ff-detail-sec">
+            <div class="sec-label">生长阶段</div>
+            <div class="ff-stage-ladder" aria-label="生长阶段">
+              <span v-for="s in stageSteps" :key="s.id" class="step" :class="s.cls">{{ s.label }}</span>
+            </div>
+            <div class="ff-progress-line">
+              <div class="pl-top">
+                <span>本阶段进度</span>
+                <b>{{ stageProgressPct }}%</b>
+              </div>
+              <div class="bar"><i :style="{ width: stageProgressPct + '%' }"></i></div>
+              <div class="pl-tip">三项配额全满即可进阶</div>
+            </div>
+          </section>
+
+          <section class="ff-detail-sec">
+            <div class="sec-label">树况</div>
+            <div class="ff-status-chip" :class="healthStateClass">{{ healthLabel }}</div>
+            <div class="ff-meters">
+              <div class="ff-meter hp" :class="hpClass">
+                <span>生命</span>
+                <div class="bar"><i :style="{ width: tree.health + '%' }"></i></div>
+                <span class="val">{{ Math.round(tree.health) }}</span>
+              </div>
+              <div class="ff-meter water">
+                <span>水分</span>
+                <div class="bar"><i :style="{ width: tree.meters.water + '%' }"></i></div>
+                <span class="val">{{ Math.round(tree.meters.water) }}</span>
+              </div>
+              <div class="ff-meter fert">
+                <span>肥力</span>
+                <div class="bar"><i :style="{ width: tree.meters.fertilizer + '%' }"></i></div>
+                <span class="val">{{ Math.round(tree.meters.fertilizer) }}</span>
+              </div>
+              <div class="ff-meter weed">
+                <span>杂草</span>
+                <div class="bar"><i :style="{ width: tree.meters.weed + '%' }"></i></div>
+                <span class="val">{{ Math.round(tree.meters.weed) }}</span>
+              </div>
+            </div>
+            <div
+              v-if="careHint"
+              class="ff-care-hint"
+              :class="{ ok: careOk, danger: tree.healthState === 'dead', warn: tree.healthState === 'withering' }"
+            >
+              {{ careHint }}
+            </div>
+          </section>
+
+          <section class="ff-detail-sec">
+            <div class="sec-label">今日照料</div>
+            <div class="ff-daily">
+              <span :class="{ full: dailyLeft.water === 0 }">浇水 {{ dailyCare.water }}/{{ dailyLimit.water }}</span>
+              <span :class="{ full: dailyLeft.fertilizer === 0 }">施肥 {{ dailyCare.fertilizer }}/{{ dailyLimit.fertilizer }}</span>
+              <span :class="{ full: dailyLeft.weed === 0 }">除草 {{ dailyCare.weed }}/{{ dailyLimit.weed }}</span>
+            </div>
+          </section>
+
+          <section class="ff-detail-sec">
+            <div class="sec-label">场景时间</div>
+            <div class="ff-theme-row">
+              <button
+                v-for="t in themeOptions"
+                :key="t.id"
+                class="ff-theme-opt"
+                :class="{ on: themeOverride === t.id }"
+                @click="setThemeOverride(t.id)"
+              >
+                {{ t.label }}
+              </button>
+              <button
+                class="ff-theme-opt"
+                :class="{ on: !themeOverride }"
+                @click="setThemeOverride('')"
+              >
+                自动
+              </button>
+            </div>
+            <div class="ff-theme-now">当前：{{ themeLabel }}</div>
+          </section>
+
+          <p class="ff-detail-foot">
+            三项各做满 {{ careQuota }} 次才进阶 · 约 {{ matureDays }} 天收录「我的森林」 · 久未照料会枯萎
+          </p>
         </div>
       </div>
     </div>
 
     <div v-if="celebrate" class="ff-celebrate" @click="celebrate = null">
       <div class="box" @click.stop>
-        <div class="t">收录图鉴</div>
-        <div class="d">「{{ celebrateName }}」已成熟，收入你的森林图鉴。</div>
+        <div class="t">收录成功</div>
+        <div class="d">「{{ celebrateName }}」已成熟，收入你的森林。</div>
         <button class="ff-btn moss block" @click="onCelebrateDone">去看看</button>
       </div>
     </div>
@@ -372,14 +398,24 @@ export default defineComponent({
     const showSceneHint = computed(() =>
       !!dataMap.tree && !!dataMap.careHint && dataMap.tree.healthState !== 'healthy'
     )
-    /** 场景 HUD：用点阵替代原来的三块配额卡 + 进度条 + 每日次数行 */
+    /** 场景 HUD：三项纵向进度条，避免横排挤在一起 */
     const carePips = computed(() => {
       const c = dataMap.tree?.stageCare || { water: 0, fertilizer: 0, weed: 0 }
-      const q = dataMap.careQuota
+      const q = Math.max(1, dataMap.careQuota)
+      const row = (key: string, label: string, doneRaw: number) => {
+        const done = Math.min(doneRaw, q)
+        return {
+          key,
+          label,
+          done,
+          quota: q,
+          pct: Math.round((done / q) * 100),
+        }
+      }
       return [
-        { key: 'water', label: '浇水', done: Math.min(c.water, q), quota: q },
-        { key: 'fertilizer', label: '施肥', done: Math.min(c.fertilizer, q), quota: q },
-        { key: 'weed', label: '除草', done: Math.min(c.weed, q), quota: q },
+        row('water', '浇水', c.water),
+        row('fertilizer', '施肥', c.fertilizer),
+        row('weed', '除草', c.weed),
       ]
     })
     const hpClass = computed(() => {
@@ -394,6 +430,21 @@ export default defineComponent({
       fertilizer: Math.max(0, dataMap.dailyLimit.fertilizer - dataMap.dailyCare.fertilizer),
       weed: Math.max(0, dataMap.dailyLimit.weed - dataMap.dailyCare.weed),
     }))
+    const waterActSub = computed(() => {
+      if (dataMap.inv.waterDrop <= 0) return '道具不足'
+      if (dailyLeft.value.water === 0) return '今日已满'
+      return '今日剩 ' + dailyLeft.value.water + ' 次'
+    })
+    const fertilizeActSub = computed(() => {
+      if (dataMap.inv.fertilizer <= 0) return '道具不足'
+      if (dailyLeft.value.fertilizer === 0) return '今日已满'
+      return '今日剩 ' + dailyLeft.value.fertilizer + ' 次'
+    })
+    const weedActSub = computed(() => {
+      if (dataMap.inv.herbicide <= 0) return '道具不足'
+      if (dailyLeft.value.weed === 0) return '今日已满'
+      return '今日剩 ' + dailyLeft.value.weed + ' 次'
+    })
     const celebrateName = computed(() => {
       if (!dataMap.celebrate) return ''
       return getSpecies(dataMap.celebrate.speciesId)?.name || ''
@@ -468,6 +519,16 @@ export default defineComponent({
 
     const doCare = async (action: 'water' | 'fertilize' | 'weed') => {
       if (dataMap.busy) return
+      const stock =
+        action === 'water'
+          ? dataMap.inv.waterDrop
+          : action === 'fertilize'
+          ? dataMap.inv.fertilizer
+          : dataMap.inv.herbicide
+      if (stock < 1) {
+        showToast('道具不足，需要商店购买')
+        return
+      }
       dataMap.busy = true
       try {
         const res: any = await careTree(action)
@@ -533,6 +594,9 @@ export default defineComponent({
       hpClass,
       careOk,
       dailyLeft,
+      waterActSub,
+      fertilizeActSub,
+      weedActSub,
       celebrateName,
       goPlant,
       goForest,

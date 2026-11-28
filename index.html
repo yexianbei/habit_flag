@@ -51,7 +51,7 @@
 
   <body>
     <div id="app" class="user-select-none">
-      <!-- 骨架屏：Vue 挂载前显示，挂载后被替换；文案按深链能力切换 -->
+      <!-- 骨架屏：仅挂载前占位换肤，不播进度（Flag 正式进度在 index.vue） -->
       <div id="app-skeleton" style="
         position: fixed; inset: 0;
         background: #fff;
@@ -60,42 +60,18 @@
         font-family: sans-serif;
         z-index: 9999;
       ">
-        <div style="width: 80vw; max-width: 400px; text-align: center;">
-          <span id="skeleton-num" style="color: #ff5f47; font-size: 4.5vw;">0%</span>
-          <div style="
-            width: 100%; height: 2px; background: #eee;
-            margin: 2.5vw auto; position: relative;
-          ">
-            <div id="skeleton-bar" style="
-              position: absolute; right: 0; top: 0; bottom: 0;
-              background: #999; width: 100%;
-              transition: width 0.1s ease-out;
-            "></div>
-          </div>
-        </div>
         <div id="skeleton-tip" style="position: fixed; bottom: 8vw; font-size: 3.5vw; color: #666;">
           你的未来，从这里开始
         </div>
       </div>
     </div>
     <script>
-      // 骨架屏按能力换肤 + 进度动画（Flag 首页与 index.vue 的 coutTimer 一致）
       ;(function () {
         var shell = window.__APP_SHELL__ || {}
         var sk = document.getElementById('app-skeleton')
         var tip = document.getElementById('skeleton-tip')
-        var num = document.getElementById('skeleton-num')
-        var bar = document.getElementById('skeleton-bar')
         if (sk && shell.bg) sk.style.background = shell.bg
         if (tip && shell.tip) tip.textContent = shell.tip
-        if (num && shell.accent) num.style.color = shell.accent
-        var p = 0
-        var t = setInterval(function () {
-          p++
-          if (num) num.textContent = p + '%'
-          if (bar) bar.style.width = (100 - p) + '%'
-          if (p >= 100) clearInterval(t)
-        }, 10)
       })()
     </script>
     <script type="module" src="/src/main.ts"></script>

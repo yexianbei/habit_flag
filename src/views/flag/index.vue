@@ -8,7 +8,17 @@
     <img class="logo" src="@/assets/images/basicprofile.png" />
     小习惯
   </div>
-  <!-- 开头进度只保留 index.html 骨架屏；挂载后直接进内容，避免两段进度 -->
+  <!-- 开头进度条（正式进度；骨架屏仅作挂载前占位，不再播进度） -->
+  <transition name="fade">
+    <div class="flex ac jc habbit-start" v-show="!ready">
+      <div class="progress-bar">
+        <span class="num"> {{ progress }}%</span>
+        <div class="bar" :style="{ width: `${100 - progress}%` }"></div>
+      </div>
+      <div class="end-text">你的未来，从这里开始</div>
+    </div>
+  </transition>
+  <!--内容-->
   <div class="habit-wrap">
     <div class="habit-time-box">
       <div class="habit-day">
@@ -54,6 +64,8 @@ export default defineComponent({
     const route = useRoute();
     const store = useStore();
     let dataMap = reactive({
+      progress: 0,
+      ready: false,
       day: "0",
       hour: "00",
       min: "00",
@@ -63,6 +75,7 @@ export default defineComponent({
     });
     onMounted(() => {
       setRouterCache();
+      coutTimer();
       countTime();
     });
     onUnmounted(() => {
@@ -73,7 +86,11 @@ export default defineComponent({
       dataMap.isLoading = true;
       router.replace({
         name: "flag",
-        query: { newpage: 1, name: route.query.name },
+        query: {
+          newpage: 1,
+          name: route.query.name || route.query.nickname,
+          token: route.query.token,
+        },
       });
     };
 
@@ -90,6 +107,16 @@ export default defineComponent({
       store.dispatch("ACTIONSETTOKEN", routercache);
       localStorage.setItem("Authorization", routercache);
       console.log('💾 Token已存储到localStorage:', localStorage.getItem("Authorization"));
+    };
+
+    const coutTimer = () => {
+      let timer = setInterval(() => {
+        dataMap.progress = dataMap.progress + 1;
+        if (dataMap.progress >= 100) {
+          clearInterval(timer);
+          dataMap.ready = true;
+        }
+      }, 10);
     };
 
     // 倒计时
@@ -171,6 +198,60 @@ export default defineComponent({
     width: 0.64rem;
     height: 0.64rem;
     vertical-align: middle;
+  }
+}
+
+.habbit-start {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  font-size: 0.3rem;
+  background: #fff;
+  z-index: 9;
+  .progress-bar {
+    width: 6rem;
+    height: 2px;
+    text-align: center;
+    font-size: 0.38rem;
+    .num {
+      color: #ff5f47;
+    }
+    .bar {
+      background: #999;
+      width: 100%;
+      height: 2px;
+      margin: 0.2rem auto;
+      position: relative;
+      transition: 0.3s ease-out-in;
+      &::before {
+        width: 0.28rem;
+        height: 0.28rem;
+        background: #fff url("@/assets/images/rectangle.png") no-repeat center
+          center;
+        background-size: 100% auto;
+        content: "";
+        position: absolute;
+        left: -0.1rem;
+        top: -0.12rem;
+      }
+      &::after {
+        width: 0.28rem;
+        height: 0.28rem;
+        background: #fff url("@/assets/images/rectangle.png") no-repeat center
+          center;
+        background-size: 100% auto;
+        content: "";
+        position: absolute;
+        right: -0.1rem;
+        top: -0.12rem;
+      }
+    }
+  }
+  .end-text {
+    position: absolute;
+    bottom: 2rem;
   }
 }
 
